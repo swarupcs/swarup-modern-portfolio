@@ -12,7 +12,7 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Swarup Das | Portfolio',
   description: 'Full-Stack Developer & Creative Problem Solver',
-  generator: 'v0.app',
+  generator: '',
 };
 
 export default function RootLayout({

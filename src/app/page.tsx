@@ -7,12 +7,12 @@ import CodingPlayground from '@/components/coding-playground';
 
 export default function Home() {
   return (
-    <div className='min-h-screen'>
+    <div className='min-h-screen flex flex-col'>
       <main>
         <Hero />
         <About />
         <Skills />
-        <CodingPlayground />
+        {/* <CodingPlayground /> */}
         <GithubStats />
         <LeetcodeStats />
       </main>

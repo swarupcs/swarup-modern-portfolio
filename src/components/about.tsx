@@ -24,19 +24,19 @@ export default function About() {
   const socialLinks = [
     {
       icon: Github,
-      href: 'https://github.com/yourusername',
+      href: 'https://github.com/swarupcs',
       label: 'GitHub',
       color: 'hover:text-gray-900 dark:hover:text-gray-100',
     },
     {
       icon: Linkedin,
-      href: 'https://linkedin.com/in/yourusername',
+      href: 'https://linkedin.com/in/swarup-d',
       label: 'LinkedIn',
       color: 'hover:text-blue-600',
     },
     {
       icon: Twitter,
-      href: 'https://twitter.com/yourusername',
+      href: 'https://twitter.com/swarupcs',
       label: 'Twitter',
       color: 'hover:text-sky-500',
     },
@@ -212,7 +212,7 @@ export default function About() {
                   >
                     <span className='text-blue-400'>location</span>
                     <span className='text-gray-400'>:</span>{' '}
-                    <span className='text-green-400'>'San Francisco, CA'</span>
+                    <span className='text-green-400'>'West Bengal, India'</span>
                     <span className='text-gray-400'>,</span>
                   </motion.div>
 

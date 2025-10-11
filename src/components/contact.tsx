@@ -55,7 +55,7 @@ export default function Contact() {
 
   return (
     <section id="contact" className="py-16 md:py-24">
-      <div className="container px-4 md:px-6">
+      <div className="px-4 md:px-6">
         <motion.div
           className="flex flex-col items-center justify-center space-y-4 text-center"
           initial={{ opacity: 0, y: 20 }}

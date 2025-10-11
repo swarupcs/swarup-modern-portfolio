@@ -7,7 +7,7 @@ import MultiLanguageRunner from "@/components/multi-language-runner"
 export default function PlaygroundProjectPage() {
   return (
     <main className="min-h-screen pt-28">
-      <section className="container px-4 md:px-6">
+      <section className="px-4 md:px-6">
         <div className="mb-8 flex items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Interactive Playground</h1>

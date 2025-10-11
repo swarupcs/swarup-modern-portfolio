@@ -82,7 +82,7 @@ export default function LeetcodeStats() {
 
   return (
     <section id="leetcode" className="py-16 md:py-24 bg-muted/50">
-      <div className="container px-4 md:px-6">
+      <div className="px-4 md:px-6">
         <SectionHeading title="LeetCode Stats" description="My problem-solving journey on LeetCode" />
         <motion.div
           className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-2"
