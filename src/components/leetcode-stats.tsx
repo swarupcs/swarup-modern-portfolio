@@ -257,6 +257,8 @@ export default function LeetcodeStats() {
           </motion.div>
         )}
 
+        
+
         <motion.div
           className='mt-8 text-center'
           initial={{ opacity: 0 }}
