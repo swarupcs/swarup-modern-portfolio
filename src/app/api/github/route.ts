@@ -2,6 +2,29 @@ import { NextResponse } from "next/server";
 import axios from "axios";
 
 const GITHUB_API_URL = "https://api.github.com";
+const GITHUB_GRAPHQL_URL = "https://api.github.com/graphql";
+
+// GraphQL query for contributions
+const contributionsQuery = `
+  query($username: String!) {
+    user(login: $username) {
+      contributionsCollection {
+        contributionCalendar {
+          totalContributions
+        }
+      }
+      pullRequests {
+        totalCount
+      }
+      issues {
+        totalCount
+      }
+      repositories(privacy: PUBLIC) {
+        totalCount
+      }
+    }
+  }
+`;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -18,7 +41,7 @@ export async function GET(request: Request) {
     const headers = {
       Accept: "application/vnd.github.v3+json",
       // Add your GitHub token for higher rate limits (optional but recommended)
-      // Authorization: `token ${process.env.GITHUB_TOKEN}`,
+      // Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
     };
 
     // Fetch user data
@@ -35,15 +58,21 @@ export async function GET(request: Request) {
       { headers }
     );
 
-
-    console.log("reposResponse", reposResponse)
-
     const repos = reposResponse.data;
 
-    console.log("repos", repos)
     // Calculate total stars
     const totalStars = repos.reduce(
       (sum: number, repo: any) => sum + repo.stargazers_count,
+      0
+    );
+
+    const starRepo = repos.filter((repo: any) => repo.stargazers_count > 0);
+
+    console.log("starRepo", starRepo)
+
+    // Calculate total forks
+    const totalForks = repos.reduce(
+      (sum: number, repo: any) => sum + repo.forks_count,
       0
     );
 
@@ -96,15 +125,70 @@ export async function GET(request: Request) {
       color: languageColors[name] || "#858585",
     }));
 
-    // Note: GitHub's GraphQL API would be needed for accurate contribution count
-    // For now, we'll use a placeholder or you can implement GraphQL
+    let totalContributions = 0;
+    let pullRequests = 0;
+    let issues = 0;
+
+    // Try to fetch contributions using GraphQL if token is available
+    if (process.env.GITHUB_TOKEN) {
+      try {
+        const graphqlResponse = await axios.post(
+          GITHUB_GRAPHQL_URL,
+          {
+            query: contributionsQuery,
+            variables: { username },
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const graphqlData = graphqlResponse.data?.data?.user;
+        if (graphqlData) {
+          totalContributions = graphqlData.contributionsCollection.contributionCalendar.totalContributions;
+          pullRequests = graphqlData.pullRequests.totalCount;
+          issues = graphqlData.issues.totalCount;
+        }
+      } catch (graphqlError) {
+        console.log("GraphQL query failed, using REST API data only");
+      }
+    } else {
+      // Fallback: Try to scrape contribution data from the profile page
+      // Note: This is a workaround and may not be as accurate
+      try {
+        const scrapeResponse = await axios.get(
+          `https://github.com/${username}`,
+          {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            },
+          }
+        );
+        
+        const html = scrapeResponse.data;
+        const contributionMatch = html.match(/(\d+,?\d*)\s+contributions\s+in\s+the\s+last\s+year/i);
+        if (contributionMatch) {
+          totalContributions = parseInt(contributionMatch[1].replace(/,/g, ''));
+        }
+      } catch (scrapeError) {
+        console.log("Scraping contributions failed");
+      }
+    }
+
     const result = {
       username,
-      totalContributions: 0, // Would need GraphQL API
+      totalContributions,
       totalRepositories: userData.public_repos,
       totalStars,
+      totalForks,
       topLanguages,
-      pullRequests: 0, // Would need GraphQL API for accurate count
+      pullRequests,
+      issues,
+      followers: userData.followers,
+      following: userData.following,
     };
 
     console.log("GitHub API Response:", result);
@@ -112,7 +196,15 @@ export async function GET(request: Request) {
     return NextResponse.json(result);
   } catch (error: any) {
     console.error("Error fetching GitHub stats:", error.message);
-    console.error("Error details:", error);
+    console.error("Error details:", error.response?.data || error);
+    
+    if (error.response?.status === 404) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
+    }
+    
     return NextResponse.json(
       { error: "Failed to fetch GitHub stats" },
       { status: 500 }

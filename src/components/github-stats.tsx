@@ -19,8 +19,12 @@ interface GithubStats {
   totalContributions: number;
   totalRepositories: number;
   totalStars: number;
+  totalForks: number;
   topLanguages: { name: string; percentage: number; color: string }[];
   pullRequests: number;
+  issues: number;
+  followers: number;
+  following: number;
   loading: boolean;
   error: string | null;
 }
@@ -31,8 +35,12 @@ export default function GithubStats() {
     totalContributions: 0,
     totalRepositories: 0,
     totalStars: 0,
+    totalForks: 0,
     topLanguages: [],
     pullRequests: 0,
+    issues: 0,
+    followers: 0,
+    following: 0,
     loading: true,
     error: null,
   });
@@ -312,6 +320,11 @@ export default function GithubStats() {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.6 }}
         >
+          {stats.totalContributions === 0 && !stats.loading && !stats.error && (
+            <p className='text-xs text-muted-foreground mb-2'>
+              Note: Add GITHUB_TOKEN to .env.local for contribution data
+            </p>
+          )}
           <p className='text-sm text-muted-foreground'>
             View more on{' '}
             <motion.a
