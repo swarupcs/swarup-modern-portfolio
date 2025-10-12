@@ -76,9 +76,9 @@ const defaultData: PortfolioData = {
     title: 'Full-Stack Developer',
     bio: 'Passionate developer with 5+ years of experience in creating scalable web applications.',
     avatar: '/placeholder.svg?height=200&width=200',
-    location: 'San Francisco, CA',
+    location: 'West Bengal, India',
     email: 'john@example.com',
-    phone: '+1 (555) 123-4567',
+    phone: '6290994583',
     resumeUrl: '/resume.pdf',
     socialLinks: {
       github: 'https://github.com',

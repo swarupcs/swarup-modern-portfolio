@@ -118,7 +118,7 @@ export default function PersonalInfoEditor() {
                 type='email'
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
-                placeholder='your.email@example.com'
+                placeholder='swarupd1999@gmail.com'
               />
             </div>
             <div className='space-y-2'>
@@ -127,7 +127,7 @@ export default function PersonalInfoEditor() {
                 id='phone'
                 value={formData.phone}
                 onChange={(e) => handleChange('phone', e.target.value)}
-                placeholder='+1 (555) 123-4567'
+                placeholder='6290994583'
               />
             </div>
           </div>
@@ -138,7 +138,7 @@ export default function PersonalInfoEditor() {
               id='location'
               value={formData.location}
               onChange={(e) => handleChange('location', e.target.value)}
-              placeholder='San Francisco, CA'
+              placeholder='West Bengal, India'
             />
           </div>
         </CardContent>

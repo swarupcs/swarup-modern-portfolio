@@ -69,9 +69,9 @@ export const defaultPortfolioData: PortfolioData = {
     name: "Your Name",
     title: "Full Stack Developer",
     bio: "Passionate full-stack developer with 5+ years of experience building scalable web applications. I love turning complex problems into simple, beautiful solutions.",
-    location: "San Francisco, CA",
-    email: "your.email@example.com",
-    phone: "+1 (555) 123-4567",
+    location: "West Bengal, India",
+    email: "swarupd1999@gmail.com",
+    phone: "6290994583",
     avatar: "https://github.com/shadcn.png",
     resumeUrl: "/resume.pdf",
     socialLinks: {
