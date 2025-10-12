@@ -9,31 +9,31 @@ import SectionHeading from "./section-heading"
 const experienceData = [
   {
     id: 1,
-    role: "Senior Frontend Developer",
-    company: "Tech Company",
-    duration: "Jan 2022 - Present",
+    role: "Software Engineer",
+    company: "Fi-Tek Pvt. Ltd",
+    duration: "Aug 2024 - Present",
     description:
       "Led the development of the company's main product, improving performance by 40%. Mentored junior developers and implemented best practices.",
-    skills: ["React", "TypeScript", "Next.js", "Redux"],
+    skills: ["React", "TypeScript", "Next.js", "Redux", "Node.js", "MongoDB"],
   },
   {
     id: 2,
-    role: "Frontend Developer",
-    company: "Digital Agency",
-    duration: "Mar 2020 - Dec 2021",
+    role: "Data Analytics Intern",
+    company: "IBM CSRBOX",
+    duration: "June 2023 - July 2024",
     description:
-      "Developed responsive web applications for various clients. Collaborated with designers and backend developers to deliver high-quality products.",
-    skills: ["JavaScript", "React", "CSS", "REST APIs"],
+      "Led the development of a data analytics dashboard for a client, improving efficiency by 20%.",
+    skills: ["Python", "Machine Learning", "Deep Learning"],
   },
-  {
-    id: 3,
-    role: "Web Development Intern",
-    company: "Startup Inc.",
-    duration: "Jun 2019 - Feb 2020",
-    description:
-      "Assisted in developing and maintaining the company website. Learned modern web development practices and tools.",
-    skills: ["HTML", "CSS", "JavaScript", "Git"],
-  },
+  // {
+  //   id: 3,
+  //   role: "Web Development Intern",
+  //   company: "Startup Inc.",
+  //   duration: "Jun 2019 - Feb 2020",
+  //   description:
+  //     "Assisted in developing and maintaining the company website. Learned modern web development practices and tools.",
+  //   skills: ["HTML", "CSS", "JavaScript", "Git"],
+  // },
 ]
 
 export default function Experience() {
