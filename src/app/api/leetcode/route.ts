@@ -1,37 +1,108 @@
-import { NextResponse } from "next/server"
+import { NextResponse } from "next/server";
+import axios from "axios";
 
-// This is a mock implementation
-// In a real app, you would use an unofficial LeetCode API or scrape the data
+const LEETCODE_GRAPHQL_URL = "https://leetcode.com/graphql";
+
+// GraphQL query for user stats
+const userStatsQuery = `
+  query userProfile($username: String!) {
+    allQuestionsCount {
+      difficulty
+      count
+    }
+    matchedUser(username: $username) {
+      username
+      submitStatsGlobal {
+        acSubmissionNum {
+          difficulty
+          count
+          submissions
+        }
+      }
+      profile {
+        ranking
+      }
+    }
+  }
+`;
+
 export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const username = searchParams.get("username");
+
+  if (!username) {
+    return NextResponse.json(
+      { error: "Username is required" },
+      { status: 400 }
+    );
+  }
+
   try {
-    // Get the username from the query parameters
-    const { searchParams } = new URL(request.url)
-    const username = searchParams.get("username")
+    // Send GraphQL query to LeetCode using Axios
+    const response = await axios.post(
+      LEETCODE_GRAPHQL_URL,
+      {
+        query: userStatsQuery,
+        variables: { username },
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Referer: "https://leetcode.com",
+        },
+      }
+    );
 
-    if (!username) {
-      return NextResponse.json({ error: "Username is required" }, { status: 400 })
+    const data = response.data?.data;
+
+    console.log("LeetCode API Response:", JSON.stringify(data, null, 2));
+
+    if (!data?.matchedUser) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
     }
 
-    // In a real implementation, you would fetch data from LeetCode
-    // This could be through an unofficial API or web scraping
+    const allCounts = data.allQuestionsCount;
+    const solved = data.matchedUser.submitStatsGlobal.acSubmissionNum;
+    const profile = data.matchedUser.profile;
+    const userContestRanking = data.matchedUser.userContestRanking;
 
-    // Mock data for demonstration
-    const mockData = {
-      totalSolved: 387,
-      totalQuestions: 2500,
-      easySolved: 180,
-      easyTotal: 600,
-      mediumSolved: 175,
-      mediumTotal: 1300,
-      hardSolved: 32,
-      hardTotal: 600,
-      ranking: 45678,
-      contestRating: 1842,
-    }
+    // Helper to extract counts
+    const getCount = (arr: any[], diff: string) =>
+      arr.find((item) => item.difficulty === diff)?.count ?? 0;
 
-    return NextResponse.json(mockData)
-  } catch (error) {
-    console.error("Error fetching LeetCode stats:", error)
-    return NextResponse.json({ error: "Failed to fetch LeetCode stats" }, { status: 500 })
+    const easySolved = getCount(solved, "Easy");
+    const mediumSolved = getCount(solved, "Medium");
+    const hardSolved = getCount(solved, "Hard");
+    const totalSolved = easySolved + mediumSolved + hardSolved;
+
+    const result = {
+      username,
+      totalSolved,
+      totalQuestions: getCount(allCounts, "All"),
+      easyTotal: getCount(allCounts, "Easy"),
+      mediumTotal: getCount(allCounts, "Medium"),
+      hardTotal: getCount(allCounts, "Hard"),
+      easySolved,
+      mediumSolved,
+      hardSolved,
+      ranking: profile?.ranking ?? null,
+      contestRating: userContestRanking?.rating 
+        ? Math.round(userContestRanking.rating) 
+        : null,
+    };
+
+    console.log("Processed Result:", result);
+
+    return NextResponse.json(result);
+  } catch (error: any) {
+    console.error("Error fetching LeetCode stats:", error.message);
+    console.error("Error details:", error.response?.data || error);
+    return NextResponse.json(
+      { error: "Failed to fetch LeetCode stats" },
+      { status: 500 }
+    );
   }
 }
