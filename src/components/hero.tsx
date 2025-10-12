@@ -58,11 +58,11 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className='grid grid-cols-2 md:grid-cols-4 gap-8 py-8'
+            className='grid grid-cols-2 md:grid-cols-2 gap-8 py-8'
           >
             <div className='text-center'>
               <div className='text-3xl md:text-4xl font-bold text-primary mb-1'>
-                5+
+                1+
               </div>
               <div className='text-sm text-muted-foreground'>
                 Years Experience
@@ -76,20 +76,20 @@ export default function Hero() {
                 Projects Completed
               </div>
             </div>
-            <div className='text-center'>
+            {/* <div className='text-center'>
               <div className='text-3xl md:text-4xl font-bold text-primary mb-1'>
                 25+
               </div>
               <div className='text-sm text-muted-foreground'>Happy Clients</div>
-            </div>
-            <div className='text-center'>
+            </div> */}
+            {/* <div className='text-center'>
               <div className='text-3xl md:text-4xl font-bold text-primary mb-1'>
                 1000+
               </div>
               <div className='text-sm text-muted-foreground'>
                 Cups of Coffee
               </div>
-            </div>
+            </div> */}
           </motion.div>
 
           {/* CTA Buttons */}
