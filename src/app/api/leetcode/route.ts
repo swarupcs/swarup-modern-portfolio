@@ -55,7 +55,7 @@ export async function GET(request: Request) {
 
     const data = response.data?.data;
 
-    console.log("LeetCode API Response:", JSON.stringify(data, null, 2));
+    // console.log("LeetCode API Response:", JSON.stringify(data, null, 2));
 
     if (!data?.matchedUser) {
       return NextResponse.json(
@@ -94,7 +94,7 @@ export async function GET(request: Request) {
         : null,
     };
 
-    console.log("Processed Result:", result);
+    // console.log("Processed Result:", result);
 
     return NextResponse.json(result);
   } catch (error: any) {
