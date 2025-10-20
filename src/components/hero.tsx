@@ -153,7 +153,7 @@ export default function Hero() {
           </motion.div>
 
           {/* Scroll Indicator */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
@@ -167,7 +167,7 @@ export default function Hero() {
             <div className='w-6 h-10 border-2 border-muted-foreground rounded-full flex justify-center p-2'>
               <div className='w-1 h-3 bg-muted-foreground rounded-full' />
             </div>
-          </motion.div>
+          </motion.div> */}
         </div>
       </div>
     </section>
