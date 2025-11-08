@@ -8,11 +8,25 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   const socialLinks = [
-    { icon: Github, href: "https://github.com", label: "GitHub" },
-    { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
-    { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
-    { icon: Mail, href: "mailto:contact@example.com", label: "Email" },
-  ]
+    {
+      icon: Github,
+      href: 'https://github.com/swarupcs',
+      label: 'GitHub',
+      color: 'hover:text-gray-900 dark:hover:text-gray-100',
+    },
+    {
+      icon: Linkedin,
+      href: 'https://linkedin.com/in/swarup-d',
+      label: 'LinkedIn',
+      color: 'hover:text-blue-600',
+    },
+    {
+      icon: Twitter,
+      href: 'https://twitter.com/swarupdcs',
+      label: 'Twitter',
+      color: 'hover:text-sky-500',
+    },
+  ];
 
   return (
     <footer className="border-t bg-background">

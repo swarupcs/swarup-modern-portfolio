@@ -36,16 +36,16 @@ export default function About() {
     },
     {
       icon: Twitter,
-      href: 'https://twitter.com/swarupcs',
+      href: 'https://twitter.com/swarupdcs',
       label: 'Twitter',
       color: 'hover:text-sky-500',
     },
-    {
-      icon: Globe,
-      href: 'https://yourwebsite.com',
-      label: 'Website',
-      color: 'hover:text-green-600',
-    },
+    // {
+    //   icon: Globe,
+    //   href: 'https://yourwebsite.com',
+    //   label: 'Website',
+    //   color: 'hover:text-green-600',
+    // },
   ];
 
   return (
@@ -74,11 +74,10 @@ export default function About() {
             className='space-y-6'
           >
             <p className='text-lg text-muted-foreground leading-relaxed transition-all duration-300 ease-in-out hover:translate-x-1'>
-              I'm a passionate full-stack developer with 5+ years of experience
+              I'm a passionate full-stack developer with 1.5+ years of experience
               building scalable web applications. I love turning complex
               problems into simple, beautiful solutions. When I'm not coding,
-              you'll find me exploring new technologies or contributing to open
-              source projects.
+              you'll find me exploring new technologies.
             </p>
 
             <p className='text-lg text-muted-foreground leading-relaxed transition-all duration-300 ease-in-out hover:translate-x-1'>

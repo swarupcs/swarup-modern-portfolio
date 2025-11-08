@@ -19,10 +19,9 @@ export default function Skills() {
   const skills = {
     frontend: [
       { name: "React", level: 95, icon: "⚛️" },
-      { name: "Next.js", level: 90, icon: "▲" },
-      { name: "TypeScript", level: 88, icon: "📘" },
+      { name: "Next.js", level: 80, icon: "▲" },
+      { name: "TypeScript", level: 60, icon: "📘" },
       { name: "Tailwind CSS", level: 92, icon: "🎨" },
-      { name: "Vue.js", level: 85, icon: "💚" },
       { name: "JavaScript", level: 95, icon: "🟨" },
     ],
     backend: [
@@ -46,7 +45,7 @@ export default function Skills() {
       { name: "Docker", level: 85, icon: "🐳" },
       { name: "AWS", level: 80, icon: "☁️" },
       { name: "Vercel", level: 90, icon: "▲" },
-      { name: "Figma", level: 75, icon: "🎨" },
+      // { name: "Figma", level: 75, icon: "🎨" },
       { name: "VS Code", level: 98, icon: "💙" },
     ],
   }
