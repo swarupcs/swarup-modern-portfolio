@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
 import { PortfolioProvider } from '@/lib/portfolio-context';
+import { Toaster } from 'sonner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -32,6 +33,8 @@ export default function RootLayout({
           <PortfolioProvider>
             <Header />
             {children}
+            <Toaster position='top-right' richColors />{' '}
+            {/* Enables global toasts */}
             <Footer />
           </PortfolioProvider>
         </ThemeProvider>

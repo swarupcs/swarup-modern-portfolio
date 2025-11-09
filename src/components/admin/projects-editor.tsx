@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { usePortfolio } from "@/lib/portfolio-context"
 import { Plus, Trash2, Edit, Save, X } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
 import type { Project } from "@/lib/portfolio-data"
+import { toast } from "sonner"
 
 export default function ProjectsEditor() {
   const { portfolioData, updatePortfolioData } = usePortfolio()
@@ -18,7 +18,7 @@ export default function ProjectsEditor() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState<Project | null>(null)
   const [newTech, setNewTech] = useState("")
-  const { toast } = useToast()
+
 
   const handleEdit = (project: Project) => {
     setEditingId(project.id)
@@ -38,10 +38,9 @@ export default function ProjectsEditor() {
     updatePortfolioData({ projects: updatedProjects })
     setEditingId(null)
     setEditForm(null)
-    toast({
-      title: "Success!",
-      description: "Project updated successfully.",
-    })
+    toast.success('Success!', {
+      description: 'Project updated successfully.',
+    });
   }
 
   const handleDelete = (id: string) => {

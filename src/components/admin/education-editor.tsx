@@ -8,12 +8,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { usePortfolio } from "@/lib/portfolio-context"
 import { Plus, Trash2, Save } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
+
 
 export default function EducationEditor() {
   const { portfolioData, updatePortfolioData } = usePortfolio()
   const [education, setEducation] = useState(portfolioData.education)
-  const { toast } = useToast()
+
 
   const handleAdd = () => {
     const newEdu = {
@@ -36,10 +37,9 @@ export default function EducationEditor() {
 
   const handleSave = () => {
     updatePortfolioData({ education })
-    toast({
-      title: "Success!",
-      description: "Education updated successfully.",
-    })
+    toast.success('Success!', {
+      description: 'Education updated successfully.',
+    });
   }
 
   return (

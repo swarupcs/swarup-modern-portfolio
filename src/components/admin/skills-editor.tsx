@@ -7,13 +7,14 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { usePortfolio } from "@/lib/portfolio-context"
 import { Plus, Trash2, Save } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+
 import { Slider } from "@/components/ui/slider"
+import { toast } from "sonner"
 
 export default function SkillsEditor() {
   const { portfolioData, updatePortfolioData } = usePortfolio()
   const [skills, setSkills] = useState(portfolioData.skills)
-  const { toast } = useToast()
+
 
   const handleAddCategory = () => {
     const newCategory = {
@@ -66,10 +67,9 @@ export default function SkillsEditor() {
 
   const handleSave = () => {
     updatePortfolioData({ skills })
-    toast({
-      title: "Success!",
-      description: "Skills updated successfully.",
-    })
+    toast.success('Success!', {
+      description: 'Skills updated successfully.',
+    });
   }
 
   return (

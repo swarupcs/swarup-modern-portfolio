@@ -9,14 +9,13 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { usePortfolio } from "@/lib/portfolio-context"
 import { Plus, Trash2, Save, X } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 
 export default function ExperienceEditor() {
   const { portfolioData, updatePortfolioData } = usePortfolio()
   const [experience, setExperience] = useState(portfolioData.experience)
   const [newSkill, setNewSkill] = useState("")
   const [editingId, setEditingId] = useState<string | null>(null)
-  const { toast } = useToast()
 
   const handleAdd = () => {
     const newExp = {
@@ -57,10 +56,9 @@ export default function ExperienceEditor() {
   const handleSave = () => {
     updatePortfolioData({ experience })
     setEditingId(null)
-    toast({
-      title: "Success!",
-      description: "Experience updated successfully.",
-    })
+    toast.success('Success!', {
+      description: 'Experience updated successfully.',
+    });
   }
 
   return (

@@ -2,17 +2,18 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { usePortfolio } from "@/lib/portfolio-context"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
+
 
 export default function ContactEditor() {
   const { portfolioData } = usePortfolio()
-  const { toast } = useToast()
+
 
   const handleSave = () => {
-    toast({
-      title: "Info",
-      description: "Contact information is managed in the Personal Info section.",
-    })
+    toast.info('Contact information is managed in the Personal Info section.', {
+      description:
+        'Go to the Personal Info section to update your contact details.',
+    });
   }
 
   return (

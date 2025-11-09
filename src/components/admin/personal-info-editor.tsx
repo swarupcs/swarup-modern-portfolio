@@ -14,12 +14,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { usePortfolio } from '@/lib/portfolio-context';
 import { Save } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
+
 
 export default function PersonalInfoEditor() {
   const { portfolioData, updatePortfolioData } = usePortfolio();
   const [formData, setFormData] = useState(portfolioData.personalInfo);
-  const { toast } = useToast();
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -34,8 +34,7 @@ export default function PersonalInfoEditor() {
 
   const handleSave = () => {
     updatePortfolioData({ personalInfo: formData });
-    toast({
-      title: 'Success!',
+    toast.success('Success!', {
       description: 'Personal information updated successfully.',
     });
   };
