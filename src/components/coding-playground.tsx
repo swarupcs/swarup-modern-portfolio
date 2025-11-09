@@ -210,7 +210,7 @@ function buildSrcDoc(
     ${html}
     <script>${consoleBridge}</script>
     <script>
-      try{ ${js} } catch(e){ console.error(e && (e.stack || e.message) || e) }
+      try{ ${js} } catch(e){ console.error(e && (e.stack || (e as Error).message) || e) }
     </script>
   </body>
 </html>`;

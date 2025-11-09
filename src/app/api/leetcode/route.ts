@@ -98,9 +98,11 @@ export async function GET(request: Request) {
     // console.log("Processed Result:", result);
 
     return NextResponse.json(result);
-  } catch (error: any) {
-    console.error("Error fetching LeetCode stats:", error.message);
-    console.error("Error details:", error.response?.data || error);
+  } catch (error: unknown) {
+    // Type guard to check if error is an object with a message property
+    const errorMessage = (error as Error)?.message || "Unknown error";
+    console.error("Error fetching LeetCode stats:", errorMessage);
+    console.error("Error details:", (error as any).response?.data || error);
     return NextResponse.json(
       { error: "Failed to fetch LeetCode stats" },
       { status: 500 }

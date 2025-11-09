@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { NextResponse } from "next/server"
 
 // Proxy to Piston code execution API (no auth required).
@@ -39,7 +39,8 @@ export async function POST(req: Request) {
 
     const data = await res.json()
     return NextResponse.json(data)
-  } catch (e: any) {
-    return new NextResponse(e?.message || "Server error", { status: 500 })
+  } catch (e: unknown) {
+    const errorMessage = (e as Error)?.message || "Server error";
+    return new NextResponse(errorMessage, { status: 500 })
   }
 }

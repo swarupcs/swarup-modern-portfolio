@@ -1,5 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+ 
+ 
 import { NextResponse } from "next/server";
 import axios from "axios";
 
@@ -64,12 +65,12 @@ export async function GET(request: Request) {
 
     // Calculate total stars
     const totalStars = repos.reduce(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (sum: number, repo: any) => sum + repo.stargazers_count,
       0
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const starRepo = repos.filter((repo: any) => repo.stargazers_count > 0);
 
     console.log("starRepo", starRepo)
@@ -198,11 +199,13 @@ export async function GET(request: Request) {
     console.log("GitHub API Response:", result);
 
     return NextResponse.json(result);
-  } catch (error: any) {
-    console.error("Error fetching GitHub stats:", error.message);
-    console.error("Error details:", error.response?.data || error);
+  } catch (error: unknown) {
+    // Type guard to check if error is an object with a message property
+    const errorMessage = (error as Error)?.message || "Unknown error";
+    console.error("Error fetching GitHub stats:", errorMessage);
+    console.error("Error details:", (error as any).response?.data || error);
     
-    if (error.response?.status === 404) {
+    if ((error as any).response?.status === 404) {
       return NextResponse.json(
         { error: "User not found" },
         { status: 404 }
