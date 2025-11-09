@@ -7,8 +7,19 @@ import { Calendar, Clock, ArrowLeft, Share2 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
+interface BlogPost {
+  title: string
+  description: string
+  image: string
+  date: string
+  readTime: string
+  category: string
+  tags: string[]
+  content: string
+}
+
 // This would typically come from a CMS or database
-const blogPost = {
+const blogPost: BlogPost = {
   title: "Building Scalable React Applications",
   description:
     "Learn best practices for structuring large React applications with proper state management and component architecture.",

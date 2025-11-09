@@ -1,13 +1,31 @@
-"use client"
+'use client';
 
-import { motion } from "framer-motion"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, ArrowRight } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
+import { motion } from 'framer-motion';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Clock, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
 
-const blogPosts = [
+interface BlogPost {
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  date: string;
+  readTime: string;
+  category: string;
+  tags: string[];
+  slug: string;
+}
+
+const blogPosts: BlogPost[] = [
   // {
   //   id: 1,
   //   title: "Building Scalable React Applications",
@@ -77,28 +95,28 @@ const blogPosts = [
   //   tags: ["React", "State Management", "Redux"],
   //   slug: "state-management-modern-react",
   // },
-]
+];
 
 export default function BlogPage() {
   return (
-    <div className="min-h-screen pt-24 pb-20">
-      <div className="px-4 md:px-6">
+    <div className='min-h-screen pt-24 pb-20'>
+      <div className='px-4 md:px-6'>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="space-y-12"
+          className='space-y-12'
         >
           {/* Header */}
-          <div className="space-y-4 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold">Blog</h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <div className='space-y-4 text-center'>
+            <h1 className='text-4xl md:text-5xl font-bold'>Blog</h1>
+            <p className='text-xl text-muted-foreground max-w-2xl mx-auto'>
               Thoughts on software development, design, and technology
             </p>
           </div>
 
           {/* Blog Posts Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+          <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto'>
             {blogPosts.map((post, index) => (
               <motion.div
                 key={post.id}
@@ -107,44 +125,49 @@ export default function BlogPage() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link href={`/blog/${post.slug}`}>
-                  <Card className="overflow-hidden h-full hover:shadow-lg transition-shadow duration-300 group">
-                    <div className="relative aspect-video overflow-hidden">
+                  <Card className='overflow-hidden h-full hover:shadow-lg transition-shadow duration-300 group'>
+                    <div className='relative aspect-video overflow-hidden'>
                       <Image
-                        src={post.image || "/placeholder.svg"}
+                        src={post.image || '/placeholder.svg'}
                         alt={post.title}
                         fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        className='object-cover transition-transform duration-300 group-hover:scale-105'
                       />
-                      <div className="absolute top-4 left-4">
-                        <Badge className="bg-primary">{post.category}</Badge>
+                      <div className='absolute top-4 left-4'>
+                        <Badge className='bg-primary'>{post.category}</Badge>
                       </div>
                     </div>
                     <CardHeader>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          <span>{new Date(post.date).toLocaleDateString()}</span>
+                      <div className='flex items-center gap-4 text-sm text-muted-foreground mb-2'>
+                        <div className='flex items-center gap-1'>
+                          <Calendar className='h-4 w-4' />
+                          <span>
+                            {new Date(post.date).toLocaleDateString()}
+                          </span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
+                        <div className='flex items-center gap-1'>
+                          <Clock className='h-4 w-4' />
                           <span>{post.readTime}</span>
                         </div>
                       </div>
-                      <CardTitle className="line-clamp-2 group-hover:text-primary transition-colors">
+                      <CardTitle className='line-clamp-2 group-hover:text-primary transition-colors'>
                         {post.title}
                       </CardTitle>
-                      <CardDescription className="line-clamp-3">{post.description}</CardDescription>
+                      <CardDescription className='line-clamp-3'>
+                        {post.description}
+                      </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex flex-wrap gap-2">
+                      <div className='flex flex-wrap gap-2'>
                         {post.tags.map((tag) => (
-                          <Badge key={tag} variant="secondary">
+                          <Badge key={tag} variant='secondary'>
                             {tag}
                           </Badge>
                         ))}
                       </div>
-                      <div className="mt-4 flex items-center text-sm font-medium text-primary group-hover:gap-2 transition-all">
-                        Read more <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                      <div className='mt-4 flex items-center text-sm font-medium text-primary group-hover:gap-2 transition-all'>
+                        Read more{' '}
+                        <ArrowRight className='h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform' />
                       </div>
                     </CardContent>
                   </Card>
@@ -155,5 +178,5 @@ export default function BlogPage() {
         </motion.div>
       </div>
     </div>
-  )
+  );
 }

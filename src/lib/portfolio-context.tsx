@@ -34,8 +34,8 @@ interface Project {
 
 interface Experience {
   id: string;
+  role: string;
   company: string;
-  position: string;
   duration: string;
   description: string;
   skills: string[];
@@ -43,9 +43,8 @@ interface Experience {
 
 interface Education {
   id: string;
-  institution: string;
   degree: string;
-  field: string;
+  institution: string;
   duration: string;
   description: string;
 }
@@ -87,10 +86,52 @@ const defaultData: PortfolioData = {
       website: 'https://yourwebsite.com',
     },
   },
-  projects: [],
-  experience: [],
-  education: [],
-  skills: [],
+  projects: [
+    {
+      id: '1',
+      title: 'E-Commerce Platform',
+      description:
+        'A modern, scalable e-commerce solution built with Next.js and Stripe integration.',
+      image: '/placeholder.svg?height=300&width=600',
+      technologies: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Stripe'],
+      githubUrl: 'https://github.com/yourusername/ecommerce',
+      liveUrl: 'https://ecommerce-demo.com',
+      category: 'Web Development',
+      featured: true,
+    },
+  ],
+  experience: [
+    {
+      id: '1',
+      role: 'Senior Frontend Developer',
+      company: 'Tech Company',
+      duration: 'Jan 2022 - Present',
+      description:
+        "Led the development of the company's main product, improving performance by 40%.",
+      skills: ['React', 'TypeScript', 'Next.js', 'Redux'],
+    },
+  ],
+  education: [
+    {
+      id: '1',
+      degree: 'Bachelor of Science in Computer Science',
+      institution: 'University Name',
+      duration: '2015 - 2019',
+      description:
+        'Focused on software engineering and web development. Graduated with honors.',
+    },
+  ],
+  skills: [
+    {
+      id: 'frontend',
+      name: 'Frontend',
+      skills: [
+        { name: 'React', level: 95, icon: '⚛️' },
+        { name: 'Next.js', level: 90, icon: '▲' },
+        { name: 'TypeScript', level: 88, icon: '📘' },
+      ],
+    },
+  ],
 };
 
 interface PortfolioContextType {

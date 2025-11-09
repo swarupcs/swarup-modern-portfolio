@@ -47,10 +47,9 @@ export default function ProjectsEditor() {
     const updatedProjects = projects.filter((p) => p.id !== id)
     setProjects(updatedProjects)
     updatePortfolioData({ projects: updatedProjects })
-    toast({
-      title: "Success!",
-      description: "Project deleted successfully.",
-    })
+    toast.success('Success!', {
+      description: 'Project deleted successfully.',
+    });
   }
 
   const handleAddNew = () => {

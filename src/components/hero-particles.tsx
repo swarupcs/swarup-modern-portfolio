@@ -7,9 +7,9 @@ import * as THREE from "three"
 import { EffectComposer, Bloom } from "@react-three/postprocessing"
 
 // Particle component
-function Particles({ count = 2000, theme }) {
-  const mesh = useRef()
-  const light = useRef()
+function Particles({ count = 2000, theme }: { count?: number; theme: string }) {
+  const mesh = useRef<THREE.InstancedMesh>(null)
+  const light = useRef<THREE.PointLight>(null)
   const { size, viewport } = useThree()
   const aspect = size.width / viewport.width
 
@@ -35,6 +35,8 @@ function Particles({ count = 2000, theme }) {
 
   // Update particles on each frame
   useFrame((state) => {
+    if (!light.current || !mesh.current) return
+
     light.current.position.set(state.mouse.x * 20, state.mouse.y * 20, 0)
 
     particles.forEach((particle, i) => {
@@ -51,7 +53,7 @@ function Particles({ count = 2000, theme }) {
       )
       dummy.scale.set(s * 0.5, s * 0.5, s * 0.5)
       dummy.updateMatrix()
-      mesh.current.setMatrixAt(i, dummy.matrix)
+      mesh.current!.setMatrixAt(i, dummy.matrix)
     })
     mesh.current.instanceMatrix.needsUpdate = true
   })
@@ -59,7 +61,7 @@ function Particles({ count = 2000, theme }) {
   return (
     <>
       <pointLight ref={light} distance={60} intensity={20} color={secondaryColor} />
-      <instancedMesh ref={mesh} args={[null, null, count]}>
+      <instancedMesh ref={mesh} args={[undefined, undefined, count]}>
         <dodecahedronGeometry args={[0.2, 0]} />
         <meshPhongMaterial color={particleColor} />
       </instancedMesh>
