@@ -56,7 +56,7 @@ export default function GithubStats() {
           loading: false,
           error: null,
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Error fetching GitHub stats:', error);
         setStats((prev) => ({
           ...prev,

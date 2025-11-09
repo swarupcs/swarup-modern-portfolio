@@ -40,6 +40,7 @@ function Particles({ count = 2000, theme }: { count?: number; theme: string }) {
     light.current.position.set(state.mouse.x * 20, state.mouse.y * 20, 0)
 
     particles.forEach((particle, i) => {
+      // eslint-disable-next-line prefer-const
       let { t, factor, speed, xFactor, yFactor, zFactor } = particle
       t = particle.t += speed / 2
       const a = Math.cos(t) + Math.sin(t * 1) / 10

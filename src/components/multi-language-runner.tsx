@@ -144,7 +144,7 @@ export default function MultiLanguageRunner() {
       }
       const data: RunResult = await res.json()
       setOutput(data)
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e?.message || "Unknown error")
     } finally {
       setIsRunning(false)

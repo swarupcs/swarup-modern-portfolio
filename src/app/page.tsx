@@ -3,7 +3,6 @@ import About from '@/components/about';
 import Skills from '@/components/skills';
 import GithubStats from '@/components/github-stats';
 import LeetcodeStats from '@/components/leetcode-stats';
-import CodingPlayground from '@/components/coding-playground';
 
 export default function Home() {
   return (

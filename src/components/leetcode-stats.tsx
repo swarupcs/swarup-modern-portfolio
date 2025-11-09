@@ -56,6 +56,7 @@ export default function LeetcodeStats() {
           loading: false,
           error: null,
         });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error('Error fetching LeetCode stats:', error);
         setStats((prev) => ({

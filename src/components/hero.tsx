@@ -41,7 +41,7 @@ export default function Hero() {
             className='space-y-4 max-w-3xl'
           >
             <h1 className='text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight'>
-              Hi, I'm <span className='text-primary'>Swarup Das</span>
+              Hi, I&apos;m <span className='text-primary'>Swarup Das</span>
             </h1>
             <p className='text-xl md:text-2xl text-muted-foreground'>
               Full-Stack Developer & Creative Problem Solver

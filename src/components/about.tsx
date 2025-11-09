@@ -7,7 +7,6 @@ import {
   Github,
   Linkedin,
   Twitter,
-  Globe,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -74,15 +73,15 @@ export default function About() {
             className='space-y-6'
           >
             <p className='text-lg text-muted-foreground leading-relaxed transition-all duration-300 ease-in-out hover:translate-x-1'>
-              I'm a passionate full-stack developer with 1.5+ years of experience
+              I&apos;m a passionate full-stack developer with 1.5+ years of experience
               building scalable web applications. I love turning complex
-              problems into simple, beautiful solutions. When I'm not coding,
-              you'll find me exploring new technologies.
+              problems into simple, beautiful solutions. When I&apos;m not coding,
+              you&apos;ll find me exploring new technologies.
             </p>
 
             <p className='text-lg text-muted-foreground leading-relaxed transition-all duration-300 ease-in-out hover:translate-x-1'>
               My expertise spans across modern web technologies including React,
-              Next.js, Node.js, and TypeScript. I'm committed to writing clean,
+              Next.js, Node.js, and TypeScript. I&apos;m committed to writing clean,
               maintainable code and creating delightful user experiences.
             </p>
 
@@ -183,7 +182,7 @@ export default function About() {
                   >
                     <span className='text-blue-400'>name</span>
                     <span className='text-gray-400'>:</span>{' '}
-                    <span className='text-green-400'>'Swarup Das'</span>
+                    <span className='text-green-400'>&apos;Swarup Das&apos;</span>
                     <span className='text-gray-400'>,</span>
                   </motion.div>
 
@@ -197,7 +196,7 @@ export default function About() {
                     <span className='text-blue-400'>title</span>
                     <span className='text-gray-400'>:</span>{' '}
                     <span className='text-green-400'>
-                      'Full-Stack Developer'
+                      &apos;Full-Stack Developer&apos;
                     </span>
                     <span className='text-gray-400'>,</span>
                   </motion.div>
@@ -211,7 +210,7 @@ export default function About() {
                   >
                     <span className='text-blue-400'>location</span>
                     <span className='text-gray-400'>:</span>{' '}
-                    <span className='text-green-400'>'West Bengal, India'</span>
+                    <span className='text-green-400'>&apos;West Bengal, India&apos;</span>
                     <span className='text-gray-400'>,</span>
                   </motion.div>
 
@@ -238,11 +237,11 @@ export default function About() {
                     <span className='text-blue-400'>skills</span>
                     <span className='text-gray-400'>:</span>{' '}
                     <span className='text-yellow-400'>[</span>
-                    <span className='text-green-400'>'React'</span>
+                    <span className='text-green-400'>&apos;React&apos;</span>
                     <span className='text-gray-400'>,</span>{' '}
-                    <span className='text-green-400'>'Node.js'</span>
+                    <span className='text-green-400'>&apos;Node.js&apos;</span>
                     <span className='text-gray-400'>,</span>{' '}
-                    <span className='text-green-400'>'TypeScript'</span>
+                    <span className='text-green-400'>&apos;TypeScript&apos;</span>
                     <span className='text-yellow-400'>]</span>
                     <span className='text-gray-400'>,</span>
                   </motion.div>
@@ -257,7 +256,7 @@ export default function About() {
                     <span className='text-blue-400'>passion</span>
                     <span className='text-gray-400'>:</span>{' '}
                     <span className='text-green-400'>
-                      'Building amazing things'
+                      &apos;Building amazing things&apos;
                     </span>
                   </motion.div>
 

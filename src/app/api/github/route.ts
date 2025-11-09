@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import axios from "axios";
 
@@ -62,10 +64,12 @@ export async function GET(request: Request) {
 
     // Calculate total stars
     const totalStars = repos.reduce(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (sum: number, repo: any) => sum + repo.stargazers_count,
       0
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const starRepo = repos.filter((repo: any) => repo.stargazers_count > 0);
 
     console.log("starRepo", starRepo)

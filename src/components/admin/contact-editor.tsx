@@ -9,12 +9,12 @@ export default function ContactEditor() {
   const { portfolioData } = usePortfolio()
 
 
-  const handleSave = () => {
-    toast.info('Contact information is managed in the Personal Info section.', {
-      description:
-        'Go to the Personal Info section to update your contact details.',
-    });
-  }
+  // const handleSave = () => {
+  //   toast.info('Contact information is managed in the Personal Info section.', {
+  //     description:
+  //       'Go to the Personal Info section to update your contact details.',
+  //   });
+  // }
 
   return (
     <div className="space-y-6">

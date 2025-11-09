@@ -37,6 +37,7 @@ export default function SkillsEditor() {
     setSkills(updatedSkills)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleUpdateSkill = (categoryId: string, skillIndex: number, field: string, value: any) => {
     const updatedSkills = skills.map((cat) =>
       cat.id === categoryId

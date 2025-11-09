@@ -180,7 +180,7 @@ export default function Contact() {
               <CardHeader>
                 <CardTitle>Send a Message</CardTitle>
                 <CardDescription>
-                  Fill out the form below and I'll get back to you as soon as
+                  Fill out the form below and I&apos;ll get back to you as soon as
                   possible
                 </CardDescription>
               </CardHeader>
@@ -211,7 +211,7 @@ export default function Contact() {
                     </div>
                     <h3 className='text-xl font-bold'>Message Sent!</h3>
                     <p className='text-muted-foreground'>
-                      Thank you for reaching out. I'll get back to you soon.
+                      Thank you for reaching out. I&apos;ll get back to you soon.
                     </p>
                     <motion.div
                       whileHover={{ scale: 1.05 }}
