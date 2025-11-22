@@ -6,70 +6,87 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, ArrowLeft, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-
-interface BlogPost {
-  title: string;
-  description: string;
-  image: string;
-  date: string;
-  readTime: string;
-  category: string;
-  tags: string[];
-  content: string;
-}
-
-// This would typically come from a CMS or database
-const blogPost: BlogPost = {
-  title: 'Building Scalable React Applications',
-  description:
-    'Learn best practices for structuring large React applications with proper state management and component architecture.',
-  image: '/placeholder.svg?height=600&width=1200',
-  date: '2024-01-15',
-  readTime: '8 min read',
-  category: 'React',
-  tags: ['React', 'Architecture', 'Best Practices'],
-  content: `
-# Building Scalable React Applications
-
-When building large-scale React applications, proper architecture and planning are crucial for long-term maintainability and scalability.
-
-## Component Structure
-
-Organizing your components in a logical folder structure is the first step:
-
-\`\`\`
-src/
-  components/
-    common/
-    features/
-    layouts/
-  hooks/
-  utils/
-  types/
-\`\`\`
-
-## State Management
-
-Choose the right state management solution for your needs:
-
-- **Local State**: Use for component-specific data
-- **Context API**: For sharing data across components
-- **Redux/Zustand**: For complex global state
-
-## Best Practices
-
-1. **Keep Components Small**: Break down large components into smaller, reusable pieces
-2. **Use Custom Hooks**: Extract logic into custom hooks for reusability
-3. **TypeScript**: Use TypeScript for better type safety and developer experience
-4. **Code Splitting**: Lazy load components to improve initial load time
-
-## Conclusion
-
-Building scalable React applications requires careful planning and adherence to best practices. By following these guidelines, you can create maintainable and performant applications.
-  `,
-};
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { getPostBySlug, BlogPost } from '@/lib/hashnode';
 
 export default function BlogPostPage() {
+  const params = useParams();
+  const slug = params.slug as string;
+  
+  const [blogPost, setBlogPost] = useState<BlogPost | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchPost() {
+      try {
+        const post = await getPostBySlug(slug);
+        if (post) {
+          setBlogPost(post);
+        } else {
+          setError('Blog post not found');
+        }
+      } catch (err) {
+        setError('Failed to load blog post. Please try again later.');
+        console.error('Error fetching post:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (slug) {
+      fetchPost();
+    }
+  }, [slug]);
+
+  const handleShare = async () => {
+    if (navigator.share && blogPost) {
+      try {
+        await navigator.share({
+          title: blogPost.title,
+          text: blogPost.description,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.log('Error sharing:', err);
+      }
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className='min-h-screen pt-24 pb-20 flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]' />
+          <p className='mt-4 text-muted-foreground'>Loading post...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !blogPost) {
+    return (
+      <div className='min-h-screen pt-24 pb-20'>
+        <div className='container px-4 md:px-6 max-w-4xl mx-auto'>
+          <Link href='/blog'>
+            <Button variant='ghost' className='gap-2 mb-8'>
+              <ArrowLeft className='h-4 w-4' />
+              Back to Blog
+            </Button>
+          </Link>
+          <div className='text-center py-12'>
+            <p className='text-red-500'>{error || 'Post not found'}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='min-h-screen pt-24 pb-20'>
       <article className='container px-4 md:px-6 max-w-4xl mx-auto'>
@@ -129,6 +146,7 @@ export default function BlogPostPage() {
                 variant='outline'
                 size='sm'
                 className='gap-2 bg-transparent'
+                onClick={handleShare}
               >
                 <Share2 className='h-4 w-4' />
                 Share
@@ -140,7 +158,7 @@ export default function BlogPostPage() {
           <div className='prose prose-lg dark:prose-invert max-w-none'>
             <div
               dangerouslySetInnerHTML={{
-                __html: blogPost.content.replace(/\n/g, '<br/>'),
+                __html: blogPost.content || '',
               }}
             />
           </div>
