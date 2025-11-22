@@ -12,44 +12,49 @@ interface BlogPost {
   };
 }
 
+interface BlogListEdge {
+  node: BlogPost;
+}
+
 interface HashNodeBlogListResponse {
   data: {
     publication: {
       posts: {
-        edges: Array<{
-          node: BlogPost;
-        }>;
+        edges: BlogListEdge[];
       };
     };
   };
+  errors?: Array<{ message: string }>;
+}
+
+interface BlogDetail {
+  id: string;
+  title: string;
+  slug: string;
+  url: string;
+  publishedAt: string;
+  brief: string;
+  content: {
+    markdown: string;
+  };
+  author: {
+    name: string;
+    profilePicture?: string;
+  };
+  coverImage?: {
+    url: string;
+  };
+  tags?: Array<{
+    name: string;
+    slug: string;
+  }>;
 }
 
 interface HashNodeBlogDetailResponse {
   data: {
-    post: {
-      id: string;
-      title: string;
-      slug: string;
-      url: string;
-      publishedAt: string;
-      brief: string;
-      content: {
-        markdown: string;
-        html: string;
-      };
-      author: {
-        name: string;
-        profilePicture?: string;
-      };
-      coverImage?: {
-        url: string;
-      };
-      tags?: Array<{
-        name: string;
-        slug: string;
-      }>;
-    };
+    post: BlogDetail | null;
   };
+  errors?: Array<{ message: string }>;
 }
 
 const HASHNODE_ENDPOINT = 'https://gql.hashnode.com';
@@ -67,6 +72,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // ---------------- DETAIL QUERY ----------------
   if (action === 'detail' && postId) {
     const query = `
       query {
@@ -98,30 +104,25 @@ export async function GET(request: NextRequest) {
     try {
       const response = await fetch(HASHNODE_ENDPOINT, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query }),
       });
 
       if (!response.ok) {
-        console.error('[v0] Hashnode API error - Status:', response.status);
         throw new Error(`Hashnode API returned ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: HashNodeBlogDetailResponse = await response.json();
 
-      if ((data as any).errors) {
-        console.error('[v0] Hashnode GraphQL error:', (data as any).errors);
+      if (data.errors && data.errors.length > 0) {
         return NextResponse.json(
-          { error: 'Failed to fetch blog post' },
+          { error: data.errors[0].message },
           { status: 500 }
         );
       }
 
       return NextResponse.json(data.data.post);
     } catch (error) {
-      console.error('[v0] Hashnode API error:', error);
       return NextResponse.json(
         { error: 'Failed to fetch blog post' },
         { status: 500 }
@@ -129,7 +130,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Fetch blog posts list
+  // ---------------- LIST QUERY ----------------
   const query = `
     query {
       publication(host: "${hostname}") {
@@ -156,32 +157,26 @@ export async function GET(request: NextRequest) {
   try {
     const response = await fetch(HASHNODE_ENDPOINT, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query }),
     });
 
     if (!response.ok) {
-      console.error('[v0] Hashnode API error - Status:', response.status);
       throw new Error(`Hashnode API returned ${response.status}`);
     }
 
     const data: HashNodeBlogListResponse = await response.json();
 
-    if ((data as any).errors) {
-      console.error('[v0] Hashnode GraphQL error:', (data as any).errors);
+    if (data.errors && data.errors.length > 0) {
       return NextResponse.json(
-        { error: 'Failed to fetch blogs' },
+        { error: data.errors[0].message },
         { status: 500 }
       );
     }
 
-    // Extract posts from edges
     const posts = data.data.publication.posts.edges.map((edge) => edge.node);
     return NextResponse.json(posts);
   } catch (error) {
-    console.error('[v0] Hashnode API error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch blogs' },
       { status: 500 }
