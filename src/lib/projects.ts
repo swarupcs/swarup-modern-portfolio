@@ -1,122 +1,119 @@
 type ProjectItem = {
-  id: number
-  title: string
-  description: string
-  image: string
-  technologies: string[]
-  liveUrl: string
-  githubUrl: string
-  featured: boolean
-  category: string
-  year: string
-  challenge?: string
-  solution?: string
-}
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  technologies: string[];
+  liveUrl: string;
+  githubUrl: string;
+  featured: boolean;
+  category: string;
+  year: string;
+  challenge?: string;
+  solution?: string;
+};
 
 export const projectsData: ProjectItem[] = [
-  // {
-  //   id: 1,
-  //   title: "E-Commerce Platform",
-  //   description:
-  //     "A full-featured e-commerce platform with product management, shopping cart, payment integration, and order tracking. Built with modern technologies for optimal performance.",
-  //   image: "/ecommerce-platform-product-grid.jpg",
-  //   technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Stripe", "PostgreSQL", "Prisma"],
-  //   liveUrl: "https://ecommerce-demo.com",
-  //   githubUrl: "https://github.com/yourusername/ecommerce",
-  //   featured: true,
-  //   category: "Full Stack",
-  //   year: "2024",
-  //   challenge: "Building a scalable payment system and inventory management",
-  //   solution: "Implemented Stripe for payments and real-time inventory updates",
-  // },
-  // {
-  //   id: 2,
-  //   title: "Task Management App",
-  //   description:
-  //     "Collaborative project management tool with real-time updates, drag-and-drop kanban boards, team chat, and advanced analytics.",
-  //   image: "/kanban-board-collaboration-app.jpg",
-  //   technologies: ["React", "Node.js", "Socket.io", "MongoDB", "Express", "Redux"],
-  //   liveUrl: "https://taskmanager-demo.com",
-  //   githubUrl: "https://github.com/yourusername/task-manager",
-  //   featured: true,
-  //   category: "Full Stack",
-  //   year: "2024",
-  //   challenge: "Real-time collaboration without performance degradation",
-  //   solution: "WebSocket connections with optimistic UI updates",
-  // },
-  // {
-  //   id: 3,
-  //   title: "Weather Dashboard",
-  //   description:
-  //     "Interactive weather dashboard with location-based forecasts, historical data visualization, and weather alerts.",
-  //   image: "/weather-dashboard-charts.jpg",
-  //   technologies: ["Vue.js", "Chart.js", "OpenWeather API", "Sass", "Vuex"],
-  //   liveUrl: "https://weather-dashboard-demo.com",
-  //   githubUrl: "https://github.com/yourusername/weather-app",
-  //   featured: false,
-  //   category: "Frontend",
-  //   year: "2023",
-  //   challenge: "Displaying complex weather data intuitively",
-  //   solution: "Custom visualizations with Chart.js and interactive maps",
-  // },
-  // {
-  //   id: 4,
-  //   title: "AI Chat Bot",
-  //   description:
-  //     "Intelligent conversational AI with context-aware responses, multi-language support, and custom training.",
-  //   image: "/ai-chatbot-interface.png",
-  //   technologies: ["Python", "FastAPI", "OpenAI API", "React", "WebSocket", "Redis"],
-  //   liveUrl: "https://ai-chatbot-demo.com",
-  //   githubUrl: "https://github.com/yourusername/ai-chatbot",
-  //   featured: true,
-  //   category: "AI/ML",
-  //   year: "2024",
-  //   challenge: "Maintaining conversation context across sessions",
-  //   solution: "Redis caching for conversation history and context management",
-  // },
-  // {
-  //   id: 5,
-  //   title: "Portfolio CMS",
-  //   description:
-  //     "Headless CMS for managing portfolio content with drag-and-drop editor, media library, and robust API endpoints.",
-  //   image: "/headless-cms-ui.jpg",
-  //   technologies: ["Next.js", "Sanity.io", "TypeScript", "Tailwind CSS"],
-  //   liveUrl: "https://portfolio-cms-demo.com",
-  //   githubUrl: "https://github.com/yourusername/portfolio-cms",
-  //   featured: false,
-  //   category: "Full Stack",
-  //   year: "2023",
-  //   challenge: "Creating a flexible content structure",
-  //   solution: "Custom content types with Sanity's schema builder",
-  // },
-  // {
-  //   id: 6,
-  //   title: "Fitness Tracker",
-  //   description:
-  //     "Mobile-first fitness tracking app with workout plans, progress tracking, nutrition logging, and social features.",
-  //   image: "/fitness-tracker-mobile-app.jpg",
-  //   technologies: ["React Native", "Firebase", "TypeScript", "Expo"],
-  //   liveUrl: "https://fitness-tracker-demo.com",
-  //   githubUrl: "https://github.com/yourusername/fitness-tracker",
-  //   featured: false,
-  //   category: "Mobile",
-  //   year: "2023",
-  //   challenge: "Offline functionality for workout tracking",
-  //   solution: "Local storage with Firebase sync when online",
-  // },
-  // {
-  //   id: 7,
-  //   title: "Interactive Coding Playground",
-  //   description:
-  //     "A live, sandboxed playground to experiment with HTML, CSS, and JavaScript. Includes templates, console output, and Tailwind CDN toggle.",
-  //   image: "/code-editor-and-preview-sandbox-in-browser.jpg",
-  //   technologies: ["TypeScript", "Next.js", "shadcn/ui", "iframes"],
-  //   liveUrl: "/work/playground",
-  //   githubUrl: "https://github.com/yourusername/portfolio",
-  //   featured: true,
-  //   category: "Experiments",
-  //   year: "2025",
-  //   challenge: "Safely executing user code in-browser",
-  //   solution: "Isolated iframe with postMessage console bridge and sandbox",
-  // },
-]
+  {
+    id: 1,
+    title: 'Algodrill',
+    description:
+      'Algodrill is a modern DSA and coding practice platform that provides structured problem sets, explanations, test cases, and progress tracking to help developers prepare for coding interviews.',
+    image: '/algodrill-cover.jpg',
+    technologies: [
+      'Next.js',
+      'TypeScript',
+      'Tailwind CSS',
+      'Node.js',
+      'Express.js',
+      'PostgreSQL',
+      'Prisma',
+      'JWT',
+    ],
+    liveUrl: 'https://algodrill.in',
+    githubUrl: 'https://github.com/swarupcs/algodrill',
+    featured: true,
+    category: 'Full Stack',
+    year: '2024',
+    challenge:
+      'Building a scalable problem-solving platform with user authentication, test cases, and accurate submission evaluation.',
+    solution:
+      'Designed a clean full-stack architecture using optimized APIs, Prisma ORM, and a responsive UI for seamless practicing.',
+  },
+
+  {
+    id: 2,
+    title: 'Linkly',
+    description:
+      'A full-stack real-time team collaboration platform inspired by Slack, featuring channels, messaging, authentication, and an interactive workspace UI.',
+    image: '/slack-clone.jpg',
+    technologies: [
+      'React',
+      'Tailwind CSS',
+      'Shadcn UI',
+      'Express.js',
+      'Socket.io',
+      'MongoDB',
+      'Mongoose',
+      'Redis',
+      'JWT Auth',
+    ],
+    liveUrl: 'https://linkly.swarupdas.dev/',
+    githubUrl: 'https://github.com/swarupcs/linkly',
+    featured: false,
+    category: 'Full Stack',
+    year: '2024',
+    challenge:
+      'Building a real-time messaging system with channels, user presence, and secure authentication while maintaining low latency.',
+    solution:
+      'Implemented Socket.io for instant communication, Redis for fast caching and presence tracking, MongoDB with Mongoose for structured data models, and JWT-based authentication for secure access.',
+  },
+
+  {
+    id: 3,
+    title: 'Shortify',
+    description:
+      'A fast and minimal URL shortener built with Next.js, allowing users to generate compact links and track redirections efficiently.',
+    image: '/shorturl-nextjs.jpg',
+    technologies: [
+      'Next.js',
+      'TypeScript',
+      'Tailwind CSS',
+      'Prisma',
+      'PostgreSQL',
+    ],
+    liveUrl: 'https://shortify.swarupdas.dev/',
+    githubUrl: 'https://github.com/swarupcs/shortify', // update if needed
+    featured: false,
+    category: 'Full Stack',
+    year: '2024',
+    challenge:
+      'Implementing unique short code generation and efficient URL redirection.',
+    solution:
+      'Used Prisma with PostgreSQL for fast DB queries and implemented clean API routes for shortening and redirecting.',
+  },
+
+  {
+    id: 4,
+    title: 'Dev-Collab',
+    description:
+      'A real-time collaboration platform for developers, supporting instant messaging, project rooms, and a shared workspace.',
+    image: '/dev-collab.jpg',
+    technologies: [
+      'Next.js',
+      'TypeScript',
+      'Tailwind CSS',
+      'Socket.io',
+      'Node.js',
+    ],
+    liveUrl: 'https://dev-collab.swarupdas.dev/',
+    githubUrl: 'https://github.com/swarupcs/dev-collab', // update if needed
+    featured: false,
+    category: 'Full Stack',
+    year: '2024',
+    challenge:
+      'Handling real-time communication efficiently with minimal latency.',
+    solution:
+      'Integrated Socket.io with a scalable backend setup and built a clean UI for joining rooms and collaborating instantly.',
+  },
+];
