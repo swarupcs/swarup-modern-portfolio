@@ -130,7 +130,7 @@ export default function Contact() {
                     whileTap={{ scale: 0.95 }}
                   >
                     <Link
-                      href='https://github.com/yourusername'
+                      href='https://github.com/swarupcs'
                       target='_blank'
                       rel='noopener noreferrer'
                     >
@@ -145,7 +145,7 @@ export default function Contact() {
                     whileTap={{ scale: 0.95 }}
                   >
                     <Link
-                      href='https://linkedin.com/in/yourusername'
+                      href='https://linkedin.com/in/swarup-d'
                       target='_blank'
                       rel='noopener noreferrer'
                     >

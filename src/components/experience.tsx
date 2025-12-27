@@ -1,117 +1,150 @@
-"use client"
+'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { motion } from "framer-motion"
-import SectionHeading from "./section-heading"
+import { Badge } from '@/components/ui/badge';
+import { motion } from 'framer-motion';
+import { Building2 } from 'lucide-react';
+import Link from 'next/link';
+import { TechBadgeWithIcon } from '@/lib/tech-icons';
 
-// Sample experience data - replace with your own
 const experienceData = [
   {
     id: 1,
-    role: "Software Engineer",
-    company: "Fi-Tek Pvt. Ltd",
-    duration: "Aug 2024 - Present",
-    description:
-      "Led the development of the company's main product, improving performance by 40%. Mentored junior developers and implemented best practices.",
-    skills: ["React", "TypeScript", "Next.js", "Redux", "Node.js", "MongoDB"],
+    role: 'Software Engineer',
+    company: 'Fi-Tek Pvt. Ltd',
+    status: 'Working',
+    duration: 'August 2024 - Present',
+    location: 'Kolkata, India (On-Site)',
+    description: [
+      'Led the development of the company’s core product, achieving a performance improvement of approximately 40%.',
+      'Designed and implemented scalable frontend architectures using modern React and Next.js best practices.',
+      'Collaborated closely with backend teams to integrate APIs efficiently and ensure smooth data flow across the application.',
+      'Mentored junior developers, conducted code reviews, and enforced clean coding standards and best practices.',
+    ],
+    technologies: [
+      { name: 'React', url: 'https://react.dev/' },
+      { name: 'Next.js', url: 'https://nextjs.org/' },
+      { name: 'TypeScript', url: 'https://www.typescriptlang.org/' },
+      { name: 'Redux', url: 'https://redux.js.org/' },
+      { name: 'Node.js', url: 'https://nodejs.org/' },
+      { name: 'MongoDB', url: 'https://www.mongodb.com/' },
+    ],
   },
   {
     id: 2,
-    role: "Data Analytics Intern",
-    company: "IBM CSRBOX",
-    duration: "June 2023 - July 2024",
-    description:
-      "Led the development of a data analytics dashboard for a client, improving efficiency by 20%.",
-    skills: ["Python", "Machine Learning", "Deep Learning"],
+    role: 'Data Analytics Intern',
+    company: 'IBM CSRBOX',
+    status: 'Completed',
+    duration: 'June 2023 - July 2024',
+    location: 'India (Remote)',
+    description: [
+      'Developed a data analytics dashboard for a client, improving operational efficiency by nearly 20%.',
+      'Worked on data preprocessing, analysis, and visualization to derive actionable insights from large datasets.',
+      'Applied machine learning and deep learning techniques to solve real-world analytical problems.',
+      'Collaborated with cross-functional teams to understand business requirements and translate them into data-driven solutions.',
+    ],
+    technologies: [
+      { name: 'Python', url: 'https://www.python.org/' },
+      { name: 'Machine Learning', url: 'https://scikit-learn.org/' },
+      { name: 'Deep Learning', url: 'https://www.tensorflow.org/' },
+    ],
   },
-  // {
-  //   id: 3,
-  //   role: "Web Development Intern",
-  //   company: "Startup Inc.",
-  //   duration: "Jun 2019 - Feb 2020",
-  //   description:
-  //     "Assisted in developing and maintaining the company website. Learned modern web development practices and tools.",
-  //   skills: ["HTML", "CSS", "JavaScript", "Git"],
-  // },
-]
+];
+
 
 export default function Experience() {
   return (
-    <section id="experience" className="py-16 md:py-24">
-      <div className="container px-4 md:px-6">
-        <SectionHeading title="Experience" description="My professional journey and work experience" />
-        <div className="mx-auto mt-12 max-w-3xl space-y-0">
+    <section id='experience' className='py-16 md:py-24'>
+      <div className='container px-4 md:px-6 max-w-4xl mx-auto'>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className='mb-16 text-center'
+        >
+          <p className='text-sm text-muted-foreground mb-2 uppercase tracking-wide'>
+            Featured
+          </p>
+          <h2 className='text-4xl md:text-5xl font-bold'>Experience</h2>
+        </motion.div>
+
+        <div className='space-y-16'>
           {experienceData.map((experience, index) => (
             <motion.div
               key={experience.id}
-              className="relative"
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.2 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+              className='space-y-4'
             >
-              {/* Timeline connector */}
-              {index < experienceData.length - 1 && (
-                <motion.div
-                  className="absolute left-[15px] top-[40px] bottom-0 w-[2px] bg-primary/20 md:left-1/2 md:ml-[-1px] md:top-[28px]"
-                  initial={{ height: 0 }}
-                  whileInView={{ height: "100%" }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.3 }}
-                />
-              )}
-
-              <div className="flex flex-col md:flex-row md:items-start md:gap-8 pb-10">
-                <div className="mb-4 hidden md:block md:w-1/2 md:text-right md:pr-8 pt-1">
-                  <span className="text-sm font-medium text-muted-foreground">{experience.duration}</span>
-                </div>
-
-                {/* Timeline dot */}
-                <motion.div
-                  className="absolute left-0 top-1.5 h-8 w-8 rounded-full border-4 border-background bg-primary md:left-1/2 md:ml-[-16px] md:top-1"
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20, delay: index * 0.2 }}
-                />
-
-                <div className="pl-12 md:pl-0 md:w-1/2 md:pl-8">
-                  <motion.div
-                    whileHover={{
-                      scale: 1.02,
-                      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                    }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              <div className='space-y-2'>
+                <div className='flex flex-wrap items-center justify-between gap-3'>
+                  <h3 className='text-2xl md:text-3xl font-bold'>
+                    {experience.company}
+                  </h3>
+                  <Badge
+                    variant={
+                      experience.status === 'Working' ? 'default' : 'secondary'
+                    }
+                    className='shrink-0'
                   >
-                    <Card className="border-2 border-transparent hover:border-primary/20">
-                      <CardHeader>
-                        <div className="space-y-1">
-                          <CardTitle>{experience.role}</CardTitle>
-                          <CardDescription className="flex flex-col gap-1">
-                            <span className="font-medium">{experience.company}</span>
-                            <span className="md:hidden">{experience.duration}</span>
-                          </CardDescription>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="mb-4 text-sm text-muted-foreground">{experience.description}</p>
-                        <div className="flex flex-wrap gap-2">
-                          {experience.skills.map((skill) => (
-                            <Badge key={skill} variant="outline">
-                              {skill}
-                            </Badge>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
+                    {experience.status}
+                  </Badge>
+                </div>
+                <p className='text-lg md:text-xl font-medium'>
+                  {experience.role}
+                </p>
+                <div className='flex flex-col gap-1 text-sm text-muted-foreground'>
+                  <p>{experience.duration}</p>
+                  <p className='flex items-center gap-2'>
+                    <Building2 className='h-4 w-4' />
+                    {experience.location}
+                  </p>
                 </div>
               </div>
+
+              <div className='space-y-3'>
+                <h4 className='text-sm font-semibold'>Technologies & Tools</h4>
+                <div className='flex flex-wrap gap-2'>
+                  {experience.technologies.map((tech) => (
+                    <TechBadgeWithIcon
+                      key={tech.name}
+                      tech={tech.name}
+                      className='text-xs'
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <ul className='space-y-2 pt-2'>
+                {experience.description.map((item, idx) => (
+                  <li
+                    key={idx}
+                    className='text-base text-muted-foreground flex gap-3'
+                  >
+                    <span className='text-primary mt-1 shrink-0'>•</span>
+                    <span className='flex-1'>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </motion.div>
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className='mt-16 text-center'
+        >
+          <Link
+            href='/work'
+            className='text-base text-primary hover:underline underline-offset-4 font-medium'
+          >
+            Show all work experiences
+          </Link>
+        </motion.div>
       </div>
     </section>
-  )
+  );
 }

@@ -6,15 +6,7 @@ import { ArrowLeft, Calendar, User, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import ReactMarkdown, { Components } from 'react-markdown';
-import type { Element } from 'hast';
-
-interface CodeProps {
-  node?: Element;
-  inline?: boolean;
-  className?: string;
-  children?: React.ReactNode;
-}
+import ReactMarkdown from 'react-markdown';
 
 interface BlogPost {
   id: string;
@@ -50,6 +42,7 @@ export default function BlogDetail({ slug }: { slug: string }) {
         if (!listResponse.ok) throw new Error('Failed to fetch blogs');
         const blogs: BlogPost[] = await listResponse.json();
 
+        // Find blog by slug
         const targetBlog = blogs.find((b) => b.slug === slug);
         if (!targetBlog) throw new Error('Blog not found');
 
@@ -57,8 +50,7 @@ export default function BlogDetail({ slug }: { slug: string }) {
           `/api/hashnode?action=detail&id=${targetBlog.id}`
         );
         if (!detailResponse.ok) throw new Error('Failed to fetch blog details');
-
-        const data: BlogPost = await detailResponse.json();
+        const data = await detailResponse.json();
         setBlog(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch blog');
@@ -97,107 +89,6 @@ export default function BlogDetail({ slug }: { slug: string }) {
   const wordCount = blog.content.markdown.split(/\s+/).length;
   const readTime = Math.ceil(wordCount / 200);
 
-  // --------------------------
-  // MARKDOWN COMPONENTS (NO ANY)
-  // --------------------------
-  const markdownComponents: Partial<Components> = {
-    h1({ ...props }) {
-      return (
-        <h1
-          className='text-3xl md:text-4xl font-bold mt-8 mb-4 text-balance'
-          {...props}
-        />
-      );
-    },
-    h2({ ...props }) {
-      return (
-        <h2
-          className='text-2xl md:text-3xl font-bold mt-8 mb-4 text-balance'
-          {...props}
-        />
-      );
-    },
-    h3({ ...props }) {
-      return <h3 className='text-xl font-bold mt-6 mb-3' {...props} />;
-    },
-    h4({ ...props }) {
-      return <h4 className='text-lg font-bold mt-4 mb-2' {...props} />;
-    },
-    p({ ...props }) {
-      return <p className='mb-6 leading-relaxed text-lg' {...props} />;
-    },
-    a({ ...props }) {
-      return (
-        <a className='text-primary hover:underline font-medium' {...props} />
-      );
-    },
-
-    // FULLY TYPED CODE COMPONENT
-    code({ inline, className, children, ...props }: CodeProps) {
-      return inline ? (
-        <code
-          className='bg-muted px-2.5 py-1 rounded text-sm font-mono text-primary'
-          {...props}
-        >
-          {children}
-        </code>
-      ) : (
-        <pre className='bg-muted rounded-lg overflow-x-auto p-4 mb-6 border border-border'>
-          <code className='font-mono text-sm' {...props}>
-            {children}
-          </code>
-        </pre>
-      );
-    },
-
-    blockquote({ ...props }) {
-      return (
-        <blockquote
-          className='border-l-4 border-primary pl-6 italic my-6 bg-muted/50 py-4 px-4 rounded'
-          {...props}
-        />
-      );
-    },
-    ul({ ...props }) {
-      return <ul className='list-disc pl-6 mb-6 space-y-2' {...props} />;
-    },
-    ol({ ...props }) {
-      return <ol className='list-decimal pl-6 mb-6 space-y-2' {...props} />;
-    },
-    li({ ...props }) {
-      return <li className='mb-2' {...props} />;
-    },
-    img({ ...props }) {
-      return (
-        <img
-          className='w-full rounded-lg my-8 shadow-lg border border-border'
-          loading='lazy'
-          alt='article-image'
-          {...props}
-        />
-      );
-    },
-    table({ ...props }) {
-      return (
-        <div className='overflow-x-auto my-6 border border-border rounded-lg'>
-          <table className='w-full text-sm' {...props} />
-        </div>
-      );
-    },
-    thead({ ...props }) {
-      return <thead className='bg-muted border-b border-border' {...props} />;
-    },
-    th({ ...props }) {
-      return <th className='px-4 py-2 text-left font-semibold' {...props} />;
-    },
-    td({ ...props }) {
-      return <td className='px-4 py-2 border-b border-border' {...props} />;
-    },
-    hr({ ...props }) {
-      return <hr className='my-8 border-border' {...props} />;
-    },
-  };
-
   return (
     <motion.article
       initial={{ opacity: 0 }}
@@ -229,7 +120,6 @@ export default function BlogDetail({ slug }: { slug: string }) {
         <h1 className='text-4xl md:text-5xl font-bold leading-tight mb-4 text-balance'>
           {blog.title}
         </h1>
-
         <p className='text-lg text-muted-foreground mb-6 leading-relaxed'>
           {blog.brief}
         </p>
@@ -280,9 +170,88 @@ export default function BlogDetail({ slug }: { slug: string }) {
         )}
       </header>
 
-      {/* Markdown Content */}
+      {/* Article Content */}
       <div className='prose prose-lg dark:prose-invert max-w-none leading-relaxed'>
-        <ReactMarkdown components={markdownComponents}>
+        <ReactMarkdown
+          components={{
+            h1: ({ node, ...props }) => (
+              <h1
+                className='text-3xl md:text-4xl font-bold mt-8 mb-4 text-balance'
+                {...props}
+              />
+            ),
+            h2: ({ node, ...props }) => (
+              <h2
+                className='text-2xl md:text-3xl font-bold mt-8 mb-4 text-balance'
+                {...props}
+              />
+            ),
+            h3: ({ node, ...props }) => (
+              <h3 className='text-xl font-bold mt-6 mb-3' {...props} />
+            ),
+            h4: ({ node, ...props }) => (
+              <h4 className='text-lg font-bold mt-4 mb-2' {...props} />
+            ),
+            p: ({ node, ...props }) => (
+              <p className='mb-6 leading-relaxed text-lg' {...props} />
+            ),
+            a: ({ node, ...props }) => (
+              <a
+                className='text-primary hover:underline font-medium'
+                {...props}
+              />
+            ),
+            code: ({ node, inline, ...props }) =>
+              inline ? (
+                <code
+                  className='bg-muted px-2.5 py-1 rounded text-sm font-mono text-primary'
+                  {...props}
+                />
+              ) : (
+                <pre className='bg-muted rounded-lg overflow-x-auto p-4 mb-6 border border-border'>
+                  <code className='font-mono text-sm' {...props} />
+                </pre>
+              ),
+            blockquote: ({ node, ...props }) => (
+              <blockquote
+                className='border-l-4 border-primary pl-6 py-2 italic my-6 bg-muted/50 py-4 px-4 rounded'
+                {...props}
+              />
+            ),
+            ul: ({ node, ...props }) => (
+              <ul className='list-disc pl-6 mb-6 space-y-2' {...props} />
+            ),
+            ol: ({ node, ...props }) => (
+              <ol className='list-decimal pl-6 mb-6 space-y-2' {...props} />
+            ),
+            li: ({ node, ...props }) => <li className='mb-2' {...props} />,
+            img: ({ node, ...props }) => (
+              <img
+                className='w-full rounded-lg my-8 shadow-lg border border-border'
+                {...props}
+                alt='article-image'
+                loading='lazy'
+              />
+            ),
+            table: ({ node, ...props }) => (
+              <div className='overflow-x-auto my-6 border border-border rounded-lg'>
+                <table className='w-full text-sm' {...props} />
+              </div>
+            ),
+            thead: ({ node, ...props }) => (
+              <thead className='bg-muted border-b border-border' {...props} />
+            ),
+            th: ({ node, ...props }) => (
+              <th className='px-4 py-2 text-left font-semibold' {...props} />
+            ),
+            td: ({ node, ...props }) => (
+              <td className='px-4 py-2 border-b border-border' {...props} />
+            ),
+            hr: ({ node, ...props }) => (
+              <hr className='my-8 border-border' {...props} />
+            ),
+          }}
+        >
           {blog.content.markdown}
         </ReactMarkdown>
       </div>

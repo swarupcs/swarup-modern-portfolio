@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Coffee,
-  Heart,
-  Zap,
-  Github,
-  Linkedin,
-  Twitter,
-} from 'lucide-react';
+import { Coffee, Heart, Zap, Github, Linkedin, Twitter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
@@ -23,44 +16,39 @@ export default function About() {
   const socialLinks = [
     {
       icon: Github,
-      href: 'https://github.com/swarupcs',
+      href: 'https://github.com/yourusername',
       label: 'GitHub',
       color: 'hover:text-gray-900 dark:hover:text-gray-100',
     },
     {
       icon: Linkedin,
-      href: 'https://linkedin.com/in/swarup-d',
+      href: 'https://linkedin.com/in/yourusername',
       label: 'LinkedIn',
       color: 'hover:text-blue-600',
     },
     {
       icon: Twitter,
-      href: 'https://twitter.com/swarupdcs',
+      href: 'https://twitter.com/yourusername',
       label: 'Twitter',
       color: 'hover:text-sky-500',
     },
-    // {
-    //   icon: Globe,
-    //   href: 'https://yourwebsite.com',
-    //   label: 'Website',
-    //   color: 'hover:text-green-600',
-    // },
   ];
 
   return (
-    <section id='about' className='py-20 px-4 md:px-6'>
-      <div className='container mx-auto max-w-6xl'>
+    <section id='about' className='py-20 md:py-32'>
+      <div className='container px-4 md:px-6 max-w-4xl mx-auto'>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
           viewport={{ once: true }}
-          className='text-center mb-16'
+          className='space-y-6 mb-12'
         >
-          <h2 className='text-4xl md:text-5xl font-bold mb-6'>
-            About <span className='text-primary'>Me</span>
-          </h2>
-          <div className='w-20 h-1 bg-primary mx-auto rounded-full' />
+          <div className='text-center'>
+            <p className='text-sm text-muted-foreground mb-2 uppercase tracking-wide'>
+              About
+            </p>
+            <h2 className='text-3xl md:text-4xl font-bold'>Me</h2>
+          </div>
         </motion.div>
 
         <div className='grid lg:grid-cols-2 gap-12 items-center'>
@@ -73,16 +61,16 @@ export default function About() {
             className='space-y-6'
           >
             <p className='text-lg text-muted-foreground leading-relaxed transition-all duration-300 ease-in-out hover:translate-x-1'>
-              I&apos;m a passionate full-stack developer with 1.5+ years of experience
+              I&apos;m a passionate full-stack developer with experience
               building scalable web applications. I love turning complex
-              problems into simple, beautiful solutions. When I&apos;m not coding,
-              you&apos;ll find me exploring new technologies.
+              problems into simple, beautiful solutions. When I&apos;m not
+              coding, you&apos;ll find me exploring new technologies.
             </p>
 
             <p className='text-lg text-muted-foreground leading-relaxed transition-all duration-300 ease-in-out hover:translate-x-1'>
               My expertise spans across modern web technologies including React,
-              Next.js, Node.js, and TypeScript. I&apos;m committed to writing clean,
-              maintainable code and creating delightful user experiences.
+              Next.js, Node.js, and TypeScript. I&apos;m committed to writing
+              clean, maintainable code and creating delightful user experiences.
             </p>
 
             {/* Interests */}
@@ -182,7 +170,9 @@ export default function About() {
                   >
                     <span className='text-blue-400'>name</span>
                     <span className='text-gray-400'>:</span>{' '}
-                    <span className='text-green-400'>&apos;Swarup Das&apos;</span>
+                    <span className='text-green-400'>
+                      &apos;Your Name&apos;
+                    </span>
                     <span className='text-gray-400'>,</span>
                   </motion.div>
 
@@ -210,7 +200,9 @@ export default function About() {
                   >
                     <span className='text-blue-400'>location</span>
                     <span className='text-gray-400'>:</span>{' '}
-                    <span className='text-green-400'>&apos;West Bengal, India&apos;</span>
+                    <span className='text-green-400'>
+                      &apos;Your Location&apos;
+                    </span>
                     <span className='text-gray-400'>,</span>
                   </motion.div>
 
@@ -241,7 +233,9 @@ export default function About() {
                     <span className='text-gray-400'>,</span>{' '}
                     <span className='text-green-400'>&apos;Node.js&apos;</span>
                     <span className='text-gray-400'>,</span>{' '}
-                    <span className='text-green-400'>&apos;TypeScript&apos;</span>
+                    <span className='text-green-400'>
+                      &apos;TypeScript&apos;
+                    </span>
                     <span className='text-yellow-400'>]</span>
                     <span className='text-gray-400'>,</span>
                   </motion.div>

@@ -1,155 +1,170 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Github, Eye, Filter } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import { motion } from "framer-motion"
-import { projectsData } from "@/lib/projects"
+import { useMemo, useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
+import { Github, ExternalLink } from 'lucide-react';
+import { usePortfolio } from '@/lib/portfolio-context';
+import { TechBadgeWithIcon } from '@/lib/tech-icons';
 
-
-
-// Expanded project data with more details, including the Playground project
+import { projectsData as fallbackProjects, ProjectItem } from '@/lib/projects';
 
 
-const categories = ["All", "Full Stack", "Frontend", "AI/ML", "Mobile", "Experiments"]
 
 export default function Projects() {
-  const [selectedCategory, setSelectedCategory] = useState("All")
-  const [visibleProjects, setVisibleProjects] = useState(6)
+  const { portfolioData } = usePortfolio();
 
-  const filteredProjects =
-    selectedCategory === "All" ? projectsData : projectsData.filter((project) => project.category === selectedCategory)
+  // Prefer admin-managed projects, fallback to sample data if none exist
+  // const data = (
+  //   portfolioData.projects?.length ? portfolioData.projects : fallbackProjects
+  // ) as (ProjectItem & {
+  //   // allow admin projects without year, etc.
+  //   year?: string;
+  // })[];
 
-  const showMoreProjects = () => {
-    setVisibleProjects((prev) => Math.min(prev + 3, filteredProjects.length))
-  }
+  const data = fallbackProjects;
 
-  const showLessProjects = () => {
-    setVisibleProjects(6)
-  }
+  // Build category list dynamically from data
+  const categories = useMemo(() => {
+    const set = new Set<string>(data.map((p) => p.category || 'Other'));
+    return ['All', ...Array.from(set)];
+  }, [data]);
 
-  // Determine if link is internal for target handling
-  const isInternal = (url: string) => url.startsWith("/")
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [visibleProjects, setVisibleProjects] = useState(6);
+
+  const filteredProjects = useMemo(() => {
+    const base = data.filter((project) => project.hidden !== true);
+    if (selectedCategory === 'All') return base;
+    return base.filter((p) => (p.category || 'Other') === selectedCategory);
+  }, [data, selectedCategory]);
+
+  const showMoreProjects = () =>
+    setVisibleProjects((prev) => Math.min(prev + 3, filteredProjects.length));
+  const showLessProjects = () => setVisibleProjects(6);
+
+  const isInternal = (url: string) => url?.startsWith('/');
 
   return (
-    <section className="py-16 md:py-24">
-      <div className="px-4 md:px-6">
+    <section id='projects' className='py-16 md:py-24'>
+      <div className='container px-4 md:px-6 max-w-5xl mx-auto'>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="space-y-12"
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className='mb-16 text-center'
         >
-          {/* Header */}
-          <div className="space-y-6 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold">My Work</h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              A collection of projects showcasing my skills in web development, design, and problem-solving
-            </p>
+          <p className='text-sm text-muted-foreground mb-2 uppercase tracking-wide'>
+            Featured
+          </p>
+          <h2 className='text-4xl md:text-5xl font-bold'>Projects</h2>
+        </motion.div>
 
-            {/* Category Filter */}
-            <div className="flex items-center justify-center gap-2 flex-wrap">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => {
-                    setSelectedCategory(category)
-                    setVisibleProjects(6)
-                  }}
-                >
-                  {category}
-                </Button>
-              ))}
-            </div>
+        {filteredProjects.length === 0 ? (
+          <div className='text-center text-muted-foreground py-12'>
+            No projects to display.
           </div>
-
-          {/* Projects Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {filteredProjects.slice(0, visibleProjects).map((project, index) => (
+        ) : (
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
+            {filteredProjects.slice(0, 4).map((project, index) => (
               <motion.div
                 key={project.id}
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.03 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                className='group h-full'
               >
-                <Card className="overflow-hidden h-full border-2 border-transparent hover:border-primary/20 transition-all">
-                  <div className="relative overflow-hidden group">
-                    <Image
-                      src={project.image || "/placeholder.svg?height=400&width=600"}
-                      alt={project.title}
-                      width={600}
-                      height={400}
-                      className="object-cover w-full h-64 transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="absolute top-4 right-4 flex gap-2">
-                      <Badge className="bg-primary">{project.category}</Badge>
-                      <Badge variant="secondary">{project.year}</Badge>
-                    </div>
+                <div className='flex flex-col h-full border border-border rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300 bg-card hover:shadow-lg hover:shadow-primary/10'>
+                  {/* Project Image */}
+                  <div className='relative h-48 md:h-56 w-full overflow-hidden bg-secondary'>
+                    {project.image ? (
+                      <Image
+                        src={project.image || '/placeholder.svg'}
+                        alt={project.title}
+                        fill
+                        className='object-cover group-hover:scale-105 transition-transform duration-300'
+                      />
+                    ) : (
+                      <div className='w-full h-full flex items-center justify-center text-muted-foreground'>
+                        No image available
+                      </div>
+                    )}
                   </div>
-                  <CardHeader>
-                    <CardTitle className="text-2xl">{project.title}</CardTitle>
-                    <CardDescription className="text-base line-clamp-3">{project.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex flex-wrap gap-2">
-                      {project.technologies.slice(0, 4).map((tech) => (
-                        <Badge key={tech} variant="secondary">
-                          {tech}
-                        </Badge>
-                      ))}
-                      {project.technologies.length > 4 && (
-                        <Badge variant="secondary">+{project.technologies.length - 4} more</Badge>
+
+                  {/* Content */}
+                  <div className='p-6 flex flex-col flex-1'>
+                    <h3 className='text-xl md:text-2xl font-bold mb-2 group-hover:text-primary transition-colors'>
+                      {project.title}
+                    </h3>
+
+                    <p className='text-sm md:text-base text-muted-foreground mb-4 flex-1 leading-relaxed'>
+                      {project.description}
+                    </p>
+
+                    {/* Technologies */}
+                    <div className='mb-4'>
+                      <div className='flex flex-wrap gap-2'>
+                        {(project.technologies || []).map((tech) => (
+                          <TechBadgeWithIcon key={tech} tech={tech} />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Links */}
+                    <div className='flex items-center gap-3 pt-4 border-t border-border'>
+                      {project.liveUrl && (
+                        <Link
+                          href={project.liveUrl}
+                          target={
+                            !isInternal(project.liveUrl) ? '_blank' : undefined
+                          }
+                          rel={
+                            !isInternal(project.liveUrl)
+                              ? 'noopener noreferrer'
+                              : undefined
+                          }
+                          className='flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors'
+                        >
+                          <ExternalLink className='w-4 h-4' />
+                          <span>Live Demo</span>
+                        </Link>
+                      )}
+
+                      {project.githubUrl && (
+                        <Link
+                          href={project.githubUrl}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          className='flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors'
+                        >
+                          <Github className='w-4 h-4' />
+                          <span>GitHub</span>
+                        </Link>
                       )}
                     </div>
-                  </CardContent>
-                  <CardFooter className="flex gap-4">
-                    <Button variant="default" size="sm" asChild className="flex-1">
-                      <Link
-                        href={project.liveUrl}
-                        target={isInternal(project.liveUrl) ? undefined : "_blank"}
-                        rel={isInternal(project.liveUrl) ? undefined : "noopener noreferrer"}
-                      >
-                        <Eye className="mr-2 h-4 w-4" />
-                        {isInternal(project.liveUrl) ? "Open" : "Live Demo"}
-                      </Link>
-                    </Button>
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                        <Github className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </CardFooter>
-                </Card>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
+        )}
 
-          {/* Show More/Less Buttons */}
-          {filteredProjects.length > 6 && (
-            <div className="flex justify-center gap-4">
-              {visibleProjects < filteredProjects.length && (
-                <Button onClick={showMoreProjects} size="lg">
-                  Show More Projects
-                </Button>
-              )}
-              {visibleProjects > 6 && (
-                <Button variant="outline" onClick={showLessProjects} size="lg">
-                  Show Less
-                </Button>
-              )}
-            </div>
-          )}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className='mt-16 text-center'
+        >
+          <Link
+            href='/projects'
+            className='text-base text-primary hover:underline underline-offset-4 font-medium'
+          >
+            Show all projects
+          </Link>
         </motion.div>
       </div>
     </section>
-  )
+  );
 }

@@ -1,11 +1,12 @@
-"use client"
+'use client';
 
-import { Github, Linkedin, Twitter, Mail } from "lucide-react"
-import Link from "next/link"
-import { motion } from "framer-motion"
+import { Github, Linkedin, Twitter, Mail } from 'lucide-react';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear()
+  const currentYear = new Date().getFullYear();
 
   const socialLinks = [
     {
@@ -29,64 +30,54 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="border-t bg-background">
-      <div className="mx-auto px-12 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Brand */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Portfolio</h3>
-            <p className="text-sm text-muted-foreground">Building digital experiences with modern technologies.</p>
+    <footer className='border-t bg-background'>
+      <div className='container mx-auto px-4 md:px-6 max-w-4xl'>
+        <div className='py-16 md:py-24 text-center space-y-8'>
+          <h3 className='text-2xl md:text-3xl font-bold'>
+            Let's work together
+          </h3>
+          <p className='text-base md:text-lg text-muted-foreground max-w-2xl mx-auto'>
+            Have an exciting project in mind? I'd love to hear about it. Let's
+            build something amazing together.
+          </p>
+          <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+            <Button size='lg' asChild>
+              <Link href='mailto:contact@example.com'>Get in touch</Link>
+            </Button>
+            <Button size='lg' variant='outline' asChild>
+              <Link href='https://calendly.com' target='_blank'>
+                Book a Call
+              </Link>
+            </Button>
           </div>
+        </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <div className="flex flex-col gap-2">
-              <Link href="#about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                About
-              </Link>
-              <Link href="#projects" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Projects
-              </Link>
-              <Link
-                href="#experience"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Experience
-              </Link>
-              <Link href="#contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Contact
-              </Link>
-            </div>
-          </div>
+        <div className='py-8 border-t'>
+          <div className='flex flex-col md:flex-row items-center justify-between gap-4'>
+            <p className='text-sm text-muted-foreground'>
+              © {currentYear} John Doe. All rights reserved.
+            </p>
 
-          {/* Social Links */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Connect</h3>
-            <div className="flex gap-4">
+            {/* Social Links */}
+            <div className='flex gap-3'>
               {socialLinks.map((social) => (
                 <motion.a
                   key={social.label}
                   href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-secondary hover:bg-secondary/80 flex items-center justify-center transition-colors"
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='w-9 h-9 rounded-full bg-secondary hover:bg-accent flex items-center justify-center transition-colors'
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                   aria-label={social.label}
                 >
-                  <social.icon className="h-5 w-5" />
+                  <social.icon className='h-4 w-4' />
                 </motion.a>
               ))}
             </div>
           </div>
         </div>
-
-        {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t text-center">
-          <p className="text-sm text-muted-foreground">© {currentYear} Portfolio. All rights reserved.</p>
-        </div>
       </div>
     </footer>
-  )
+  );
 }
