@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
   Card,
   CardContent,
@@ -10,9 +9,16 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CheckCircle, Circle, Trophy } from 'lucide-react';
+import {
+  CheckCircle,
+  Trophy,
+  Target,
+  TrendingUp,
+  Calendar,
+  Flame,
+  Award,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
-import SectionHeading from './section-heading';
 
 interface LeetcodeStats {
   totalSolved: number;
@@ -25,45 +31,40 @@ interface LeetcodeStats {
   hardTotal: number;
   ranking: number | null;
   contestRating: number | null;
-  loading: boolean;
-  error: string | null;
+  acceptanceRate?: number;
+  recentSubmissions?: Array<{
+    title: string;
+    timestamp: string;
+    statusDisplay: string;
+    lang: string;
+  }>;
+  badges?: Array<{
+    name: string;
+    icon: string;
+  }>;
+  activeDays?: number;
+  streak?: number;
 }
 
 export default function LeetcodeStats() {
-  const [stats, setStats] = useState<LeetcodeStats>({
-    totalSolved: 0,
-    totalQuestions: 0,
-    easySolved: 0,
-    easyTotal: 0,
-    mediumSolved: 0,
-    mediumTotal: 0,
-    hardSolved: 0,
-    hardTotal: 0,
-    ranking: null,
-    contestRating: null,
-    loading: true,
-    error: null,
-  });
+  const [stats, setStats] = useState<LeetcodeStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Call your own Next.js API route (server-side LeetCode fetch)
-        const response = await axios.get('/api/leetcode?username=swarupdcse');
+        const response = await fetch('/api/leetcode?username=swarupdcse');
+        if (!response.ok) throw new Error('Failed to fetch');
+        const data = await response.json();
 
-        setStats({
-          ...response.data,
-          loading: false,
-          error: null,
-        });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (error: any) {
-        console.error('Error fetching LeetCode stats:', error);
-        setStats((prev) => ({
-          ...prev,
-          loading: false,
-          error: 'Failed to load LeetCode stats',
-        }));
+        setStats(data);
+        setLoading(false);
+        setError(null);
+      } catch (err: unknown) {
+        console.error('Error fetching LeetCode stats:', err);
+        setLoading(false);
+        setError('Failed to load LeetCode stats');
       }
     };
 
@@ -90,182 +91,488 @@ export default function LeetcodeStats() {
   return (
     <section id='leetcode' className='py-16 md:py-24 bg-muted/50'>
       <div className='px-4 md:px-6'>
-        <SectionHeading
-          title='LeetCode Stats'
-          description='My problem-solving journey on LeetCode'
-        />
+        <div className='text-center mb-12'>
+          <h2 className='text-3xl font-bold tracking-tight sm:text-4xl mb-4'>
+            LeetCode Stats
+          </h2>
+          <p className='text-muted-foreground max-w-2xl mx-auto'>
+            My problem-solving journey on LeetCode
+          </p>
+        </div>
 
-        {stats.error ? (
-          <p className='text-center text-red-500 mt-8'>{stats.error}</p>
+        {error ? (
+          <p className='text-center text-red-500 mt-8'>{error}</p>
         ) : (
-          <motion.div
-            className='mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-2'
-            variants={container}
-            initial='hidden'
-            whileInView='show'
-            viewport={{ once: true }}
-          >
-            {/* Problems Solved Card */}
+          <>
+            {/* Top Stats Grid */}
             <motion.div
-              variants={item}
-              whileHover={{ scale: 1.02 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+              className='mx-auto mt-12 grid max-w-5xl gap-4 md:grid-cols-4'
+              variants={container}
+              initial='hidden'
+              whileInView='show'
+              viewport={{ once: true }}
             >
-              <Card className='border-2 border-transparent hover:border-primary/20'>
-                <CardHeader>
-                  <CardTitle>Problems Solved</CardTitle>
-                  <CardDescription>
-                    Total problems solved on LeetCode
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {stats.loading ? (
-                    <div className='space-y-4'>
-                      <Skeleton className='h-8 w-full' />
-                      <Skeleton className='h-20 w-full' />
-                    </div>
-                  ) : (
-                    <div className='space-y-4'>
-                      <div className='flex items-center justify-between'>
-                        <span className='text-sm font-medium'>
-                          {stats.totalSolved} / {stats.totalQuestions}
+              <motion.div variants={item}>
+                <Card className='border-2 border-transparent hover:border-primary/20 transition-colors'>
+                  <CardHeader className='pb-2'>
+                    <CardTitle className='text-sm font-medium flex items-center gap-2'>
+                      <Target className='h-4 w-4 text-blue-500' />
+                      Total Solved
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {loading ? (
+                      <Skeleton className='h-10 w-20' />
+                    ) : (
+                      <motion.div
+                        className='text-3xl font-bold'
+                        initial={{ scale: 0.5 }}
+                        animate={{ scale: 1 }}
+                        transition={{
+                          type: 'spring',
+                          stiffness: 300,
+                          damping: 10,
+                        }}
+                      >
+                        {stats?.totalSolved || 0}
+                        <span className='text-sm text-muted-foreground ml-1'>
+                          / {stats?.totalQuestions || 0}
                         </span>
-                        <span className='text-sm text-muted-foreground'>
-                          {calculatePercentage(
-                            stats.totalSolved,
-                            stats.totalQuestions
-                          )}
-                          %
-                        </span>
+                      </motion.div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div variants={item}>
+                <Card className='border-2 border-transparent hover:border-primary/20 transition-colors'>
+                  <CardHeader className='pb-2'>
+                    <CardTitle className='text-sm font-medium flex items-center gap-2'>
+                      <Trophy className='h-4 w-4 text-yellow-500' />
+                      Contest Rating
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {loading ? (
+                      <Skeleton className='h-10 w-20' />
+                    ) : (
+                      <motion.div
+                        className='text-3xl font-bold'
+                        initial={{ scale: 0.5 }}
+                        animate={{ scale: 1 }}
+                        transition={{
+                          type: 'spring',
+                          stiffness: 300,
+                          damping: 10,
+                          delay: 0.1,
+                        }}
+                      >
+                        {stats?.contestRating ?? 'N/A'}
+                      </motion.div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div variants={item}>
+                <Card className='border-2 border-transparent hover:border-primary/20 transition-colors'>
+                  <CardHeader className='pb-2'>
+                    <CardTitle className='text-sm font-medium flex items-center gap-2'>
+                      <TrendingUp className='h-4 w-4 text-green-500' />
+                      Global Rank
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {loading ? (
+                      <Skeleton className='h-10 w-20' />
+                    ) : (
+                      <motion.div
+                        className='text-3xl font-bold'
+                        initial={{ scale: 0.5 }}
+                        animate={{ scale: 1 }}
+                        transition={{
+                          type: 'spring',
+                          stiffness: 300,
+                          damping: 10,
+                          delay: 0.2,
+                        }}
+                      >
+                        {stats?.ranking
+                          ? `#${stats.ranking.toLocaleString()}`
+                          : 'N/A'}
+                      </motion.div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div variants={item}>
+                <Card className='border-2 border-transparent hover:border-primary/20 transition-colors'>
+                  <CardHeader className='pb-2'>
+                    <CardTitle className='text-sm font-medium flex items-center gap-2'>
+                      <CheckCircle className='h-4 w-4 text-purple-500' />
+                      Acceptance Rate
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {loading ? (
+                      <Skeleton className='h-10 w-20' />
+                    ) : (
+                      <motion.div
+                        className='text-3xl font-bold'
+                        initial={{ scale: 0.5 }}
+                        animate={{ scale: 1 }}
+                        transition={{
+                          type: 'spring',
+                          stiffness: 300,
+                          damping: 10,
+                          delay: 0.3,
+                        }}
+                      >
+                        {stats?.acceptanceRate
+                          ? `${stats.acceptanceRate}%`
+                          : 'N/A'}
+                      </motion.div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </motion.div>
+
+            {/* Main Stats Grid */}
+            <motion.div
+              className='mx-auto mt-6 grid max-w-5xl gap-6 md:grid-cols-2'
+              variants={container}
+              initial='hidden'
+              whileInView='show'
+              viewport={{ once: true }}
+            >
+              {/* Problems Solved Card */}
+              <motion.div
+                variants={item}
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+              >
+                <Card className='border-2 border-transparent hover:border-primary/20'>
+                  <CardHeader>
+                    <CardTitle>Problems by Difficulty</CardTitle>
+                    <CardDescription>
+                      Breakdown of solved problems
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {loading ? (
+                      <div className='space-y-4'>
+                        <Skeleton className='h-8 w-full' />
+                        <Skeleton className='h-20 w-full' />
                       </div>
-                      <div className='h-2 w-full overflow-hidden rounded-full bg-muted relative'>
+                    ) : (
+                      <div className='space-y-6'>
+                        {/* Easy */}
+                        <div className='space-y-2'>
+                          <div className='flex items-center justify-between text-sm'>
+                            <div className='flex items-center gap-2'>
+                              <div className='h-3 w-3 rounded-full bg-green-500' />
+                              <span className='font-medium'>Easy</span>
+                            </div>
+                            <span className='text-muted-foreground'>
+                              {stats?.easySolved} / {stats?.easyTotal} (
+                              {calculatePercentage(
+                                stats?.easySolved || 0,
+                                stats?.easyTotal || 1
+                              )}
+                              %)
+                            </span>
+                          </div>
+                          <div className='h-2 overflow-hidden rounded-full bg-muted'>
+                            <motion.div
+                              className='h-full bg-green-500'
+                              initial={{ width: 0 }}
+                              whileInView={{
+                                width: `${calculatePercentage(
+                                  stats?.easySolved || 0,
+                                  stats?.easyTotal || 1
+                                )}%`,
+                              }}
+                              viewport={{ once: true }}
+                              transition={{ duration: 1, ease: 'easeOut' }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Medium */}
+                        <div className='space-y-2'>
+                          <div className='flex items-center justify-between text-sm'>
+                            <div className='flex items-center gap-2'>
+                              <div className='h-3 w-3 rounded-full bg-yellow-500' />
+                              <span className='font-medium'>Medium</span>
+                            </div>
+                            <span className='text-muted-foreground'>
+                              {stats?.mediumSolved} / {stats?.mediumTotal} (
+                              {calculatePercentage(
+                                stats?.mediumSolved || 0,
+                                stats?.mediumTotal || 1
+                              )}
+                              %)
+                            </span>
+                          </div>
+                          <div className='h-2 overflow-hidden rounded-full bg-muted'>
+                            <motion.div
+                              className='h-full bg-yellow-500'
+                              initial={{ width: 0 }}
+                              whileInView={{
+                                width: `${calculatePercentage(
+                                  stats?.mediumSolved || 0,
+                                  stats?.mediumTotal || 1
+                                )}%`,
+                              }}
+                              viewport={{ once: true }}
+                              transition={{
+                                duration: 1,
+                                ease: 'easeOut',
+                                delay: 0.1,
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Hard */}
+                        <div className='space-y-2'>
+                          <div className='flex items-center justify-between text-sm'>
+                            <div className='flex items-center gap-2'>
+                              <div className='h-3 w-3 rounded-full bg-red-500' />
+                              <span className='font-medium'>Hard</span>
+                            </div>
+                            <span className='text-muted-foreground'>
+                              {stats?.hardSolved} / {stats?.hardTotal} (
+                              {calculatePercentage(
+                                stats?.hardSolved || 0,
+                                stats?.hardTotal || 1
+                              )}
+                              %)
+                            </span>
+                          </div>
+                          <div className='h-2 overflow-hidden rounded-full bg-muted'>
+                            <motion.div
+                              className='h-full bg-red-500'
+                              initial={{ width: 0 }}
+                              whileInView={{
+                                width: `${calculatePercentage(
+                                  stats?.hardSolved || 0,
+                                  stats?.hardTotal || 1
+                                )}%`,
+                              }}
+                              viewport={{ once: true }}
+                              transition={{
+                                duration: 1,
+                                ease: 'easeOut',
+                                delay: 0.2,
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Overall Progress */}
+                        <div className='pt-4 border-t'>
+                          <div className='flex items-center justify-between text-sm mb-2'>
+                            <span className='font-medium'>
+                              Overall Progress
+                            </span>
+                            <span className='text-muted-foreground'>
+                              {calculatePercentage(
+                                stats?.totalSolved || 0,
+                                stats?.totalQuestions || 1
+                              )}
+                              %
+                            </span>
+                          </div>
+                          <div className='h-3 overflow-hidden rounded-full bg-muted'>
+                            <motion.div
+                              className='h-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-500'
+                              initial={{ width: 0 }}
+                              whileInView={{
+                                width: `${calculatePercentage(
+                                  stats?.totalSolved || 0,
+                                  stats?.totalQuestions || 1
+                                )}%`,
+                              }}
+                              viewport={{ once: true }}
+                              transition={{
+                                duration: 1.2,
+                                ease: 'easeOut',
+                                delay: 0.3,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Activity & Streak Card */}
+              <motion.div
+                variants={item}
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+              >
+                <Card className='border-2 border-transparent hover:border-primary/20'>
+                  <CardHeader>
+                    <CardTitle>Activity & Achievements</CardTitle>
+                    <CardDescription>
+                      Your coding consistency and milestones
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {loading ? (
+                      <div className='space-y-4'>
+                        <Skeleton className='h-8 w-full' />
+                        <Skeleton className='h-20 w-full' />
+                      </div>
+                    ) : (
+                      <div className='space-y-6'>
                         <motion.div
-                          className='h-full bg-gradient-to-r from-blue-500 to-cyan-400'
-                          initial={{ width: 0 }}
-                          whileInView={{
-                            width: `${calculatePercentage(
-                              stats.totalSolved,
-                              stats.totalQuestions
-                            )}%`,
-                          }}
+                          className='flex items-center justify-between p-4 rounded-lg bg-muted/50'
+                          initial={{ opacity: 0, x: -20 }}
+                          whileInView={{ opacity: 1, x: 0 }}
                           viewport={{ once: true }}
-                          transition={{ duration: 1, ease: 'easeOut' }}
-                        />
+                          transition={{ delay: 0.1 }}
+                        >
+                          <div className='flex items-center gap-3'>
+                            <Flame className='h-5 w-5 text-orange-500' />
+                            <div>
+                              <p className='text-sm font-medium'>
+                                Current Streak
+                              </p>
+                              <p className='text-xs text-muted-foreground'>
+                                Days in a row
+                              </p>
+                            </div>
+                          </div>
+                          <span className='text-2xl font-bold text-orange-500'>
+                            {stats?.streak ?? 0}
+                          </span>
+                        </motion.div>
+
+                        <motion.div
+                          className='flex items-center justify-between p-4 rounded-lg bg-muted/50'
+                          initial={{ opacity: 0, x: -20 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: 0.2 }}
+                        >
+                          <div className='flex items-center gap-3'>
+                            <Calendar className='h-5 w-5 text-blue-500' />
+                            <div>
+                              <p className='text-sm font-medium'>Active Days</p>
+                              <p className='text-xs text-muted-foreground'>
+                                Total days practiced
+                              </p>
+                            </div>
+                          </div>
+                          <span className='text-2xl font-bold text-blue-500'>
+                            {stats?.activeDays ?? 0}
+                          </span>
+                        </motion.div>
+
+                        {stats?.badges && stats.badges.length > 0 && (
+                          <motion.div
+                            className='space-y-3'
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.3 }}
+                          >
+                            <div className='flex items-center gap-2'>
+                              <Award className='h-4 w-4 text-yellow-500' />
+                              <span className='text-sm font-medium'>
+                                Recent Badges
+                              </span>
+                            </div>
+                            <div className='flex flex-wrap gap-2'>
+                              {stats.badges.slice(0, 4).map((badge, index) => (
+                                <motion.div
+                                  key={index}
+                                  className='px-3 py-1.5 rounded-full bg-primary/10 text-xs font-medium'
+                                  initial={{ scale: 0 }}
+                                  whileInView={{ scale: 1 }}
+                                  viewport={{ once: true }}
+                                  transition={{ delay: 0.4 + index * 0.1 }}
+                                  whileHover={{ scale: 1.1 }}
+                                >
+                                  {badge.icon} {badge.name}
+                                </motion.div>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
                       </div>
-
-                      <motion.div
-                        className='grid grid-cols-3 gap-4 pt-4'
-                        variants={container}
-                        initial='hidden'
-                        whileInView='show'
-                        viewport={{ once: true }}
-                      >
-                        <motion.div className='space-y-2' variants={item}>
-                          <div className='flex items-center'>
-                            <div className='mr-2 h-3 w-3 rounded-full bg-green-500' />
-                            <span className='text-sm font-medium'>Easy</span>
-                          </div>
-                          <p className='text-xl font-bold'>
-                            {stats.easySolved} / {stats.easyTotal}
-                          </p>
-                        </motion.div>
-
-                        <motion.div className='space-y-2' variants={item}>
-                          <div className='flex items-center'>
-                            <div className='mr-2 h-3 w-3 rounded-full bg-yellow-500' />
-                            <span className='text-sm font-medium'>Medium</span>
-                          </div>
-                          <p className='text-xl font-bold'>
-                            {stats.mediumSolved} / {stats.mediumTotal}
-                          </p>
-                        </motion.div>
-
-                        <motion.div className='space-y-2' variants={item}>
-                          <div className='flex items-center'>
-                            <div className='mr-2 h-3 w-3 rounded-full bg-red-500' />
-                            <span className='text-sm font-medium'>Hard</span>
-                          </div>
-                          <p className='text-xl font-bold'>
-                            {stats.hardSolved} / {stats.hardTotal}
-                          </p>
-                        </motion.div>
-                      </motion.div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
             </motion.div>
 
-            {/* Contest Stats Card */}
-            <motion.div
-              variants={item}
-              whileHover={{ scale: 1.02 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-            >
-              <Card className='border-2 border-transparent hover:border-primary/20'>
-                <CardHeader>
-                  <CardTitle>Contest Stats</CardTitle>
-                  <CardDescription>
-                    Performance in LeetCode contests
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {stats.loading ? (
-                    <div className='space-y-4'>
-                      <Skeleton className='h-8 w-full' />
-                      <Skeleton className='h-20 w-full' />
+            {/* Recent Submissions */}
+            {stats?.recentSubmissions && stats.recentSubmissions.length > 0 && (
+              <motion.div
+                className='mx-auto mt-6 max-w-5xl'
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 }}
+              >
+                <Card className='border-2 border-transparent hover:border-primary/20'>
+                  <CardHeader>
+                    <CardTitle>Recent Submissions</CardTitle>
+                    <CardDescription>
+                      Your latest problem-solving activity
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className='space-y-3'>
+                      {stats.recentSubmissions
+                        .slice(0, 5)
+                        .map((submission, index) => (
+                          <motion.div
+                            key={index}
+                            className='flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors'
+                            initial={{ opacity: 0, x: -20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.1 * index }}
+                          >
+                            <div className='flex items-center gap-3'>
+                              <CheckCircle className='h-4 w-4 text-green-500' />
+                              <div>
+                                <p className='text-sm font-medium'>
+                                  {submission.title}
+                                </p>
+                                <p className='text-xs text-muted-foreground'>
+                                  {submission.lang} • {submission.timestamp}
+                                </p>
+                              </div>
+                            </div>
+                            <span className='text-xs px-2 py-1 rounded-full bg-green-500/10 text-green-500'>
+                              {submission.statusDisplay}
+                            </span>
+                          </motion.div>
+                        ))}
                     </div>
-                  ) : (
-                    <div className='space-y-6'>
-                      <motion.div
-                        className='flex items-center justify-between'
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.1 }}
-                      >
-                        <div className='flex items-center'>
-                          <Trophy className='mr-2 h-5 w-5 text-yellow-500' />
-                          <span className='font-medium'>Contest Rating</span>
-                        </div>
-                        <span className='text-xl font-bold'>
-                          {stats.contestRating ?? 'N/A'}
-                        </span>
-                      </motion.div>
-
-                      <motion.div
-                        className='flex items-center justify-between'
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.2 }}
-                      >
-                        <div className='flex items-center'>
-                          <CheckCircle className='mr-2 h-5 w-5 text-green-500' />
-                          <span className='font-medium'>Global Ranking</span>
-                        </div>
-                        <span className='text-xl font-bold'>
-                          {stats.ranking
-                            ? stats.ranking.toLocaleString()
-                            : 'N/A'}
-                        </span>
-                      </motion.div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </motion.div>
-          </motion.div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+          </>
         )}
-
-        
 
         <motion.div
           className='mt-8 text-center'
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.6 }}
+          transition={{ duration: 0.5, delay: 0.7 }}
         >
           <p className='text-sm text-muted-foreground'>
             View more on{' '}
