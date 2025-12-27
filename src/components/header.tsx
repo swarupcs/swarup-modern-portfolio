@@ -12,7 +12,7 @@ import { useState } from 'react';
 const nav = [
   { href: '/work', label: 'Work' },
   { href: '/blog', label: 'Blogs' },
-  { href: '/projects', label: 'Projects' },
+  // { href: '/projects', label: 'Projects' },
 ];
 
 export default function Header() {
