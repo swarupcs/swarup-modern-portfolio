@@ -1,72 +1,85 @@
-"use client"
+'use client';
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Home, Briefcase, BookText, Mail, Code2, Timer } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { Button } from '@/components/ui/button';
+import { Menu } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useState } from 'react';
 
 const nav = [
-  { href: "/", label: "Home", icon: Home, match: (p: string) => p === "/" },
-  { href: "/work", label: "Work", icon: Briefcase, match: (p: string) => p.startsWith("/work") },
-  { href: "/experience", label: "Experience", icon: Timer, match: (p: string) => p.startsWith("/experience") },
-  { href: "/blog", label: "Blog", icon: BookText, match: (p: string) => p.startsWith("/blog") },
-  { href: "/contact", label: "Contact", icon: Mail, match: (p: string) => p.startsWith("/contact") },
-  // New Playground item in header nav
-  {
-    href: "/work/playground",
-    label: "Playground",
-    icon: Code2,
-    match: (p: string) => p.startsWith("/work/playground"),
-  },
-]
+  { href: '/work', label: 'Work' },
+  { href: '/blog', label: 'Blogs' },
+  // { href: '/projects', label: 'Projects' },
+];
 
 export default function Header() {
-  const pathname = usePathname() || "/"
+  const pathname = usePathname() || '/';
+  const [open, setOpen] = useState(false);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/50 border-b">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-        <Link href="/" className="font-semibold tracking-tight">
+    <header className='fixed inset-x-0 top-0 z-50 bg-background/80 backdrop-blur-md border-b supports-[backdrop-filter]:bg-background/60'>
+      <div className='mx-auto flex h-14 md:h-16 max-w-4xl items-center justify-between px-4 sm:px-6'>
+        <Link
+          href='/'
+          className='font-bold tracking-tight text-base md:text-lg hover:text-primary transition-colors'
+        >
           Portfolio
         </Link>
 
-        <nav
-          aria-label="Primary"
-          className="hidden md:flex items-center gap-1 rounded-full border bg-background/60 px-2 py-1 shadow-sm"
-        >
+        <nav aria-label='Primary' className='hidden md:flex items-center gap-6'>
           {nav.map((item) => {
-            const active = item.match(pathname)
-            const Icon = item.icon
+            const active = pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm transition-colors",
-                  active
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40",
+                  'text-sm font-medium transition-colors hover:text-foreground',
+                  active ? 'text-foreground' : 'text-muted-foreground'
                 )}
               >
-                <Icon className="h-4 w-4" />
-                <span className="hidden sm:inline">{item.label}</span>
+                {item.label}
               </Link>
-            )
+            );
           })}
+          <ThemeToggle />
         </nav>
 
-        <div className="flex items-center gap-2">
-          <Button asChild size="sm" variant="ghost" className="md:hidden">
-            <Link href="/work/playground">
-              <Code2 className="mr-2 h-4 w-4" />
-              Playground
-            </Link>
-          </Button>
+        <div className='flex md:hidden items-center gap-2'>
           <ThemeToggle />
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant='ghost' size='icon' className='md:hidden'>
+                <Menu className='h-5 w-5' />
+                <span className='sr-only'>Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side='right' className='w-64'>
+              <nav className='flex flex-col gap-4 mt-8'>
+                {nav.map((item) => {
+                  const active = pathname.startsWith(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        'text-base font-medium transition-colors hover:text-foreground py-2',
+                        active ? 'text-foreground' : 'text-muted-foreground'
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
-  )
+  );
 }

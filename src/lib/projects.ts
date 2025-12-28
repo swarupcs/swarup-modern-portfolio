@@ -1,5 +1,5 @@
-type ProjectItem = {
-  id: number;
+export type ProjectItem = {
+  id: string;
   title: string;
   description: string;
   image: string;
@@ -8,17 +8,16 @@ type ProjectItem = {
   githubUrl: string;
   featured: boolean;
   category: string;
-  year: string;
-  challenge?: string;
-  solution?: string;
+  year?: string;
+  hidden?: boolean;
 };
 
 export const projectsData: ProjectItem[] = [
   {
-    id: 1,
+    id: '1',
     title: 'Algodrill',
     description:
-      'Algodrill is a modern DSA and coding practice platform that provides structured problem sets, explanations, test cases, and progress tracking to help developers prepare for coding interviews.',
+      'Algodrill is a modern DSA and coding practice platform offering structured problems, detailed explanations, test cases, and progress tracking to help developers prepare for coding interviews.',
     image: '/algodrill-cover.jpg',
     technologies: [
       'Next.js',
@@ -35,45 +34,37 @@ export const projectsData: ProjectItem[] = [
     featured: true,
     category: 'Full Stack',
     year: '2024',
-    challenge:
-      'Building a scalable problem-solving platform with user authentication, test cases, and accurate submission evaluation.',
-    solution:
-      'Designed a clean full-stack architecture using optimized APIs, Prisma ORM, and a responsive UI for seamless practicing.',
+    hidden: false,
   },
-
   {
-    id: 2,
+    id: '2',
     title: 'Linkly',
     description:
-      'A full-stack real-time team collaboration platform inspired by Slack, featuring channels, messaging, authentication, and an interactive workspace UI.',
+      'A full-stack real-time team collaboration platform inspired by Slack, featuring channels, instant messaging, authentication, and an interactive workspace.',
     image: '/slack-clone.jpg',
     technologies: [
       'React',
       'Tailwind CSS',
-      'Shadcn UI',
+      'shadcn/ui',
       'Express.js',
       'Socket.io',
       'MongoDB',
       'Mongoose',
       'Redis',
-      'JWT Auth',
+      'JWT',
     ],
     liveUrl: 'https://linkly.swarupdas.dev/',
     githubUrl: 'https://github.com/swarupcs/linkly',
     featured: false,
     category: 'Full Stack',
     year: '2024',
-    challenge:
-      'Building a real-time messaging system with channels, user presence, and secure authentication while maintaining low latency.',
-    solution:
-      'Implemented Socket.io for instant communication, Redis for fast caching and presence tracking, MongoDB with Mongoose for structured data models, and JWT-based authentication for secure access.',
+    hidden: false,
   },
-
   {
-    id: 3,
+    id: '3',
     title: 'Shortify',
     description:
-      'A fast and minimal URL shortener built with Next.js, allowing users to generate compact links and track redirections efficiently.',
+      'A fast and minimal URL shortener built with Next.js, enabling users to generate compact links and handle redirections efficiently.',
     image: '/shorturl-nextjs.jpg',
     technologies: [
       'Next.js',
@@ -83,21 +74,17 @@ export const projectsData: ProjectItem[] = [
       'PostgreSQL',
     ],
     liveUrl: 'https://shortify.swarupdas.dev/',
-    githubUrl: 'https://github.com/swarupcs/shortify', // update if needed
+    githubUrl: 'https://github.com/swarupcs/shortify',
     featured: false,
     category: 'Full Stack',
     year: '2024',
-    challenge:
-      'Implementing unique short code generation and efficient URL redirection.',
-    solution:
-      'Used Prisma with PostgreSQL for fast DB queries and implemented clean API routes for shortening and redirecting.',
+    hidden: false,
   },
-
   {
-    id: 4,
+    id: '4',
     title: 'Dev-Collab',
     description:
-      'A real-time collaboration platform for developers, supporting instant messaging, project rooms, and a shared workspace.',
+      'A real-time collaboration platform for developers, supporting instant messaging, project rooms, and a shared workspace experience.',
     image: '/dev-collab.jpg',
     technologies: [
       'Next.js',
@@ -107,13 +94,10 @@ export const projectsData: ProjectItem[] = [
       'Node.js',
     ],
     liveUrl: 'https://dev-collab.swarupdas.dev/',
-    githubUrl: 'https://github.com/swarupcs/dev-collab', // update if needed
+    githubUrl: 'https://github.com/swarupcs/dev-collab',
     featured: false,
     category: 'Full Stack',
     year: '2024',
-    challenge:
-      'Handling real-time communication efficiently with minimal latency.',
-    solution:
-      'Integrated Socket.io with a scalable backend setup and built a clean UI for joining rooms and collaborating instantly.',
+    hidden: false,
   },
 ];
