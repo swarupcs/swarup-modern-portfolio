@@ -55,7 +55,7 @@ export default function Footer() {
         <div className='py-8 border-t'>
           <div className='flex flex-col md:flex-row items-center justify-between gap-4'>
             <p className='text-sm text-muted-foreground'>
-              © {currentYear} John Doe. All rights reserved.
+              © {currentYear} Swarup Das. All rights reserved.
             </p>
 
             {/* Social Links */}
