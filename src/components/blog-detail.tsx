@@ -201,17 +201,18 @@ export default function BlogDetail({ slug }: { slug: string }) {
                 {...props}
               />
             ),
-            code: ({ node, inline, ...props }) =>
-              inline ? (
-                <code
-                  className='bg-muted px-2.5 py-1 rounded text-sm font-mono text-primary'
-                  {...props}
-                />
-              ) : (
-                <pre className='bg-muted rounded-lg overflow-x-auto p-4 mb-6 border border-border'>
-                  <code className='font-mono text-sm' {...props} />
-                </pre>
-              ),
+            pre: ({ ...props }) => (
+              <pre
+                className='bg-muted rounded-lg overflow-x-auto p-4 mb-6 border border-border [&>code]:bg-transparent [&>code]:p-0'
+                {...props}
+              />
+            ),
+            code: ({ ...props }) => (
+              <code
+                className='bg-muted px-2.5 py-1 rounded text-sm font-mono text-primary'
+                {...props}
+              />
+            ),
             blockquote: ({ node, ...props }) => (
               <blockquote
                 className='border-l-4 border-primary pl-6 py-2 italic my-6 bg-muted/50 py-4 px-4 rounded'
