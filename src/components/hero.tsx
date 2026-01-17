@@ -58,7 +58,7 @@ export default function Hero() {
               <Link href='/work'>View my work</Link>
             </Button>
             <Button size='lg' variant='outline' asChild>
-              <Link href='mailto:contact@example.com'>Get in touch</Link>
+              <Link href='mailto:swarupd1999@gmail.com'>Get in touch</Link>
             </Button>
           </div>
 
@@ -80,7 +80,7 @@ export default function Hero() {
               <span className='sr-only'>LinkedIn</span>
             </Link>
             <Link
-              href='mailto:contact@example.com'
+              href='mailto:swarupd1999@gmail.com'
               className='text-muted-foreground hover:text-foreground transition-colors'
             >
               <Mail className='h-5 w-5' />

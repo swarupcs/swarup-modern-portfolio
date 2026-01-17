@@ -151,7 +151,7 @@ export default function Projects() {
           </div>
         )}
 
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -163,7 +163,7 @@ export default function Projects() {
           >
             Show all projects
           </Link>
-        </motion.div>
+        </motion.div> */}
       </div>
     </section>
   );

@@ -42,13 +42,13 @@ export default function Footer() {
           </p>
           <div className='flex flex-col sm:flex-row gap-4 justify-center'>
             <Button size='lg' asChild>
-              <Link href='mailto:contact@example.com'>Get in touch</Link>
+              <Link href='mailto:swarupd1999@gmail.com'>Get in touch</Link>
             </Button>
-            <Button size='lg' variant='outline' asChild>
+            {/* <Button size='lg' variant='outline' asChild>
               <Link href='https://calendly.com' target='_blank'>
                 Book a Call
               </Link>
-            </Button>
+            </Button> */}
           </div>
         </div>
 

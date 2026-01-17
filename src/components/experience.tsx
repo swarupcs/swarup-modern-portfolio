@@ -131,7 +131,7 @@ export default function Experience() {
           ))}
         </div>
 
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -143,7 +143,7 @@ export default function Experience() {
           >
             Show all work experiences
           </Link>
-        </motion.div>
+        </motion.div> */}
       </div>
     </section>
   );
