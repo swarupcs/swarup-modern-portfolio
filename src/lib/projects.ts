@@ -18,7 +18,7 @@ export const projectsData: ProjectItem[] = [
     title: 'Algodrill',
     description:
       'Algodrill is a modern DSA and coding practice platform offering structured problems, detailed explanations, test cases, and progress tracking to help developers prepare for coding interviews.',
-    image: '/algodrill-cover.jpg',
+    image: '/algodrill.png',
     technologies: [
       'Next.js',
       'TypeScript',
@@ -41,7 +41,7 @@ export const projectsData: ProjectItem[] = [
     title: 'Linkly',
     description:
       'A full-stack real-time team collaboration platform inspired by Slack, featuring channels, instant messaging, authentication, and an interactive workspace.',
-    image: '/slack-clone.jpg',
+    image: '/linkly.png',
     technologies: [
       'React',
       'Tailwind CSS',
@@ -65,7 +65,7 @@ export const projectsData: ProjectItem[] = [
     title: 'Shortify',
     description:
       'A fast and minimal URL shortener built with Next.js, enabling users to generate compact links and handle redirections efficiently.',
-    image: '/shorturl-nextjs.jpg',
+    image: '/shortify.png',
     technologies: [
       'Next.js',
       'TypeScript',
@@ -85,7 +85,7 @@ export const projectsData: ProjectItem[] = [
     title: 'Dev-Collab',
     description:
       'A real-time collaboration platform for developers, supporting instant messaging, project rooms, and a shared workspace experience.',
-    image: '/dev-collab.jpg',
+    image: '/dev-collab.png',
     technologies: [
       'Next.js',
       'TypeScript',
