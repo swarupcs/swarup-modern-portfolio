@@ -171,7 +171,7 @@ export default function About() {
                     <span className='text-blue-400'>name</span>
                     <span className='text-gray-400'>:</span>{' '}
                     <span className='text-green-400'>
-                      &apos;Your Name&apos;
+                      &apos;Swarup Das&apos;
                     </span>
                     <span className='text-gray-400'>,</span>
                   </motion.div>
@@ -201,7 +201,7 @@ export default function About() {
                     <span className='text-blue-400'>location</span>
                     <span className='text-gray-400'>:</span>{' '}
                     <span className='text-green-400'>
-                      &apos;Your Location&apos;
+                      &apos;Kolkata, India&apos;
                     </span>
                     <span className='text-gray-400'>,</span>
                   </motion.div>
