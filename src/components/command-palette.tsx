@@ -53,7 +53,7 @@ const commands: CommandItem[] = [
     description: 'Download my resume',
     category: 'Documents',
     icon: <FileText className='h-4 w-4' />,
-    href: '/resume.pdf',
+    href: '/Swarup_Resume.pdf',
   },
   {
     id: 'github',
@@ -159,34 +159,73 @@ export function CommandPalette() {
                       <div className='px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider'>
                         {category}
                       </div>
-                      {cmds.map((cmd) => (
-                        <Link
-                          key={cmd.id}
-                          href={cmd.href}
-                          onClick={() => {
-                            setOpen(false);
-                            setSearch('');
-                          }}
-                          className='flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors cursor-pointer'
-                          target={
-                            cmd.href.startsWith('http') ? '_blank' : undefined
-                          }
-                        >
-                          <div className='text-muted-foreground'>
-                            {cmd.icon}
-                          </div>
-                          <div className='flex-1 min-w-0'>
-                            <div className='font-medium text-foreground text-sm'>
-                              {cmd.title}
-                            </div>
-                            {cmd.description && (
-                              <div className='text-xs text-muted-foreground'>
-                                {cmd.description}
+                      {cmds.map((cmd) => {
+                        const isExternal = cmd.href.startsWith('http');
+                        const isDownload = cmd.id === 'resume';
+
+                        // Use <a> tag for downloads and external links
+                        if (isDownload || isExternal) {
+                          return (
+                            <a
+                              key={cmd.id}
+                              href={cmd.href}
+                              onClick={() => {
+                                setOpen(false);
+                                setSearch('');
+                              }}
+                              className='flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors cursor-pointer'
+                              target={isExternal ? '_blank' : undefined}
+                              rel={
+                                isExternal ? 'noopener noreferrer' : undefined
+                              }
+                              download={
+                                isDownload ? 'Swarup_Resume.pdf' : undefined
+                              }
+                            >
+                              <div className='text-muted-foreground'>
+                                {cmd.icon}
                               </div>
-                            )}
-                          </div>
-                        </Link>
-                      ))}
+                              <div className='flex-1 min-w-0'>
+                                <div className='font-medium text-foreground text-sm'>
+                                  {cmd.title}
+                                </div>
+                                {cmd.description && (
+                                  <div className='text-xs text-muted-foreground'>
+                                    {cmd.description}
+                                  </div>
+                                )}
+                              </div>
+                            </a>
+                          );
+                        }
+
+                        // Use Link for internal navigation
+                        return (
+                          <Link
+                            key={cmd.id}
+                            href={cmd.href}
+                            onClick={() => {
+                              setOpen(false);
+                              setSearch('');
+                            }}
+                            className='flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors cursor-pointer'
+                          >
+                            <div className='text-muted-foreground'>
+                              {cmd.icon}
+                            </div>
+                            <div className='flex-1 min-w-0'>
+                              <div className='font-medium text-foreground text-sm'>
+                                {cmd.title}
+                              </div>
+                              {cmd.description && (
+                                <div className='text-xs text-muted-foreground'>
+                                  {cmd.description}
+                                </div>
+                              )}
+                            </div>
+                          </Link>
+                        );
+                      })}
                     </div>
                   ))
                 )}

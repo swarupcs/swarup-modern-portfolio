@@ -399,7 +399,7 @@ export default function CodingPlayground() {
             <CardContent>
               <Tabs
                 value={activeTab}
-                onValueChange={(v) => setActiveTab(v as any)}
+                onValueChange={(v) => setActiveTab(v as 'html' | 'css' | 'js')}
                 className='w-full'
               >
                 <TabsList className='grid w-full grid-cols-3'>

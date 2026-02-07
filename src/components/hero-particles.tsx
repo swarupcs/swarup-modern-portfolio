@@ -7,9 +7,14 @@ import * as THREE from 'three';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 
 // Particle component
-function Particles({ count = 2000, theme }) {
-  const mesh = useRef();
-  const light = useRef();
+interface ParticlesProps {
+  count?: number;
+  theme: string;
+}
+
+function Particles({ count = 2000, theme }: ParticlesProps) {
+  const mesh = useRef<THREE.InstancedMesh>(null);
+  const light = useRef<THREE.PointLight>(null);
   const { size, viewport } = useThree();
   const aspect = size.width / viewport.width;
 
@@ -35,10 +40,13 @@ function Particles({ count = 2000, theme }) {
 
   // Update particles on each frame
   useFrame((state) => {
+    if (!light.current || !mesh.current) return;
+
     light.current.position.set(state.mouse.x * 20, state.mouse.y * 20, 0);
 
     particles.forEach((particle, i) => {
-      let { t, factor, speed, xFactor, yFactor, zFactor } = particle;
+      let { t } = particle;
+      const { factor, speed, xFactor, yFactor, zFactor } = particle;
       t = particle.t += speed / 2;
       const a = Math.cos(t) + Math.sin(t * 1) / 10;
       const b = Math.sin(t) + Math.cos(t * 2) / 10;
@@ -60,7 +68,7 @@ function Particles({ count = 2000, theme }) {
       );
       dummy.scale.set(s * 0.5, s * 0.5, s * 0.5);
       dummy.updateMatrix();
-      mesh.current.setMatrixAt(i, dummy.matrix);
+      mesh.current!.setMatrixAt(i, dummy.matrix);
     });
     mesh.current.instanceMatrix.needsUpdate = true;
   });
@@ -73,7 +81,7 @@ function Particles({ count = 2000, theme }) {
         intensity={20}
         color={secondaryColor}
       />
-      <instancedMesh ref={mesh} args={[null, null, count]}>
+      <instancedMesh ref={mesh} args={[undefined, undefined, count]}>
         <dodecahedronGeometry args={[0.2, 0]} />
         <meshPhongMaterial color={particleColor} />
       </instancedMesh>

@@ -1,23 +1,22 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import Particles from 'react-tsparticles';
+import Particles, { initParticlesEngine } from '@tsparticles/react';
 import { loadFull } from 'tsparticles';
-import type { Container, Engine } from 'tsparticles-engine';
+import type { Container, Engine } from '@tsparticles/engine';
 import { useTheme } from 'next-themes';
 
 export default function ParticlesBackground() {
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const [init, setInit] = useState(false);
 
-  // Make sure we're mounted to avoid hydration issues
+  // Initialize particles engine
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Initialize particles
-  const particlesInit = useCallback(async (engine: Engine) => {
-    await loadFull(engine);
+    initParticlesEngine(async (engine: Engine) => {
+      await loadFull(engine);
+    }).then(() => {
+      setInit(true);
+    });
   }, []);
 
   const particlesLoaded = useCallback(
@@ -27,17 +26,15 @@ export default function ParticlesBackground() {
     [],
   );
 
-  // Skip rendering on server
-  if (!mounted) return null;
-
   // Configure particles based on theme
   const isDark = resolvedTheme === 'dark';
+
+  if (!init) return null;
 
   return (
     <Particles
       id='tsparticles'
-      init={particlesInit}
-      loaded={particlesLoaded}
+      particlesLoaded={particlesLoaded}
       options={{
         fullScreen: {
           enable: false,
@@ -59,7 +56,9 @@ export default function ParticlesBackground() {
               enable: true,
               mode: 'repulse',
             },
-            resize: true,
+            resize: {
+              enable: true,
+            },
           },
           modes: {
             push: {
@@ -95,7 +94,8 @@ export default function ParticlesBackground() {
           number: {
             density: {
               enable: true,
-              area: 800,
+              height: 800,
+              width: 800,
             },
             value: 80,
           },

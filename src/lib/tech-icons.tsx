@@ -1,4 +1,5 @@
 import type React from 'react';
+import type { IconType } from 'react-icons';
 import {
   SiReact,
   SiNextdotjs,
@@ -25,7 +26,7 @@ import {
 
 export const techIconsWithColors: Record<
   string,
-  { icon: React.ComponentType<{ className?: string }>; color: string }
+  { icon: IconType; color: string }
 > = {
   React: { icon: SiReact, color: '#61DAFB' },
   'Next.js': { icon: SiNextdotjs, color: '#000000' },
@@ -50,10 +51,7 @@ export const techIconsWithColors: Record<
   Figma: { icon: SiFigma, color: '#F24E1E' },
 };
 
-export const techIcons: Record<
-  string,
-  React.ComponentType<{ className?: string }>
-> = {
+export const techIcons: Record<string, IconType> = {
   React: SiReact,
   'Next.js': SiNextdotjs,
   TypeScript: SiTypescript,

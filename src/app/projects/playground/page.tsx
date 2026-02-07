@@ -1,8 +1,8 @@
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import CodingPlayground from "@/components/coding-playground"
-import MultiLanguageRunner from "@/components/multi-language-runner"
+// import CodingPlayground from "@/components/coding-playground"
+// import MultiLanguageRunner from "@/components/multi-language-runner"
 
 export default function PlaygroundProjectPage() {
   return (
@@ -26,10 +26,10 @@ export default function PlaygroundProjectPage() {
       </section>
 
       {/* HTML/CSS/JS sandbox */}
-      <CodingPlayground />
+      {/* <CodingPlayground /> */}
 
       {/* Multi-language code runner */}
-      <MultiLanguageRunner />
+      {/* <MultiLanguageRunner /> */}
     </main>
   )
 }

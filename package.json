@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "check": "tsc --noEmit && eslint .",
+    "type-check": "tsc --noEmit",
     "lint-dev": "tsc --noEmit && next dev --turbopack",
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
@@ -40,6 +42,7 @@
     "@react-three/fiber": "^9.4.0",
     "@react-three/postprocessing": "^3.0.4",
     "@tsparticles/engine": "^3.9.1",
+    "@tsparticles/react": "^3.0.0",
     "axios": "^1.12.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -61,6 +64,7 @@
     "recharts": "^2.15.4",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
+    "tsparticles": "^3.9.1",
     "vaul": "^1.1.2",
     "zod": "^4.1.12"
   },

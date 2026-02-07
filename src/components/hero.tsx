@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Github, Linkedin, Mail, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import Image from 'next/image';
 
 export default function Hero() {
@@ -39,7 +39,7 @@ export default function Hero() {
     return <section className='relative pt-20 pb-16 md:pt-32 md:pb-24' />;
   }
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -47,7 +47,7 @@ export default function Hero() {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 10 },
     visible: {
       opacity: 1,
@@ -91,7 +91,7 @@ export default function Hero() {
           >
             <div className='text-5xl md:text-7xl font-black tracking-tight text-balance'>
               <span className='gradient-purple-blue'>
-                Hi, I'm {personalInfo.name}
+                Hi, I&apos;m {personalInfo.name}
               </span>
               <span className='block text-3xl md:text-5xl mt-2 text-muted-foreground font-light'>
                 —
