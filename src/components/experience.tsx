@@ -50,61 +50,93 @@ const experienceData = [
   },
 ];
 
-
 export default function Experience() {
   return (
     <section id='experience' className='py-16 md:py-24'>
-      <div className='container px-4 md:px-6 max-w-4xl mx-auto'>
+      <div className='container px-4 md:px-6 max-w-6xl mx-auto'>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className='mb-16 text-center'
+          className='mb-20 text-center'
         >
-          <p className='text-sm text-muted-foreground mb-2 uppercase tracking-wide'>
+          <p className='text-sm text-primary mb-3 uppercase tracking-widest font-semibold'>
             Featured
           </p>
           <h2 className='text-4xl md:text-5xl font-bold'>Experience</h2>
         </motion.div>
 
-        <div className='space-y-16'>
+        <div className='space-y-6'>
           {experienceData.map((experience, index) => (
             <motion.div
               key={experience.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              className='space-y-4'
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className='group border border-white/10 rounded-2xl p-8 md:p-10 hover:border-primary/50 hover:bg-gradient-to-br hover:from-primary/5 hover:via-transparent hover:to-secondary/5 transition-all duration-300 backdrop-blur-sm'
             >
-              <div className='space-y-2'>
-                <div className='flex flex-wrap items-center justify-between gap-3'>
-                  <h3 className='text-2xl md:text-3xl font-bold'>
-                    {experience.company}
-                  </h3>
-                  <Badge
-                    variant={
-                      experience.status === 'Working' ? 'default' : 'secondary'
-                    }
-                    className='shrink-0'
-                  >
-                    {experience.status}
-                  </Badge>
-                </div>
-                <p className='text-lg md:text-xl font-medium'>
-                  {experience.role}
-                </p>
-                <div className='flex flex-col gap-1 text-sm text-muted-foreground'>
-                  <p>{experience.duration}</p>
-                  <p className='flex items-center gap-2'>
-                    <Building2 className='h-4 w-4' />
-                    {experience.location}
-                  </p>
+              <div className='flex flex-col md:flex-row md:items-start md:justify-between gap-6'>
+                {/* Left content */}
+                <div className='flex-1 space-y-4'>
+                  <div className='flex items-start justify-between gap-4'>
+                    <div className='flex-1'>
+                      <h3 className='text-2xl md:text-3xl font-bold'>
+                        {experience.company}
+                      </h3>
+                      <p className='text-lg bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent font-semibold mt-2'>
+                        {experience.role}
+                      </p>
+                    </div>
+                    <div className='flex-shrink-0'>
+                      <Badge
+                        variant={
+                          experience.status === 'Working'
+                            ? 'default'
+                            : 'secondary'
+                        }
+                        className={`shrink-0 text-xs font-semibold px-3 py-1 rounded-full ${
+                          experience.status === 'Working'
+                            ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                            : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block w-2 h-2 rounded-full mr-2 ${experience.status === 'Working' ? 'bg-green-400' : 'bg-blue-400'} animate-pulse`}
+                        ></span>
+                        {experience.status}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className='flex flex-col md:flex-row gap-3 md:gap-6 text-sm text-muted-foreground'>
+                    <p className='font-medium'>{experience.duration}</p>
+                    <p className='flex items-center gap-2'>
+                      <Building2 className='h-4 w-4 shrink-0' />
+                      {experience.location}
+                    </p>
+                  </div>
+
+                  {/* Description */}
+                  <ul className='space-y-2 pt-2'>
+                    {experience.description.map((item, idx) => (
+                      <li
+                        key={idx}
+                        className='text-sm text-muted-foreground flex gap-3'
+                      >
+                        <span className='text-primary/60 shrink-0'>›</span>
+                        <span className='flex-1'>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
 
-              <div className='space-y-3'>
-                <h4 className='text-sm font-semibold'>Technologies & Tools</h4>
+              {/* Technologies */}
+              <div className='mt-6 pt-6 border-t border-border'>
+                <h4 className='text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3'>
+                  Technologies
+                </h4>
                 <div className='flex flex-wrap gap-2'>
                   {experience.technologies.map((tech) => (
                     <TechBadgeWithIcon
@@ -115,18 +147,6 @@ export default function Experience() {
                   ))}
                 </div>
               </div>
-
-              <ul className='space-y-2 pt-2'>
-                {experience.description.map((item, idx) => (
-                  <li
-                    key={idx}
-                    className='text-base text-muted-foreground flex gap-3'
-                  >
-                    <span className='text-primary mt-1 shrink-0'>•</span>
-                    <span className='flex-1'>{item}</span>
-                  </li>
-                ))}
-              </ul>
             </motion.div>
           ))}
         </div>

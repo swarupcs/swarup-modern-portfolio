@@ -47,7 +47,7 @@ export default function BlogDetail({ slug }: { slug: string }) {
         if (!targetBlog) throw new Error('Blog not found');
 
         const detailResponse = await fetch(
-          `/api/hashnode?action=detail&id=${targetBlog.id}`
+          `/api/hashnode?action=detail&id=${targetBlog.id}`,
         );
         if (!detailResponse.ok) throw new Error('Failed to fetch blog details');
         const data = await detailResponse.json();

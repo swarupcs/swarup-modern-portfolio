@@ -34,10 +34,10 @@ export default function Footer() {
       <div className='container mx-auto px-4 md:px-6 max-w-4xl'>
         <div className='py-16 md:py-24 text-center space-y-8'>
           <h3 className='text-2xl md:text-3xl font-bold'>
-            Let's work together
+            Let&apos;s work together
           </h3>
           <p className='text-base md:text-lg text-muted-foreground max-w-2xl mx-auto'>
-            Have an exciting project in mind? I'd love to hear about it. Let's
+            Have an exciting project in mind? I&apos;d love to hear about it. Let&apos;s
             build something amazing together.
           </p>
           <div className='flex flex-col sm:flex-row gap-4 justify-center'>

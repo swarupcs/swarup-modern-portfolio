@@ -36,45 +36,55 @@ export default function About() {
 
   return (
     <section id='about' className='py-20 md:py-32'>
-      <div className='container px-4 md:px-6 max-w-4xl mx-auto'>
+      <div className='container px-4 md:px-6 max-w-7xl mx-auto'>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className='space-y-6 mb-12'
+          className='space-y-6 mb-16 text-center'
         >
-          <div className='text-center'>
-            <p className='text-sm text-muted-foreground mb-2 uppercase tracking-wide'>
-              About
-            </p>
-            <h2 className='text-3xl md:text-4xl font-bold'>Me</h2>
-          </div>
+          <p className='text-sm text-primary mb-3 uppercase tracking-widest font-semibold'>
+            About
+          </p>
+          <h2 className='text-5xl md:text-6xl font-black gradient-purple-blue'>
+            Get to Know Me
+          </h2>
+          <p className='text-muted-foreground text-lg max-w-2xl mx-auto'>
+            Passionate developer driven by innovation and a love for elegant
+            code
+          </p>
         </motion.div>
 
-        <div className='grid lg:grid-cols-2 gap-12 items-center'>
+        <div className='grid lg:grid-cols-2 gap-16 items-center'>
           {/* Left: Bio */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className='space-y-6'
+            className='space-y-8'
           >
-            <p className='text-lg text-muted-foreground leading-relaxed transition-all duration-300 ease-in-out hover:translate-x-1'>
-              I&apos;m a passionate full-stack developer with experience
-              building scalable web applications. I love turning complex
-              problems into simple, beautiful solutions. When I&apos;m not
-              coding, you&apos;ll find me exploring new technologies.
+            <p className='text-xl text-muted-foreground leading-relaxed transition-all duration-300 ease-in-out hover:text-foreground'>
+              I&apos;m a passionate{' '}
+              <span className='text-primary font-semibold'>
+                full-stack developer
+              </span>{' '}
+              dedicated to building exceptional digital experiences. I transform
+              complex problems into elegant, scalable solutions using modern web
+              technologies.
             </p>
 
-            <p className='text-lg text-muted-foreground leading-relaxed transition-all duration-300 ease-in-out hover:translate-x-1'>
-              My expertise spans across modern web technologies including React,
-              Next.js, Node.js, and TypeScript. I&apos;m committed to writing
-              clean, maintainable code and creating delightful user experiences.
+            <p className='text-xl text-muted-foreground leading-relaxed transition-all duration-300 ease-in-out hover:text-foreground'>
+              My expertise spans{' '}
+              <span className='gradient-blue-pink font-semibold'>
+                React, Next.js, Node.js, TypeScript, and cloud platforms
+              </span>
+              . I&apos;m obsessed with clean code, performance optimization, and
+              creating interfaces that delight users.
             </p>
 
             {/* Interests */}
-            <div className='flex flex-wrap gap-4 pt-4'>
+            <div className='flex flex-wrap gap-3 pt-4'>
               {interests.map((interest, index) => (
                 <motion.div
                   key={index}
@@ -82,17 +92,17 @@ export default function About() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3, delay: 0.3 + index * 0.1 }}
                   viewport={{ once: true }}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.08 }}
                   className='cursor-pointer'
                 >
-                  <Card className='border-2 hover:border-primary/50 transition-all duration-300'>
-                    <CardContent className='flex items-center gap-2 p-3'>
-                      <interest.icon className={`h-5 w-5 ${interest.color}`} />
-                      <span className='text-sm font-medium'>
-                        {interest.label}
-                      </span>
-                    </CardContent>
-                  </Card>
+                  <div className='px-4 py-2 rounded-full border border-white/20 hover:border-primary/50 bg-white/5 hover:bg-primary/10 transition-all duration-300 flex items-center gap-2 group'>
+                    <interest.icon
+                      className={`h-4 w-4 ${interest.color} group-hover:scale-110 transition-transform`}
+                    />
+                    <span className='text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors'>
+                      {interest.label}
+                    </span>
+                  </div>
                 </motion.div>
               ))}
             </div>

@@ -6,14 +6,19 @@ import { ThemeProvider } from '@/components/theme-provider';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
 import { PortfolioProvider } from '@/lib/portfolio-context';
-import { Toaster } from 'sonner';
+import { SplashScreen } from '@/components/splash-screen';
+import { CommandPalette } from '@/components/command-palette';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Swarup Das | Portfolio',
   description: 'Full-Stack Developer & Creative Problem Solver',
-  generator: '',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+  },
 };
 
 export default function RootLayout({
@@ -31,10 +36,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <PortfolioProvider>
+            <SplashScreen />
+            <CommandPalette />
             <Header />
             {children}
-            <Toaster position='top-right' richColors />{' '}
-            {/* Enables global toasts */}
             <Footer />
           </PortfolioProvider>
         </ThemeProvider>

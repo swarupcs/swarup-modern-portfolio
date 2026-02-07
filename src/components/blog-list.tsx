@@ -91,7 +91,7 @@ export default function BlogList({ limit }: { limit?: number }) {
           >
             <Link
               href={`/blog/${blog.slug}`}
-              className='block space-y-4 p-6 rounded-lg border border-transparent hover:border-border hover:bg-accent/50 transition-all duration-300'
+              className='block space-y-4 p-6 rounded-xl border border-border hover:border-primary/40 hover:bg-gradient-to-br hover:from-primary/5 hover:via-transparent hover:to-secondary/5 transition-all duration-300 dark:border-white/10 dark:hover:border-primary/50 dark:hover:bg-gradient-to-br dark:hover:from-primary/10 dark:hover:to-secondary/5'
             >
               <div className='flex items-start justify-between gap-4'>
                 <h3 className='text-xl md:text-2xl font-bold group-hover:text-primary transition-colors flex-1 text-balance'>
