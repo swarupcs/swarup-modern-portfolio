@@ -18,6 +18,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import SectionHeading from './section-heading';
 
 interface GithubStats {
   username: string;
@@ -478,7 +479,7 @@ export default function GithubStats() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.7 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
         >
           {stats?.totalContributions === 0 && !loading && !error && (
             <p className='text-xs text-muted-foreground mb-2'>

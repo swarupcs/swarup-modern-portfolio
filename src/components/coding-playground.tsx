@@ -177,7 +177,7 @@ function buildSrcDoc(
   html: string,
   css: string,
   js: string,
-  useTailwindCDN: boolean
+  useTailwindCDN: boolean,
 ) {
   const consoleBridge = `
     (function(){
@@ -210,7 +210,7 @@ function buildSrcDoc(
     ${html}
     <script>${consoleBridge}</script>
     <script>
-      try{ ${js} } catch(e){ console.error(e && (e.stack || (e as Error).message) || e) }
+      try{ ${js} } catch(e){ console.error(e && (e.stack || e.message) || e) }
     </script>
   </body>
 </html>`;
@@ -265,7 +265,7 @@ export default function CodingPlayground() {
   // Initialize preview
   useEffect(() => {
     run();
-  }, []); // eslint-disable-line
+  }, []);
 
   const resetToTemplate = useCallback(
     (key: string) => {
@@ -279,7 +279,7 @@ export default function CodingPlayground() {
       setUseTailwindCDN(key === 'Tailwind CDN');
       setTimeout(() => run(), 0);
     },
-    [run]
+    [run],
   );
 
   const downloadHTML = useCallback(() => {
@@ -305,7 +305,7 @@ export default function CodingPlayground() {
       warn: 'text-yellow-500',
       error: 'text-red-500',
     }),
-    []
+    [],
   );
 
   return (
@@ -399,7 +399,7 @@ export default function CodingPlayground() {
             <CardContent>
               <Tabs
                 value={activeTab}
-                onValueChange={(v) => setActiveTab(v as 'html' | 'css' | 'js')}
+                onValueChange={(v) => setActiveTab(v as any)}
                 className='w-full'
               >
                 <TabsList className='grid w-full grid-cols-3'>

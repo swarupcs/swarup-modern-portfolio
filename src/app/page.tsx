@@ -1,16 +1,15 @@
 'use client';
 
 import Hero from '@/components/hero';
-import About from '@/components/about';
-import Skills from '@/components/skills';
-import GithubStats from '@/components/github-stats';
-import LeetcodeStats from '@/components/leetcode-stats';
 import Experience from '@/components/experience';
 import Projects from '@/components/projects';
 import SkillsSection from '@/components/skills-section';
-import { motion } from 'framer-motion';
 import BlogList from '@/components/blog-list';
-import { Link } from 'lucide-react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import About from '@/components/about';
+import GithubStats from '@/components/github-stats';
+import LeetcodeStats from '@/components/leetcode-stats';
 
 export default function Home() {
   return (
@@ -57,16 +56,3 @@ export default function Home() {
     </div>
   );
 }
-
-// <div className='min-h-screen flex flex-col'>
-//   <main>
-//     <Hero />
-//     <About />
-//     <Skills />
-{
-  /* <CodingPlayground /> */
-}
-//     <GithubStats />
-//     <LeetcodeStats />
-//   </main>
-// </div>

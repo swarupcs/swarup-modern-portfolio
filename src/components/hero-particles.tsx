@@ -6,33 +6,17 @@ import { useTheme } from 'next-themes';
 import * as THREE from 'three';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 
-interface ParticleData {
-  t: number;
-  factor: number;
-  speed: number;
-  xFactor: number;
-  yFactor: number;
-  zFactor: number;
-  mx: number;
-  my: number;
-}
-
-interface ParticlesProps {
-  count?: number;
-  theme: string;
-}
-
 // Particle component
-function Particles({ count = 2000, theme }: ParticlesProps) {
-  const mesh = useRef<THREE.InstancedMesh>(null!);
-  const light = useRef<THREE.PointLight>(null!);
+function Particles({ count = 2000, theme }) {
+  const mesh = useRef();
+  const light = useRef();
   const { size, viewport } = useThree();
   const aspect = size.width / viewport.width;
 
   // Generate random particles
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const particles = useMemo(() => {
-    const temp: ParticleData[] = [];
+    const temp = [];
     for (let i = 0; i < count; i++) {
       const t = Math.random() * 100;
       const factor = 20 + Math.random() * 100;
@@ -72,7 +56,7 @@ function Particles({ count = 2000, theme }: ParticlesProps) {
         (particle.my / 10) * b +
           zFactor +
           Math.cos((t / 10) * factor) +
-          (Math.sin(t * 3) * factor) / 10
+          (Math.sin(t * 3) * factor) / 10,
       );
       dummy.scale.set(s * 0.5, s * 0.5, s * 0.5);
       dummy.updateMatrix();
@@ -89,7 +73,7 @@ function Particles({ count = 2000, theme }: ParticlesProps) {
         intensity={20}
         color={secondaryColor}
       />
-      <instancedMesh ref={mesh} args={[undefined, undefined, count]}>
+      <instancedMesh ref={mesh} args={[null, null, count]}>
         <dodecahedronGeometry args={[0.2, 0]} />
         <meshPhongMaterial color={particleColor} />
       </instancedMesh>
