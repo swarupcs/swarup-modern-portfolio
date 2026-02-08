@@ -107,8 +107,11 @@ export default function Hero() {
             variants={itemVariants}
             className='text-base md:text-lg text-muted-foreground max-w-2xl text-center leading-relaxed text-balance'
           >
-            I craft elegant digital experiences using modern web technologies.
-            Specializing in building scalable applications with{' '}
+            I craft elegant digital experiences while building scalable
+            full-stack systems. My work spans React & Next.js frontends, Node.js
+            APIs, and relational & NoSQL databases (PostgreSQL, MongoDB), with
+            an emphasis on maintainability, performance, and developer
+            experience.
             <Link
               href='https://nextjs.org/'
               target='_blank'
