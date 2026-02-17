@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 export default function BlogPage() {
   return (
     <div className='min-h-screen pt-24 pb-20'>
-      <div className='container px-4 md:px-6'>
+      <div className='px-4 md:px-6'>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
