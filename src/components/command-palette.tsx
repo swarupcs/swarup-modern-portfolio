@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface CommandItem {
   id: string;
@@ -48,6 +49,14 @@ const commands: CommandItem[] = [
     href: '#experience',
   },
   {
+    id: 'blog',
+    title: 'Blog',
+    description: 'Read my blog posts',
+    category: 'Navigation',
+    icon: <FileText className='h-4 w-4' />,
+    href: '#blogs',
+  },
+  {
     id: 'resume',
     title: 'Resume',
     description: 'Download my resume',
@@ -76,6 +85,20 @@ const commands: CommandItem[] = [
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const router = useRouter();
+
+  // After navigating to a new page, scroll to the hash if present
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      // Small delay to let the page render before scrolling
+      const timer = setTimeout(() => {
+        const element = document.querySelector(hash);
+        element?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -91,6 +114,28 @@ export function CommandPalette() {
     document.addEventListener('keydown', down);
     return () => document.removeEventListener('keydown', down);
   }, []);
+
+  const handleNavigation = (e: React.MouseEvent, href: string) => {
+    e.preventDefault();
+    setOpen(false);
+    setSearch('');
+
+    // If it's a hash link, handle navigation to home page if needed
+    if (href.startsWith('#')) {
+      const currentPath = window.location.pathname;
+      if (currentPath !== '/') {
+        // Navigate to home page with the hash
+        router.push('/' + href);
+      } else {
+        // Already on home page, just scroll
+        const element = document.querySelector(href);
+        element?.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // Regular navigation
+      router.push(href);
+    }
+  };
 
   const filteredCommands = commands.filter(
     (cmd) =>
@@ -162,6 +207,7 @@ export function CommandPalette() {
                       {cmds.map((cmd) => {
                         const isExternal = cmd.href.startsWith('http');
                         const isDownload = cmd.id === 'resume';
+                        const isHashLink = cmd.href.startsWith('#');
 
                         // Use <a> tag for downloads and external links
                         if (isDownload || isExternal) {
@@ -199,15 +245,12 @@ export function CommandPalette() {
                           );
                         }
 
-                        // Use Link for internal navigation
+                        // Use custom handler for hash links and Link for regular internal navigation
                         return (
                           <Link
                             key={cmd.id}
                             href={cmd.href}
-                            onClick={() => {
-                              setOpen(false);
-                              setSearch('');
-                            }}
+                            onClick={(e) => handleNavigation(e, cmd.href)}
                             className='flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors cursor-pointer'
                           >
                             <div className='text-muted-foreground'>
