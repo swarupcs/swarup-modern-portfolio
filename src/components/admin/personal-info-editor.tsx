@@ -16,7 +16,6 @@ import { usePortfolio } from '@/lib/portfolio-context';
 import { Save } from 'lucide-react';
 import { toast } from 'sonner';
 
-
 export default function PersonalInfoEditor() {
   const { portfolioData, updatePortfolioData } = usePortfolio();
   const [formData, setFormData] = useState(portfolioData.personalInfo);
@@ -34,7 +33,7 @@ export default function PersonalInfoEditor() {
 
   const handleSave = () => {
     updatePortfolioData({ personalInfo: formData });
-    toast.success('Success!', {
+    toast('Success!', {
       description: 'Personal information updated successfully.',
     });
   };
@@ -117,7 +116,7 @@ export default function PersonalInfoEditor() {
                 type='email'
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
-                placeholder='swarupd1999@gmail.com'
+                placeholder='your.email@example.com'
               />
             </div>
             <div className='space-y-2'>
@@ -126,7 +125,7 @@ export default function PersonalInfoEditor() {
                 id='phone'
                 value={formData.phone}
                 onChange={(e) => handleChange('phone', e.target.value)}
-                placeholder='6290994583'
+                placeholder='+1 (555) 123-4567'
               />
             </div>
           </div>
@@ -137,7 +136,7 @@ export default function PersonalInfoEditor() {
               id='location'
               value={formData.location}
               onChange={(e) => handleChange('location', e.target.value)}
-              placeholder='West Bengal, India'
+              placeholder='San Francisco, CA'
             />
           </div>
         </CardContent>

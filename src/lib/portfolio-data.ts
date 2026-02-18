@@ -1,13 +1,14 @@
 export interface Project {
-  id: string
-  title: string
-  description: string
-  image: string
-  technologies: string[]
-  liveUrl: string
-  githubUrl: string
-  category: string
-  featured: boolean
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  technologies: string[];
+  liveUrl: string;
+  githubUrl: string;
+  category: string;
+  featured: boolean;
+  hidden: boolean;
 }
 
 export interface Skill {
@@ -56,12 +57,25 @@ export interface PersonalInfo {
   }
 }
 
+export interface AboutInterest {
+  label: string
+  color: string
+}
+
+export interface AboutData {
+  bio1: string
+  bio2: string
+  interests: AboutInterest[]
+  socialLinks: string[]
+}
+
 export interface PortfolioData {
   personalInfo: PersonalInfo
   projects: Project[]
   skills: SkillCategory[]
   experience: Experience[]
   education: Education[]
+  about?: AboutData
 }
 
 export const defaultPortfolioData: PortfolioData = {
@@ -126,4 +140,15 @@ export const defaultPortfolioData: PortfolioData = {
       description: "Focused on software engineering and web development. Graduated with honors.",
     },
   ],
+  about: {
+    bio1:
+      "I am a passionate developer with experience in building scalable web applications and modern user interfaces.",
+    bio2:
+      "I enjoy working across the stack, learning new technologies, and contributing to impactful products.",
+    interests: [
+      { label: "Web Performance", color: "text-orange-500" },
+      { label: "Developer Experience", color: "text-blue-500" },
+    ],
+    socialLinks: [],
+  },
 }

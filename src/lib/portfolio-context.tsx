@@ -61,12 +61,25 @@ interface SkillCategory {
   skills: SkillItem[];
 }
 
+interface AboutInterest {
+  label: string;
+  color: string;
+}
+
+interface AboutData {
+  bio1: string;
+  bio2: string;
+  interests: AboutInterest[];
+  socialLinks: string[];
+}
+
 interface PortfolioData {
   personalInfo: PersonalInfo;
   projects: Project[];
   experience: Experience[];
   education: Education[];
   skills: SkillCategory[];
+  about?: AboutData;
 }
 
 const defaultData: PortfolioData = {
@@ -132,6 +145,17 @@ const defaultData: PortfolioData = {
       ],
     },
   ],
+  about: {
+    bio1:
+      'I am a passionate developer with experience in building scalable web applications and modern user interfaces.',
+    bio2:
+      'I enjoy working across the stack, learning new technologies, and contributing to impactful products.',
+    interests: [
+      { label: 'Web Performance', color: 'text-orange-500' },
+      { label: 'Developer Experience', color: 'text-blue-500' },
+    ],
+    socialLinks: [],
+  },
 };
 
 interface PortfolioContextType {
