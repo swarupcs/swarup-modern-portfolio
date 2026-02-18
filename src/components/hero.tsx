@@ -20,7 +20,7 @@ export default function Hero() {
   useEffect(() => {
     const fetchPersonalInfo = async () => {
       try {
-        const res = await fetch('/api/admin/personal-info');  
+        const res = await fetch('/api/portfolio/personal-info');  
         if (res.ok) {
           const data = await res.json();
           setPersonalInfo(data);
