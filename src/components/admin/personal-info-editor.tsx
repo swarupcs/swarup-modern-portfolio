@@ -1,199 +1,277 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { usePortfolio } from '@/lib/portfolio-context';
-import { Save } from 'lucide-react';
-import { toast } from 'sonner';
+  Save,
+  Github,
+  Linkedin,
+  Twitter,
+  Globe,
+  Mail,
+  Phone,
+  MapPin,
+  User,
+  Link,
+} from 'lucide-react';
+import {
+  AdminCard,
+  AdminCardHeader,
+  FormField,
+  Input,
+  PrimaryButton,
+  Toast,
+  LoadingSpinner,
+} from './ui';
+
+interface PersonalInfo {
+  id?: string;
+  name: string;
+  title: string;
+  subtitle: string;
+  email: string;
+  phone: string;
+  location: string;
+  website: string;
+  github: string;
+  linkedin: string;
+  twitter: string;
+  resume: string;
+  avatar: string;
+}
+
+const DEFAULT: PersonalInfo = {
+  name: '',
+  title: '',
+  subtitle: '',
+  email: '',
+  phone: '',
+  location: '',
+  website: '',
+  github: '',
+  linkedin: '',
+  twitter: '',
+  resume: '',
+  avatar: '',
+};
 
 export default function PersonalInfoEditor() {
-  const { portfolioData, updatePortfolioData } = usePortfolio();
-  const [formData, setFormData] = useState(portfolioData.personalInfo);
+  const [data, setData] = useState<PersonalInfo>(DEFAULT);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: 'success' | 'error';
+  } | null>(null);
 
-  const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  useEffect(() => {
+    fetch('/api/admin/personal-info')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d) setData(d);
+      })
+      .catch(() => setToast({ message: 'Failed to load data', type: 'error' }))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const set =
+    (k: keyof PersonalInfo) => (e: React.ChangeEvent<HTMLInputElement>) =>
+      setData((p) => ({ ...p, [k]: e.target.value }));
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/admin/personal-info', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error();
+      const updated = await res.json();
+      setData(updated);
+      setToast({
+        message: 'Personal info saved successfully!',
+        type: 'success',
+      });
+    } catch {
+      setToast({ message: 'Failed to save. Please try again.', type: 'error' });
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleSocialChange = (platform: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      socialLinks: { ...prev.socialLinks, [platform]: value },
-    }));
-  };
-
-  const handleSave = () => {
-    updatePortfolioData({ personalInfo: formData });
-    toast('Success!', {
-      description: 'Personal information updated successfully.',
-    });
-  };
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className='space-y-6'>
-      <Card>
-        <CardHeader>
-          <CardTitle>Personal Information</CardTitle>
-          <CardDescription>
-            Update your basic information and bio
-          </CardDescription>
-        </CardHeader>
-        <CardContent className='space-y-4'>
-          <div className='grid md:grid-cols-2 gap-4'>
-            <div className='space-y-2'>
-              <Label htmlFor='name'>Full Name</Label>
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
+
+      {/* Basic Info */}
+      <AdminCard>
+        <AdminCardHeader
+          title='Basic Information'
+          description='Your name and professional title'
+        />
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
+          <FormField label='Full Name'>
+            <div className='relative'>
+              <User className='absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4b5563]' />
               <Input
-                id='name'
-                value={formData.name}
-                onChange={(e) => handleChange('name', e.target.value)}
-                placeholder='Swarup Das'
+                className='pl-10'
+                value={data.name}
+                onChange={set('name')}
+                placeholder='John Doe'
               />
             </div>
-            <div className='space-y-2'>
-              <Label htmlFor='title'>Professional Title</Label>
+          </FormField>
+          <FormField label='Professional Title'>
+            <Input
+              value={data.title}
+              onChange={set('title')}
+              placeholder='Full Stack Developer'
+            />
+          </FormField>
+          <FormField label='Subtitle / Tagline'>
+            <Input
+              value={data.subtitle}
+              onChange={set('subtitle')}
+              placeholder='Building beautiful web experiences'
+            />
+          </FormField>
+          <FormField label='Avatar URL'>
+            <div className='flex gap-2'>
+              {data.avatar && (
+                <img
+                  src={data.avatar}
+                  alt='avatar'
+                  className='w-10 h-10 rounded-xl object-cover shrink-0 border border-[#2a2a3e]'
+                />
+              )}
               <Input
-                id='title'
-                value={formData.title}
-                onChange={(e) => handleChange('title', e.target.value)}
-                placeholder='Full Stack Developer'
+                value={data.avatar}
+                onChange={set('avatar')}
+                placeholder='https://...'
               />
             </div>
-          </div>
-
-          <div className='space-y-2'>
-            <Label htmlFor='bio'>Bio</Label>
-            <Textarea
-              id='bio'
-              value={formData.bio}
-              onChange={(e) => handleChange('bio', e.target.value)}
-              placeholder='Tell us about yourself...'
-              rows={4}
-            />
-          </div>
-
-          <div className='space-y-2'>
-            <Label htmlFor='avatar'>Avatar URL</Label>
-            <Input
-              id='avatar'
-              value={formData.avatar}
-              onChange={(e) => handleChange('avatar', e.target.value)}
-              placeholder='https://example.com/avatar.jpg'
-            />
-          </div>
-
-          <div className='space-y-2'>
-            <Label htmlFor='resumeUrl'>Resume URL</Label>
-            <Input
-              id='resumeUrl'
-              value={formData.resumeUrl}
-              onChange={(e) => handleChange('resumeUrl', e.target.value)}
-              placeholder='/resume.pdf'
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Contact Information</CardTitle>
-          <CardDescription>Update your contact details</CardDescription>
-        </CardHeader>
-        <CardContent className='space-y-4'>
-          <div className='grid md:grid-cols-2 gap-4'>
-            <div className='space-y-2'>
-              <Label htmlFor='email'>Email</Label>
+          </FormField>
+          <FormField label='Resume URL'>
+            <div className='relative'>
+              <Link className='absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4b5563]' />
               <Input
-                id='email'
+                className='pl-10'
+                value={data.resume}
+                onChange={set('resume')}
+                placeholder='https://...'
+              />
+            </div>
+          </FormField>
+        </div>
+      </AdminCard>
+
+      {/* Contact */}
+      <AdminCard>
+        <AdminCardHeader
+          title='Contact Details'
+          description='How people can reach you'
+        />
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
+          <FormField label='Email'>
+            <div className='relative'>
+              <Mail className='absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4b5563]' />
+              <Input
+                className='pl-10'
                 type='email'
-                value={formData.email}
-                onChange={(e) => handleChange('email', e.target.value)}
-                placeholder='your.email@example.com'
+                value={data.email}
+                onChange={set('email')}
+                placeholder='john@example.com'
               />
             </div>
-            <div className='space-y-2'>
-              <Label htmlFor='phone'>Phone</Label>
+          </FormField>
+          <FormField label='Phone'>
+            <div className='relative'>
+              <Phone className='absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4b5563]' />
               <Input
-                id='phone'
-                value={formData.phone}
-                onChange={(e) => handleChange('phone', e.target.value)}
-                placeholder='+1 (555) 123-4567'
+                className='pl-10'
+                value={data.phone}
+                onChange={set('phone')}
+                placeholder='+1 234 567 8900'
               />
             </div>
-          </div>
+          </FormField>
+          <FormField label='Location'>
+            <div className='relative'>
+              <MapPin className='absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4b5563]' />
+              <Input
+                className='pl-10'
+                value={data.location}
+                onChange={set('location')}
+                placeholder='New York, NY'
+              />
+            </div>
+          </FormField>
+          <FormField label='Website'>
+            <div className='relative'>
+              <Globe className='absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4b5563]' />
+              <Input
+                className='pl-10'
+                value={data.website}
+                onChange={set('website')}
+                placeholder='https://yoursite.com'
+              />
+            </div>
+          </FormField>
+        </div>
+      </AdminCard>
 
-          <div className='space-y-2'>
-            <Label htmlFor='location'>Location</Label>
-            <Input
-              id='location'
-              value={formData.location}
-              onChange={(e) => handleChange('location', e.target.value)}
-              placeholder='San Francisco, CA'
-            />
-          </div>
-        </CardContent>
-      </Card>
+      {/* Social Links */}
+      <AdminCard>
+        <AdminCardHeader
+          title='Social Profiles'
+          description='Your online presence'
+        />
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
+          <FormField label='GitHub'>
+            <div className='relative'>
+              <Github className='absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4b5563]' />
+              <Input
+                className='pl-10'
+                value={data.github}
+                onChange={set('github')}
+                placeholder='https://github.com/username'
+              />
+            </div>
+          </FormField>
+          <FormField label='LinkedIn'>
+            <div className='relative'>
+              <Linkedin className='absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4b5563]' />
+              <Input
+                className='pl-10'
+                value={data.linkedin}
+                onChange={set('linkedin')}
+                placeholder='https://linkedin.com/in/username'
+              />
+            </div>
+          </FormField>
+          <FormField label='Twitter / X'>
+            <div className='relative'>
+              <Twitter className='absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4b5563]' />
+              <Input
+                className='pl-10'
+                value={data.twitter}
+                onChange={set('twitter')}
+                placeholder='https://twitter.com/username'
+              />
+            </div>
+          </FormField>
+        </div>
+      </AdminCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Social Links</CardTitle>
-          <CardDescription>Update your social media profiles</CardDescription>
-        </CardHeader>
-        <CardContent className='space-y-4'>
-          <div className='space-y-2'>
-            <Label htmlFor='github'>GitHub</Label>
-            <Input
-              id='github'
-              value={formData.socialLinks.github}
-              onChange={(e) => handleSocialChange('github', e.target.value)}
-              placeholder='https://github.com/username'
-            />
-          </div>
-
-          <div className='space-y-2'>
-            <Label htmlFor='linkedin'>LinkedIn</Label>
-            <Input
-              id='linkedin'
-              value={formData.socialLinks.linkedin}
-              onChange={(e) => handleSocialChange('linkedin', e.target.value)}
-              placeholder='https://linkedin.com/in/username'
-            />
-          </div>
-
-          <div className='space-y-2'>
-            <Label htmlFor='twitter'>Twitter</Label>
-            <Input
-              id='twitter'
-              value={formData.socialLinks.twitter}
-              onChange={(e) => handleSocialChange('twitter', e.target.value)}
-              placeholder='https://twitter.com/username'
-            />
-          </div>
-
-          <div className='space-y-2'>
-            <Label htmlFor='website'>Website</Label>
-            <Input
-              id='website'
-              value={formData.socialLinks.website}
-              onChange={(e) => handleSocialChange('website', e.target.value)}
-              placeholder='https://yourwebsite.com'
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Button onClick={handleSave} className='w-full md:w-auto'>
-        <Save className='mr-2 h-4 w-4' />
-        Save Changes
-      </Button>
+      {/* Save */}
+      <div className='flex justify-end'>
+        <PrimaryButton onClick={handleSave} loading={saving}>
+          <Save className='w-4 h-4' />
+          Save Changes
+        </PrimaryButton>
+      </div>
     </div>
   );
 }
