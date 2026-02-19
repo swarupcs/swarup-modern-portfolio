@@ -61,7 +61,11 @@ export default function ExperienceEditor() {
     setSkillInput('');
   };
   const openEdit = (e: Experience) => {
-    setEditing({ ...e });
+    setEditing({
+      ...e,
+      description: e.description ?? '',
+      skills: e.skills ?? [],
+    });
     setIsNew(false);
     setSkillInput('');
   };

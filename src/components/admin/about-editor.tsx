@@ -10,7 +10,6 @@ import {
   Textarea,
   PrimaryButton,
   SecondaryButton,
-  DangerButton,
   Toast,
   LoadingSpinner,
 } from './ui';
@@ -40,7 +39,14 @@ export default function AboutEditor() {
     fetch('/api/admin/about')
       .then((r) => r.json())
       .then((d) => {
-        if (d) setData(d);
+        if (d) {
+          setData({
+            id: d.id,
+            bio: d.bio ?? '',
+            description: d.description ?? '',
+            highlights: d.highlights ?? [],
+          });
+        }
       })
       .catch(() => setToast({ message: 'Failed to load data', type: 'error' }))
       .finally(() => setLoading(false));

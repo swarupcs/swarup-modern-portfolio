@@ -67,7 +67,15 @@ export default function PersonalInfoEditor() {
     fetch('/api/admin/personal-info')
       .then((r) => r.json())
       .then((d) => {
-        if (d) setData(d);
+        if (d) {
+          // Coerce null values to empty strings for controlled inputs
+          setData({
+            ...DEFAULT,
+            ...Object.fromEntries(
+              Object.entries(d).map(([k, v]) => [k, v ?? '']),
+            ),
+          });
+        }
       })
       .catch(() => setToast({ message: 'Failed to load data', type: 'error' }))
       .finally(() => setLoading(false));

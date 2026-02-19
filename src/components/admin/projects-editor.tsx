@@ -82,7 +82,14 @@ export default function ProjectsEditor() {
     setTechInput('');
   };
   const openEdit = (p: Project) => {
-    setEditing({ ...p });
+    setEditing({
+      ...p,
+      image: p.image ?? '',
+      liveUrl: p.liveUrl ?? '',
+      githubUrl: p.githubUrl ?? '',
+      category: p.category ?? '',
+      technologies: p.technologies ?? [],
+    });
     setIsNew(false);
     setTechInput('');
   };

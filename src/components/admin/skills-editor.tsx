@@ -75,7 +75,12 @@ export default function SkillsEditor() {
     setIsNew(true);
   };
   const openEdit = (s: Skill) => {
-    setEditing({ ...s });
+    setEditing({
+      ...s,
+      category: s.category ?? '',
+      icon: s.icon ?? '',
+      level: s.level ?? 75,
+    });
     setIsNew(false);
   };
   const closeEditor = () => {
