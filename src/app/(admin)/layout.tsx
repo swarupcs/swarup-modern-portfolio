@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
   title: 'Admin | Portfolio',
@@ -11,14 +10,5 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <ThemeProvider
-      attribute='class'
-      defaultTheme='dark'
-      forcedTheme='dark'
-      disableTransitionOnChange
-    >
-      {children}
-    </ThemeProvider>
-  );
+  return <>{children}</>;
 }

@@ -18,6 +18,7 @@ const nav = [
 export default function Header() {
   const pathname = usePathname() || '/';
   const [open, setOpen] = useState(false);
+  console.log("Header")
 
   return (
     <header className='fixed inset-x-0 top-0 z-50 glass-morphism border-b border-white/10 supports-[backdrop-filter]:bg-black/20'>
