@@ -3,13 +3,16 @@
 export function AdminCard({
   children,
   className = '',
+  style,
 }: {
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }) {
   return (
     <div
       className={`bg-[#111118] border border-[#1a1a2e] rounded-2xl p-6 ${className}`}
+      style={style}
     >
       {children}
     </div>

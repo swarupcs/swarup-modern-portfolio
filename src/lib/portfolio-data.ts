@@ -104,6 +104,7 @@ export const defaultPortfolioData: PortfolioData = {
       image: "/placeholder.svg?height=300&width=600",
       technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Stripe", "PostgreSQL"],
       liveUrl: "https://ecommerce-demo.com",
+      hidden: false,
       githubUrl: "https://github.com/yourusername/ecommerce",
       category: "Web Development",
       featured: true,
