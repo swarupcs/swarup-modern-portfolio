@@ -1,20 +1,36 @@
 'use client';
 
-import React from 'react';
-
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Github, ExternalLink, Globe } from 'lucide-react';
 import { TechBadgeWithIcon } from '@/lib/tech-icons';
-import { projectsData } from '@/lib/projects';
 
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  image: string | null;
+  technologies: string[];
+  githubUrl: string | null;
+  liveUrl: string | null;
+  category: string | null;
+  featured: boolean;
+  hidden: boolean;
+}
 
 export default function Projects() {
-  // Use projects data directly from projects-data.ts
-  const filteredProjects = projectsData.filter(
-    (project) => project.hidden !== true,
-  );
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/portfolio/projects')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => setProjects(Array.isArray(data) ? data : []))
+      .catch(() => setProjects([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   const isInternal = (url: string) => url?.startsWith('/');
 
@@ -38,13 +54,22 @@ export default function Projects() {
           </p>
         </motion.div>
 
-        {filteredProjects.length === 0 ? (
+        {loading ? (
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10'>
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className='h-96 rounded-2xl border border-white/10 bg-card/30 animate-pulse'
+              />
+            ))}
+          </div>
+        ) : projects.length === 0 ? (
           <div className='text-center text-muted-foreground py-12'>
-            No projects to display.
+            No projects to display. Add some from the admin panel.
           </div>
         ) : (
           <div className='grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10'>
-            {filteredProjects.map((project, index) => (
+            {projects.map((project, index) => (
               <motion.div
                 key={project.id}
                 initial={{ opacity: 0, y: 30 }}
@@ -64,10 +89,7 @@ export default function Projects() {
                         }}
                       >
                         <Image
-                          src={
-                            project.image ||
-                            '/placeholder.svg?height=300&width=600&query=project thumbnail'
-                          }
+                          src={project.image}
                           alt={project.title}
                           fill
                           className='object-cover'
@@ -91,7 +113,6 @@ export default function Projects() {
                             href={project.liveUrl}
                             target='_blank'
                             rel='noopener noreferrer'
-                            className='hover:opacity-100'
                           >
                             <Globe className='w-5 h-5' />
                           </a>
@@ -101,7 +122,6 @@ export default function Projects() {
                             href={project.githubUrl}
                             target='_blank'
                             rel='noopener noreferrer'
-                            className='hover:opacity-100'
                           >
                             <Github className='w-5 h-5' />
                           </a>
@@ -130,17 +150,22 @@ export default function Projects() {
                       <div className='flex items-center gap-2'>
                         <div className='w-2 h-2 rounded-full bg-green-500' />
                         <span className='text-xs font-medium text-muted-foreground'>
-                          Active
+                          {project.featured ? 'Featured' : 'Active'}
                         </span>
                       </div>
-
-                      <Link
-                        href={`/projects/${project.id}`}
-                        className='text-xs font-semibold text-primary hover:text-primary/80 transition-colors flex items-center gap-1.5 group/link'
-                      >
-                        Details
-                        <ExternalLink className='w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform' />
-                      </Link>
+                      {project.liveUrl && (
+                        <a
+                          href={project.liveUrl}
+                          target={
+                            isInternal(project.liveUrl) ? '_self' : '_blank'
+                          }
+                          rel='noopener noreferrer'
+                          className='text-xs font-semibold text-primary hover:text-primary/80 transition-colors flex items-center gap-1.5 group/link'
+                        >
+                          View Project
+                          <ExternalLink className='w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform' />
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -148,20 +173,6 @@ export default function Projects() {
             ))}
           </div>
         )}
-
-        {/* <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className='mt-16 text-center'
-        >
-          <Link
-            href='/projects'
-            className='inline-block px-6 py-3 border border-primary text-primary hover:bg-primary/5 transition-colors rounded-lg font-medium'
-          >
-            Show all projects
-          </Link>
-        </motion.div> */}
       </div>
     </section>
   );

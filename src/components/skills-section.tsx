@@ -1,23 +1,72 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { TechBadgeWithIcon } from '@/lib/tech-icons';
 
+interface Skill {
+  id: string;
+  name: string;
+  category: string;
+  level: number;
+  icon: string | null;
+}
+
+interface SkillCategory {
+  name: string;
+  skills: string[];
+}
+
 export default function SkillsSection() {
-  const skillCategories = [
-    {
-      name: 'Frontend',
-      skills: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'JavaScript'],
-    },
-    {
-      name: 'Backend',
-      skills: ['Node.js', 'Express', 'PostgreSQL', 'MongoDB', 'Python'],
-    },
-    {
-      name: 'Tools & Platforms',
-      skills: ['Vercel', 'AWS', 'Git', 'Docker', 'Figma'],
-    },
-  ];
+  const [categories, setCategories] = useState<SkillCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/portfolio/skills')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: Skill[]) => {
+        if (!Array.isArray(data) || data.length === 0) {
+          // Fallback to defaults if DB is empty
+          setCategories([
+            {
+              name: 'Frontend',
+              skills: [
+                'React',
+                'Next.js',
+                'TypeScript',
+                'Tailwind CSS',
+                'JavaScript',
+              ],
+            },
+            {
+              name: 'Backend',
+              skills: ['Node.js', 'Express', 'PostgreSQL', 'MongoDB', 'Python'],
+            },
+            {
+              name: 'Tools & Platforms',
+              skills: ['Vercel', 'AWS', 'Git', 'Docker', 'Figma'],
+            },
+          ]);
+          return;
+        }
+        // Group skills by category
+        const grouped = data.reduce(
+          (acc, skill) => {
+            const cat = skill.category || 'Other';
+            if (!acc[cat]) acc[cat] = [];
+            acc[cat].push(skill.name);
+            return acc;
+          },
+          {} as Record<string, string[]>,
+        );
+
+        setCategories(
+          Object.entries(grouped).map(([name, skills]) => ({ name, skills })),
+        );
+      })
+      .catch(() => setCategories([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -53,39 +102,50 @@ export default function SkillsSection() {
           </p>
         </motion.div>
 
-        <motion.div
-          variants={containerVariants}
-          initial='hidden'
-          whileInView='visible'
-          viewport={{ once: true }}
-          className='grid grid-cols-1 md:grid-cols-3 gap-8'
-        >
-          {skillCategories.map((category) => (
-            <motion.div
-              key={category.name}
-              variants={categoryVariants}
-              className='space-y-4'
-            >
-              <h3 className='text-lg font-semibold text-foreground'>
-                {category.name}
-              </h3>
-              <div className='flex flex-wrap gap-2'>
-                {category.skills.map((skill) => (
-                  <motion.div
-                    key={skill}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.3 }}
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    <TechBadgeWithIcon tech={skill} />
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+        {loading ? (
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className='h-32 rounded-xl border border-white/10 bg-card/30 animate-pulse'
+              />
+            ))}
+          </div>
+        ) : (
+          <motion.div
+            variants={containerVariants}
+            initial='hidden'
+            whileInView='visible'
+            viewport={{ once: true }}
+            className='grid grid-cols-1 md:grid-cols-3 gap-8'
+          >
+            {categories.map((category) => (
+              <motion.div
+                key={category.name}
+                variants={categoryVariants}
+                className='space-y-4'
+              >
+                <h3 className='text-lg font-semibold text-foreground'>
+                  {category.name}
+                </h3>
+                <div className='flex flex-wrap gap-2'>
+                  {category.skills.map((skill) => (
+                    <motion.div
+                      key={skill}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.3 }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <TechBadgeWithIcon tech={skill} />
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
       </div>
     </section>
   );

@@ -1,38 +1,82 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Coffee, Heart, Zap, Github, Linkedin, Twitter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
+interface AboutData {
+  bio: string | null;
+  description: string | null;
+  highlights: string[];
+}
+
+interface PersonalInfo {
+  name: string | null;
+  title: string | null;
+  location: string | null;
+  github: string | null;
+  linkedin: string | null;
+  twitter: string | null;
+}
+
+const DEFAULT_INTERESTS = [
+  { icon: Coffee, label: 'Coffee Enthusiast', color: 'text-orange-500' },
+  { icon: Heart, label: 'Open Source Contributor', color: 'text-red-500' },
+  { icon: Zap, label: 'Problem Solver', color: 'text-yellow-500' },
+];
+
 export default function About() {
-  const interests = [
-    { icon: Coffee, label: 'Coffee Enthusiast', color: 'text-orange-500' },
-    { icon: Heart, label: 'Open Source Contributor', color: 'text-red-500' },
-    { icon: Zap, label: 'Problem Solver', color: 'text-yellow-500' },
-  ];
+  const [about, setAbout] = useState<AboutData | null>(null);
+  const [info, setInfo] = useState<PersonalInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/portfolio/about').then((r) => (r.ok ? r.json() : null)),
+      fetch('/api/portfolio/personal-info').then((r) =>
+        r.ok ? r.json() : null,
+      ),
+    ])
+      .then(([aboutData, infoData]) => {
+        if (aboutData) setAbout(aboutData);
+        if (infoData) setInfo(infoData);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   const socialLinks = [
     {
       icon: Github,
-      href: 'https://github.com/yourusername',
+      href: info?.github || '#',
       label: 'GitHub',
       color: 'hover:text-gray-900 dark:hover:text-gray-100',
     },
     {
       icon: Linkedin,
-      href: 'https://linkedin.com/in/yourusername',
+      href: info?.linkedin || '#',
       label: 'LinkedIn',
       color: 'hover:text-blue-600',
     },
     {
       icon: Twitter,
-      href: 'https://twitter.com/yourusername',
+      href: info?.twitter || '#',
       label: 'Twitter',
       color: 'hover:text-sky-500',
     },
-  ];
+  ].filter((s) => s.href !== '#');
+
+  // Use highlights from DB as interests, fallback to defaults
+  const interests = about?.highlights?.length
+    ? about.highlights.map((h, i) => ({
+        icon: [Coffee, Heart, Zap][i % 3],
+        label: h,
+        color: ['text-orange-500', 'text-red-500', 'text-yellow-500'][i % 3],
+      }))
+    : DEFAULT_INTERESTS;
 
   return (
     <section id='about' className='py-20 md:py-32'>
@@ -64,26 +108,38 @@ export default function About() {
             viewport={{ once: true }}
             className='space-y-8'
           >
-            <p className='text-xl text-muted-foreground leading-relaxed transition-all duration-300 ease-in-out hover:text-foreground'>
-              I&apos;m a passionate{' '}
-              <span className='text-primary font-semibold'>
-                full-stack developer
-              </span>{' '}
-              dedicated to building exceptional digital experiences. I transform
-              complex problems into elegant, scalable solutions using modern web
-              technologies.
-            </p>
+            {about?.bio ? (
+              <p className='text-xl text-muted-foreground leading-relaxed transition-all duration-300 ease-in-out hover:text-foreground'>
+                {about.bio}
+              </p>
+            ) : (
+              <p className='text-xl text-muted-foreground leading-relaxed transition-all duration-300 ease-in-out hover:text-foreground'>
+                I&apos;m a passionate{' '}
+                <span className='text-primary font-semibold'>
+                  full-stack developer
+                </span>{' '}
+                dedicated to building exceptional digital experiences. I
+                transform complex problems into elegant, scalable solutions
+                using modern web technologies.
+              </p>
+            )}
 
-            <p className='text-xl text-muted-foreground leading-relaxed transition-all duration-300 ease-in-out hover:text-foreground'>
-              My expertise spans{' '}
-              <span className='gradient-blue-pink font-semibold'>
-                React, Next.js, Node.js, TypeScript, and cloud platforms
-              </span>
-              . I&apos;m obsessed with clean code, performance optimization, and
-              creating interfaces that delight users.
-            </p>
+            {about?.description ? (
+              <p className='text-xl text-muted-foreground leading-relaxed transition-all duration-300 ease-in-out hover:text-foreground'>
+                {about.description}
+              </p>
+            ) : (
+              <p className='text-xl text-muted-foreground leading-relaxed transition-all duration-300 ease-in-out hover:text-foreground'>
+                My expertise spans{' '}
+                <span className='gradient-blue-pink font-semibold'>
+                  React, Next.js, Node.js, TypeScript, and cloud platforms
+                </span>
+                . I&apos;m obsessed with clean code, performance optimization,
+                and creating interfaces that delight users.
+              </p>
+            )}
 
-            {/* Interests */}
+            {/* Interests / Highlights */}
             <div className='flex flex-wrap gap-3 pt-4'>
               {interests.map((interest, index) => (
                 <motion.div
@@ -108,34 +164,36 @@ export default function About() {
             </div>
 
             {/* Social Links */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              viewport={{ once: true }}
-              className='flex gap-4 pt-6'
-            >
-              {socialLinks.map((social, index) => (
-                <Link
-                  key={index}
-                  href={social.href}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                >
-                  <Button
-                    variant='outline'
-                    size='icon'
-                    className={`rounded-xl transition-all duration-300 hover:scale-110 hover:translate-x-1 ${social.color}`}
+            {socialLinks.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                viewport={{ once: true }}
+                className='flex gap-4 pt-6'
+              >
+                {socialLinks.map((social, index) => (
+                  <Link
+                    key={index}
+                    href={social.href}
+                    target='_blank'
+                    rel='noopener noreferrer'
                   >
-                    <social.icon className='h-5 w-5' />
-                    <span className='sr-only'>{social.label}</span>
-                  </Button>
-                </Link>
-              ))}
-            </motion.div>
+                    <Button
+                      variant='outline'
+                      size='icon'
+                      className={`rounded-xl transition-all duration-300 hover:scale-110 hover:translate-x-1 ${social.color}`}
+                    >
+                      <social.icon className='h-5 w-5' />
+                      <span className='sr-only'>{social.label}</span>
+                    </Button>
+                  </Link>
+                ))}
+              </motion.div>
+            )}
           </motion.div>
 
-          {/* Right: Code Snippet */}
+          {/* Right: Code Snippet — dynamic data */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -144,7 +202,6 @@ export default function About() {
           >
             <Card className='bg-card/50 backdrop-blur border-2 overflow-hidden transition-all duration-300 hover:translate-x-1 hover:shadow-lg'>
               <CardContent className='p-6'>
-                {/* Terminal Header */}
                 <div className='flex items-center gap-2 mb-4 pb-3 border-b'>
                   <div className='flex gap-2'>
                     <div className='w-3 h-3 bg-red-500 rounded-full' />
@@ -156,7 +213,6 @@ export default function About() {
                   </span>
                 </div>
 
-                {/* Code Content */}
                 <div className='font-mono text-sm space-y-1'>
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -171,63 +227,49 @@ export default function About() {
                     <span className='text-yellow-400'>{'{'}</span>
                   </motion.div>
 
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ delay: 0.6 }}
-                    viewport={{ once: true }}
-                    className='ml-4 transition-all duration-300 hover:translate-x-1 cursor-default'
-                  >
-                    <span className='text-blue-400'>name</span>
-                    <span className='text-gray-400'>:</span>{' '}
-                    <span className='text-green-400'>
-                      &apos;Swarup Das&apos;
-                    </span>
-                    <span className='text-gray-400'>,</span>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ delay: 0.7 }}
-                    viewport={{ once: true }}
-                    className='ml-4 transition-all duration-300 hover:translate-x-1 cursor-default'
-                  >
-                    <span className='text-blue-400'>title</span>
-                    <span className='text-gray-400'>:</span>{' '}
-                    <span className='text-green-400'>
-                      &apos;Full-Stack Developer&apos;
-                    </span>
-                    <span className='text-gray-400'>,</span>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ delay: 0.8 }}
-                    viewport={{ once: true }}
-                    className='ml-4 transition-all duration-300 hover:translate-x-1 cursor-default'
-                  >
-                    <span className='text-blue-400'>location</span>
-                    <span className='text-gray-400'>:</span>{' '}
-                    <span className='text-green-400'>
-                      &apos;Kolkata, India&apos;
-                    </span>
-                    <span className='text-gray-400'>,</span>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ delay: 0.9 }}
-                    viewport={{ once: true }}
-                    className='ml-4 transition-all duration-300 hover:translate-x-1 cursor-default'
-                  >
-                    <span className='text-blue-400'>available</span>
-                    <span className='text-gray-400'>:</span>{' '}
-                    <span className='text-orange-400'>true</span>
-                    <span className='text-gray-400'>,</span>
-                  </motion.div>
+                  {[
+                    {
+                      key: 'name',
+                      value: info?.name || 'Swarup Das',
+                      delay: 0.6,
+                    },
+                    {
+                      key: 'title',
+                      value: info?.title || 'Full-Stack Developer',
+                      delay: 0.7,
+                    },
+                    {
+                      key: 'location',
+                      value: info?.location || 'India',
+                      delay: 0.8,
+                    },
+                    {
+                      key: 'available',
+                      value: 'true',
+                      delay: 0.9,
+                      isBoolean: true,
+                    },
+                  ].map(({ key, value, delay, isBoolean }) => (
+                    <motion.div
+                      key={key}
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ delay }}
+                      viewport={{ once: true }}
+                      className='ml-4 transition-all duration-300 hover:translate-x-1 cursor-default'
+                    >
+                      <span className='text-blue-400'>{key}</span>
+                      <span className='text-gray-400'>: </span>
+                      {isBoolean ? (
+                        <span className='text-orange-400'>{value}</span>
+                      ) : (
+                        <span className='text-green-400'>
+                          &apos;{value}&apos;
+                        </span>
+                      )}
+                      <span className='text-gray-400'>,</span>
+                    </motion.div>
+                  ))}
 
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -236,29 +278,8 @@ export default function About() {
                     viewport={{ once: true }}
                     className='ml-4 transition-all duration-300 hover:translate-x-1 cursor-default'
                   >
-                    <span className='text-blue-400'>skills</span>
-                    <span className='text-gray-400'>:</span>{' '}
-                    <span className='text-yellow-400'>[</span>
-                    <span className='text-green-400'>&apos;React&apos;</span>
-                    <span className='text-gray-400'>,</span>{' '}
-                    <span className='text-green-400'>&apos;Node.js&apos;</span>
-                    <span className='text-gray-400'>,</span>{' '}
-                    <span className='text-green-400'>
-                      &apos;TypeScript&apos;
-                    </span>
-                    <span className='text-yellow-400'>]</span>
-                    <span className='text-gray-400'>,</span>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ delay: 1.1 }}
-                    viewport={{ once: true }}
-                    className='ml-4 transition-all duration-300 hover:translate-x-1 cursor-default'
-                  >
                     <span className='text-blue-400'>passion</span>
-                    <span className='text-gray-400'>:</span>{' '}
+                    <span className='text-gray-400'>: </span>
                     <span className='text-green-400'>
                       &apos;Building amazing things&apos;
                     </span>
@@ -267,7 +288,7 @@ export default function About() {
                   <motion.div
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
-                    transition={{ delay: 1.2 }}
+                    transition={{ delay: 1.1 }}
                     viewport={{ once: true }}
                     className='text-yellow-400'
                   >

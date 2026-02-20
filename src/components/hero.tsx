@@ -5,34 +5,37 @@ import { Button } from '@/components/ui/button';
 import { Github, Linkedin, Mail, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { motion, Variants } from 'framer-motion';
-import Image from 'next/image';
+
+interface PersonalInfo {
+  name: string;
+  title: string;
+  github: string | null;
+  linkedin: string | null;
+  email: string | null;
+  subtitle: string | null;
+}
+
+const DEFAULT: PersonalInfo = {
+  name: 'Swarup Das',
+  title: 'Full Stack Developer',
+  github: 'https://github.com/swarupcs',
+  linkedin: 'https://linkedin.com/in/swarup-d',
+  email: 'swarupd1999@gmail.com',
+  subtitle: null,
+};
 
 export default function Hero() {
-  const [personalInfo, setPersonalInfo] = useState({
-    name: 'Swarup Das',
-    title: 'Full Stack Developer',
-    github_url: 'https://github.com/swarupcs',
-    linkedin_url: 'https://linkedin.com/in/swarup-d',
-    email: 'swarupd1999@gmail.com',
-  });
+  const [info, setInfo] = useState<PersonalInfo>(DEFAULT);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPersonalInfo = async () => {
-      try {
-        const res = await fetch('/api/portfolio/personal-info');  
-        if (res.ok) {
-          const data = await res.json();
-          setPersonalInfo(data);
-        }
-      } catch (error) {
-        console.error('Error fetching personal info:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPersonalInfo();
+    fetch('/api/portfolio/personal-info')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) setInfo(data);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   if (loading) {
@@ -74,74 +77,43 @@ export default function Hero() {
           animate='visible'
           className='flex flex-col items-center gap-12'
         >
-          {/* Avatar with glow and animation */}
+          {/* Avatar */}
           <motion.div variants={itemVariants} className='relative'>
             <div className='absolute inset-0 w-40 h-40 md:w-48 md:h-48 bg-gradient-to-br from-primary/40 via-secondary/20 to-accent/10 rounded-full blur-2xl animate-pulse' />
             <div className='relative w-40 h-40 md:w-48 md:h-48 rounded-full bg-gradient-to-br from-primary/30 via-secondary/20 to-accent/10 p-1 glow-primary'>
               <div className='w-full h-full rounded-full bg-gradient-to-br from-card to-card/80 flex items-center justify-center text-6xl md:text-7xl font-black bg-gradient-purple-blue'>
-                SD
+                {info.name
+                  ?.split(' ')
+                  .map((n) => n[0])
+                  .join('') || 'SD'}
               </div>
             </div>
           </motion.div>
 
-          {/* Main heading with gradient and premium styling */}
+          {/* Heading */}
           <motion.div
             variants={itemVariants}
             className='text-center space-y-4 max-w-4xl'
           >
             <div className='text-5xl md:text-7xl font-black tracking-tight text-balance'>
               <span className='gradient-purple-blue'>
-                Hi, I&apos;m {personalInfo.name}
+                Hi, I&apos;m {info.name}
               </span>
               <span className='block text-3xl md:text-5xl mt-2 text-muted-foreground font-light'>
                 —
               </span>
             </div>
             <p className='text-2xl md:text-3xl font-light text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent animate-gradient-shift'>
-              {personalInfo.title}
+              {info.title}
             </p>
+            {info.subtitle && (
+              <p className='text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed'>
+                {info.subtitle}
+              </p>
+            )}
           </motion.div>
 
-          {/* Bio with inline links */}
-          <motion.p
-            variants={itemVariants}
-            className='text-base md:text-lg text-muted-foreground max-w-2xl text-center leading-relaxed text-balance'
-          >
-            I craft elegant digital experiences while building scalable
-            full-stack systems. My work spans React & Next.js frontends, Node.js
-            APIs, and relational & NoSQL databases (PostgreSQL, MongoDB), with
-            an emphasis on maintainability, performance, and developer
-            experience.
-            <Link
-              href='https://nextjs.org/'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-foreground font-medium hover:text-primary transition-colors border-b border-primary/30 hover:border-primary'
-            >
-              Next.js
-            </Link>
-            ,{' '}
-            <Link
-              href='https://www.typescriptlang.org/'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-foreground font-medium hover:text-primary transition-colors border-b border-primary/30 hover:border-primary'
-            >
-              TypeScript
-            </Link>
-            , and{' '}
-            <Link
-              href='https://www.postgresql.org/'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-foreground font-medium hover:text-primary transition-colors border-b border-primary/30 hover:border-primary'
-            >
-              PostgreSQL
-            </Link>
-            .
-          </motion.p>
-
-          {/* CTAs with premium styling */}
+          {/* CTAs */}
           <motion.div
             variants={itemVariants}
             className='flex flex-col sm:flex-row gap-5 pt-8'
@@ -161,41 +133,56 @@ export default function Hero() {
               className='rounded-full font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-6 text-base transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 bg-transparent dark:bg-primary/10 dark:hover:bg-primary'
               asChild
             >
-              <Link href={`mailto:${personalInfo.email}`}>Get in touch</Link>
+              <Link href={`mailto:${info.email}`}>Get in touch</Link>
             </Button>
           </motion.div>
 
-          {/* Social links with hover effects */}
+          {/* Social links */}
           <motion.div variants={itemVariants} className='flex gap-4 pt-8'>
-            <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                href={personalInfo.github_url}
-                target='_blank'
-                className='w-12 h-12 rounded-full border border-white/20 hover:border-primary/70 hover:bg-primary/10 flex items-center justify-center text-muted-foreground hover:text-primary transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 group'
+            {info.github && (
+              <motion.div
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <Github className='h-5 w-5 group-hover:scale-120 transition-transform' />
-                <span className='sr-only'>GitHub</span>
-              </Link>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                href={personalInfo.linkedin_url}
-                target='_blank'
-                className='w-12 h-12 rounded-full border border-white/20 hover:border-secondary/70 hover:bg-secondary/10 flex items-center justify-center text-muted-foreground hover:text-secondary transition-all duration-300 hover:shadow-lg hover:shadow-secondary/30 group'
+                <Link
+                  href={info.github}
+                  target='_blank'
+                  className='w-12 h-12 rounded-full border border-white/20 hover:border-primary/70 hover:bg-primary/10 flex items-center justify-center text-muted-foreground hover:text-primary transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 group'
+                >
+                  <Github className='h-5 w-5' />
+                  <span className='sr-only'>GitHub</span>
+                </Link>
+              </motion.div>
+            )}
+            {info.linkedin && (
+              <motion.div
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <Linkedin className='h-5 w-5 group-hover:scale-120 transition-transform' />
-                <span className='sr-only'>LinkedIn</span>
-              </Link>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                href={`mailto:${personalInfo.email}`}
-                className='w-12 h-12 rounded-full border border-white/20 hover:border-accent/70 hover:bg-accent/10 flex items-center justify-center text-muted-foreground hover:text-accent transition-all duration-300 hover:shadow-lg hover:shadow-accent/30 group'
+                <Link
+                  href={info.linkedin}
+                  target='_blank'
+                  className='w-12 h-12 rounded-full border border-white/20 hover:border-secondary/70 hover:bg-secondary/10 flex items-center justify-center text-muted-foreground hover:text-secondary transition-all duration-300 hover:shadow-lg hover:shadow-secondary/30 group'
+                >
+                  <Linkedin className='h-5 w-5' />
+                  <span className='sr-only'>LinkedIn</span>
+                </Link>
+              </motion.div>
+            )}
+            {info.email && (
+              <motion.div
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <Mail className='h-5 w-5 group-hover:scale-120 transition-transform' />
-                <span className='sr-only'>Email</span>
-              </Link>
-            </motion.div>
+                <Link
+                  href={`mailto:${info.email}`}
+                  className='w-12 h-12 rounded-full border border-white/20 hover:border-accent/70 hover:bg-accent/10 flex items-center justify-center text-muted-foreground hover:text-accent transition-all duration-300 hover:shadow-lg hover:shadow-accent/30 group'
+                >
+                  <Mail className='h-5 w-5' />
+                  <span className='sr-only'>Email</span>
+                </Link>
+              </motion.div>
+            )}
           </motion.div>
         </motion.div>
       </div>
