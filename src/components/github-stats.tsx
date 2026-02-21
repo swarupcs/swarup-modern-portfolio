@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   GitBranch,
@@ -9,8 +9,19 @@ import {
   Star,
   Users,
   Flame,
+  TrendingUp,
+  Calendar,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface ContributionDay {
+  date: string;
+  count: number;
+}
+
+type GridDay = ContributionDay | null; // null = empty padding slot
 
 interface GithubStats {
   username: string;
@@ -25,14 +36,132 @@ interface GithubStats {
   following: number;
   currentStreak?: number;
   longestStreak?: number;
-  contributionCalendar?: Array<{ date: string; count: number }>;
+  activeDays?: number;
+  contributionCalendar?: ContributionDay[];
 }
+
+interface TooltipState {
+  visible: boolean;
+  x: number;
+  y: number;
+  date: string;
+  count: number;
+}
+
+// ─── Heatmap Helpers ──────────────────────────────────────────────────────────
+
+/**
+ * Build a 2D grid: columns = weeks (left→right), rows = weekdays (top=Sun, bottom=Sat).
+ * Each column is always exactly 7 slots. null = padding cell (no data).
+ */
+function buildGrid(days: ContributionDay[]): GridDay[][] {
+  if (!days.length) return [];
+
+  // Pad the start so the first real day lands on the correct weekday row
+  const firstDow = new Date(days[0].date + 'T00:00:00').getDay(); // 0=Sun … 6=Sat
+  const padded: GridDay[] = [...Array(firstDow).fill(null), ...days];
+  // Pad end so total length is a multiple of 7
+  while (padded.length % 7 !== 0) padded.push(null);
+
+  // Chunk into weeks of 7
+  const weeks: GridDay[][] = [];
+  for (let i = 0; i < padded.length; i += 7) {
+    weeks.push(padded.slice(i, i + 7));
+  }
+  return weeks;
+}
+
+/**
+ * Compute dynamic intensity level 0–4 based on the actual max count in the data.
+ * This avoids the "everything looks the same" problem for very active developers.
+ */
+function getLevel(count: number, max: number): number {
+  if (count === 0 || max === 0) return 0;
+  const r = count / max;
+  if (r <= 0.12) return 1;
+  if (r <= 0.35) return 2;
+  if (r <= 0.65) return 3;
+  return 4;
+}
+
+/** Extract month label positions from the week grid */
+function getMonthLabels(
+  weeks: GridDay[][],
+): { label: string; colIndex: number }[] {
+  const labels: { label: string; colIndex: number }[] = [];
+  let lastMonth = -1;
+  weeks.forEach((week, wi) => {
+    const first = week.find(Boolean) as ContributionDay | undefined;
+    if (!first) return;
+    const m = new Date(first.date + 'T00:00:00').getMonth();
+    if (m !== lastMonth) {
+      labels.push({
+        label: new Date(first.date + 'T00:00:00').toLocaleDateString('en-US', {
+          month: 'short',
+        }),
+        colIndex: wi,
+      });
+      lastMonth = m;
+    }
+  });
+  return labels;
+}
+
+function formatDate(dateStr: string): string {
+  return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+// GitHub-accurate cell colors per intensity level
+const CELL_COLORS = ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353'];
+const CELL_HOVER = ['#21262d', '#196430', '#26a641', '#39d353', '#56e368'];
+
+// Only show Mon / Wed / Fri labels (skip Sun, Tue, Thu, Sat)
+const DOW_LABELS = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
+
+// ─── Mock data (shown when API has no contributionCalendar) ───────────────────
+function makeMockDays(): ContributionDay[] {
+  const days: ContributionDay[] = [];
+  const now = new Date();
+  for (let i = 364; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    const r = Math.random();
+    const count =
+      r < 0.22
+        ? 0
+        : r < 0.5
+          ? Math.ceil(Math.random() * 3)
+          : r < 0.72
+            ? Math.ceil(Math.random() * 6) + 2
+            : r < 0.9
+              ? Math.ceil(Math.random() * 8) + 6
+              : Math.ceil(Math.random() * 10) + 12;
+    days.push({ date: d.toISOString().split('T')[0], count });
+  }
+  return days;
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function GithubStats() {
   const [stats, setStats] = useState<GithubStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hoveredLang, setHoveredLang] = useState<string | null>(null);
+  const [hoveredCell, setHoveredCell] = useState<string | null>(null);
+  const [tooltip, setTooltip] = useState<TooltipState>({
+    visible: false,
+    x: 0,
+    y: 0,
+    date: '',
+    count: 0,
+  });
+  const heatmapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch('/api/github?username=swarupcs')
@@ -50,6 +179,20 @@ export default function GithubStats() {
 
   const username = stats?.username || 'swarupcs';
 
+  // Real data or mock fallback
+  const calendarDays: ContributionDay[] = stats?.contributionCalendar?.length
+    ? stats.contributionCalendar
+    : makeMockDays();
+
+  // Derive max contribution count for dynamic level calculation
+  const maxCount = calendarDays.reduce((m, d) => Math.max(m, d.count), 0);
+
+  // Build grid: array of week-columns, each with 7 day-rows (null = empty)
+  const grid = buildGrid(calendarDays);
+  const monthLabels = getMonthLabels(grid);
+
+  // ── Stat card data ──────────────────────────────────────────────────────────
+
   const topStats = [
     {
       label: 'Contributions',
@@ -57,37 +200,105 @@ export default function GithubStats() {
         ? stats.totalContributions.toLocaleString()
         : 'N/A',
       icon: GitCommit,
-      color: 'text-green-500',
-      bg: 'bg-green-500/10',
+      color: 'text-emerald-400',
+      bg: 'bg-emerald-500/10',
+      border: 'border-emerald-500/20',
     },
     {
       label: 'Repositories',
       value: stats?.totalRepositories ?? 0,
       icon: GitBranch,
-      color: 'text-blue-500',
+      color: 'text-blue-400',
       bg: 'bg-blue-500/10',
+      border: 'border-blue-500/20',
     },
     {
       label: 'Stars',
       value: stats?.totalStars ?? 0,
       icon: Star,
-      color: 'text-yellow-500',
-      bg: 'bg-yellow-500/10',
+      color: 'text-amber-400',
+      bg: 'bg-amber-500/10',
+      border: 'border-amber-500/20',
     },
     {
       label: 'Pull Requests',
       value: stats?.pullRequests || 'N/A',
       icon: GitPullRequest,
-      color: 'text-purple-500',
-      bg: 'bg-purple-500/10',
+      color: 'text-violet-400',
+      bg: 'bg-violet-500/10',
+      border: 'border-violet-500/20',
     },
   ];
 
+  const streakStats = [
+    {
+      label: 'Current Streak',
+      value: stats?.currentStreak ?? '—',
+      icon: Flame,
+      iconColor: 'text-orange-400',
+      color: 'text-orange-400',
+      bg: 'bg-orange-500/10',
+    },
+    {
+      label: 'Longest Streak',
+      value: stats?.longestStreak ?? '—',
+      icon: TrendingUp,
+      iconColor: 'text-primary',
+      color: 'text-primary',
+      bg: 'bg-primary/10',
+    },
+    {
+      label: 'Active Days',
+      value: stats?.activeDays ?? '—',
+      icon: Calendar,
+      iconColor: 'text-emerald-400',
+      color: 'text-emerald-400',
+      bg: 'bg-emerald-500/10',
+    },
+    {
+      label: 'Followers',
+      value: stats?.followers ?? '—',
+      icon: Users,
+      iconColor: 'text-muted-foreground',
+      color: 'text-foreground',
+      bg: 'bg-muted/40',
+    },
+  ];
+
+  // ── Tooltip handler ─────────────────────────────────────────────────────────
+
+  const handleCellEnter = (
+    e: React.MouseEvent<HTMLDivElement>,
+    day: ContributionDay,
+  ) => {
+    const cellRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setHoveredCell(day.date);
+    setTooltip({
+      visible: true,
+      x: cellRect.left + cellRect.width / 2,
+      y: cellRect.top - 6,
+      date: day.date,
+      count: day.count,
+    });
+  };
+
+  const handleCellLeave = () => {
+    setHoveredCell(null);
+    setTooltip((t) => ({ ...t, visible: false }));
+  };
+
+  // ── Animation variants ──────────────────────────────────────────────────────
+
   const container = {
     hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.07 } },
+    show: { opacity: 1, transition: { staggerChildren: 0.06 } },
   };
-  const item = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } };
+  const item = {
+    hidden: { opacity: 0, y: 12 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+  };
+
+  // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
     <section id='github' className='py-10 md:py-14 scroll-mt-20'>
@@ -97,16 +308,16 @@ export default function GithubStats() {
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className='text-center mb-8'
+          className='text-center mb-10'
         >
           <p className='text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase mb-3'>
             Open Source
           </p>
           <h2 className='text-3xl md:text-4xl font-black tracking-tight'>
-            GitHub Stats
+            GitHub Activity
           </h2>
           <p className='text-muted-foreground text-sm mt-3 max-w-md mx-auto'>
-            My contributions and coding activity
+            A year of contributions, streaks, and open source work
           </p>
         </motion.div>
 
@@ -114,7 +325,7 @@ export default function GithubStats() {
           <p className='text-center text-red-500 text-sm py-8'>{error}</p>
         ) : (
           <div className='space-y-3'>
-            {/* Row 1 — Primary stats */}
+            {/* ── Row 1: Primary stats ── */}
             <motion.div
               className='grid grid-cols-2 lg:grid-cols-4 gap-3'
               variants={container}
@@ -122,248 +333,462 @@ export default function GithubStats() {
               whileInView='show'
               viewport={{ once: true }}
             >
-              {topStats.map(({ label, value, icon: Icon, color, bg }) => (
-                <motion.div
-                  key={label}
-                  variants={item}
-                  className='rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-all hover:shadow-sm'
-                >
-                  <div
-                    className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center mb-3`}
+              {topStats.map(
+                ({ label, value, icon: Icon, color, bg, border }) => (
+                  <motion.div
+                    key={label}
+                    variants={item}
+                    className={`rounded-xl border ${border} ${bg} p-4 transition-all hover:brightness-105`}
                   >
-                    <Icon className={`h-4 w-4 ${color}`} />
-                  </div>
-                  <div className='text-xs text-muted-foreground mb-1'>
-                    {label}
-                  </div>
-                  {loading ? (
-                    <Skeleton className='h-7 w-16' />
-                  ) : (
-                    <div className='text-2xl font-black tracking-tight'>
-                      {value}
+                    <div className='flex items-center gap-2 mb-3'>
+                      <Icon className={`h-3.5 w-3.5 ${color}`} />
+                      <span className='text-xs text-muted-foreground font-medium'>
+                        {label}
+                      </span>
                     </div>
-                  )}
-                </motion.div>
-              ))}
-            </motion.div>
-
-            {/* Row 2 — Streak + Community */}
-            <motion.div
-              className='grid grid-cols-1 md:grid-cols-2 gap-3'
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.15 }}
-            >
-              {/* Streak */}
-              <div className='rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-all'>
-                <div className='flex items-center gap-2 mb-4'>
-                  <div className='w-7 h-7 rounded-lg bg-orange-500/10 flex items-center justify-center'>
-                    <Flame className='h-3.5 w-3.5 text-orange-500' />
-                  </div>
-                  <span className='text-sm font-semibold'>
-                    Contribution Streak
-                  </span>
-                </div>
-                <div className='flex items-center gap-6'>
-                  <div>
                     {loading ? (
-                      <Skeleton className='h-9 w-12' />
+                      <Skeleton className='h-7 w-16' />
                     ) : (
-                      <div className='text-3xl font-black text-orange-500'>
-                        {stats?.currentStreak ?? '—'}
+                      <div
+                        className={`text-2xl font-black tracking-tight ${color}`}
+                      >
+                        {value}
                       </div>
                     )}
-                    <div className='text-xs text-muted-foreground mt-0.5'>
-                      Current streak
-                    </div>
-                  </div>
-                  <div className='w-px h-10 bg-border' />
-                  <div>
-                    {loading ? (
-                      <Skeleton className='h-9 w-12' />
-                    ) : (
-                      <div className='text-3xl font-black text-primary'>
-                        {stats?.longestStreak ?? '—'}
-                      </div>
-                    )}
-                    <div className='text-xs text-muted-foreground mt-0.5'>
-                      Longest streak
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Community */}
-              <div className='rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-all'>
-                <div className='flex items-center gap-2 mb-4'>
-                  <div className='w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center'>
-                    <Users className='h-3.5 w-3.5 text-blue-500' />
-                  </div>
-                  <span className='text-sm font-semibold'>Community</span>
-                </div>
-                <div className='flex items-center gap-6'>
-                  <div>
-                    {loading ? (
-                      <Skeleton className='h-9 w-12' />
-                    ) : (
-                      <div className='text-3xl font-black'>
-                        {stats?.followers ?? '—'}
-                      </div>
-                    )}
-                    <div className='text-xs text-muted-foreground mt-0.5'>
-                      Followers
-                    </div>
-                  </div>
-                  <div className='w-px h-10 bg-border' />
-                  <div>
-                    {loading ? (
-                      <Skeleton className='h-9 w-12' />
-                    ) : (
-                      <div className='text-3xl font-black'>
-                        {stats?.following ?? '—'}
-                      </div>
-                    )}
-                    <div className='text-xs text-muted-foreground mt-0.5'>
-                      Following
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Row 3 — Heatmap */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className='rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-all'
-            >
-              <div className='flex items-center justify-between mb-4'>
-                <div>
-                  <p className='text-sm font-semibold'>Contribution Activity</p>
-                  <p className='text-xs text-muted-foreground mt-0.5'>
-                    Past year of contributions
-                  </p>
-                </div>
-                {!loading && stats?.totalContributions ? (
-                  <span className='text-xs font-medium px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 border border-green-500/20'>
-                    {stats.totalContributions.toLocaleString()} total
-                  </span>
-                ) : null}
-              </div>
-              {loading ? (
-                <div className='space-y-1.5'>
-                  <Skeleton className='h-4 w-full' />
-                  <Skeleton className='h-4 w-full' />
-                  <Skeleton className='h-4 w-3/4' />
-                </div>
-              ) : (
-                <div className='overflow-x-auto'>
-                  <img
-                    src={`https://ghchart.rshah.org/${username}`}
-                    alt='GitHub Contribution Graph'
-                    className='rounded w-full min-w-[600px] opacity-90'
-                    loading='lazy'
-                  />
-                </div>
+                  </motion.div>
+                ),
               )}
             </motion.div>
 
-            {/* Row 4 — Top Languages */}
+            {/* ── Row 2: Streak stats ── */}
             <motion.div
-              initial={{ opacity: 0, y: 12 }}
+              className='grid grid-cols-2 lg:grid-cols-4 gap-3'
+              variants={container}
+              initial='hidden'
+              whileInView='show'
+              viewport={{ once: true }}
+            >
+              {streakStats.map(
+                ({ label, value, icon: Icon, iconColor, color, bg }) => (
+                  <motion.div
+                    key={label}
+                    variants={item}
+                    className={`rounded-xl border border-border ${bg} p-4 hover:border-primary/20 transition-all`}
+                  >
+                    <div className='flex items-center gap-2 mb-3'>
+                      <Icon className={`h-3.5 w-3.5 ${iconColor}`} />
+                      <span className='text-xs text-muted-foreground font-medium'>
+                        {label}
+                      </span>
+                    </div>
+                    {loading ? (
+                      <Skeleton className='h-7 w-12' />
+                    ) : (
+                      <div
+                        className={`text-2xl font-black tracking-tight ${color}`}
+                      >
+                        {value}
+                      </div>
+                    )}
+                  </motion.div>
+                ),
+              )}
+            </motion.div>
+
+            {/* ── Row 3: Heatmap ── */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.25 }}
-              className='rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-all'
+              transition={{ delay: 0.1 }}
+              className='rounded-xl border border-border bg-card overflow-hidden'
+            >
+              {/* Header */}
+              <div className='flex items-center justify-between px-5 pt-5 pb-4 border-b border-border'>
+                <div className='flex items-center gap-2.5'>
+                  <div className='w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center'>
+                    <GitCommit className='h-3.5 w-3.5 text-emerald-400' />
+                  </div>
+                  <div>
+                    <p className='text-sm font-semibold leading-none'>
+                      Contribution Activity
+                    </p>
+                    <p className='text-xs text-muted-foreground mt-1'>
+                      Past 12 months
+                    </p>
+                  </div>
+                </div>
+                {!loading && stats?.totalContributions ? (
+                  <div className='flex items-center gap-1.5'>
+                    <span className='text-xs text-muted-foreground'>Total</span>
+                    <span className='text-sm font-black text-emerald-400'>
+                      {stats.totalContributions.toLocaleString()}
+                    </span>
+                  </div>
+                ) : null}
+              </div>
+
+              {/* Grid body */}
+              <div className='p-5'>
+                {loading ? (
+                  <div className='space-y-[3px]'>
+                    {[...Array(7)].map((_, i) => (
+                      <Skeleton
+                        key={i}
+                        className='h-[12px] w-full rounded-sm'
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className='overflow-x-auto'>
+                    <div style={{ minWidth: 640 }}>
+                      {/* Month labels row */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          marginBottom: 6,
+                          marginLeft: 28,
+                        }}
+                      >
+                        <div
+                          style={{ flex: 1, position: 'relative', height: 16 }}
+                        >
+                          {monthLabels.map(({ label, colIndex }) => (
+                            <span
+                              key={`${label}-${colIndex}`}
+                              style={{
+                                position: 'absolute',
+                                left: `${colIndex * 15}px`,
+                                fontSize: 10,
+                                color: 'var(--muted-foreground)',
+                                fontWeight: 500,
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Weekday labels + cell grid */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          gap: 4,
+                          position: 'relative',
+                        }}
+                        ref={heatmapRef}
+                      >
+                        {/* Weekday axis labels (7 rows) */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 3,
+                            marginRight: 4,
+                            flexShrink: 0,
+                            width: 24,
+                          }}
+                        >
+                          {DOW_LABELS.map((lbl, i) => (
+                            <div
+                              key={i}
+                              style={{
+                                height: 12,
+                                fontSize: 9,
+                                color: 'var(--muted-foreground)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'flex-end',
+                                opacity: 0.6,
+                              }}
+                            >
+                              {lbl}
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Week columns: each column = 1 week, each row = 1 day-of-week */}
+                        <div style={{ display: 'flex', gap: 3, flex: 1 }}>
+                          {grid.map((week, wi) => (
+                            <div
+                              key={wi}
+                              style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 3,
+                              }}
+                            >
+                              {week.map((day, di) => {
+                                if (!day) {
+                                  // Empty padding cell — preserve row height but show nothing
+                                  return (
+                                    <div
+                                      key={`empty-${wi}-${di}`}
+                                      style={{ width: 12, height: 12 }}
+                                    />
+                                  );
+                                }
+                                const level = getLevel(day.count, maxCount);
+                                const isHovered = hoveredCell === day.date;
+                                return (
+                                  <div
+                                    key={day.date}
+                                    style={{
+                                      width: 12,
+                                      height: 12,
+                                      borderRadius: 2,
+                                      backgroundColor: isHovered
+                                        ? CELL_HOVER[level]
+                                        : CELL_COLORS[level],
+                                      cursor: 'pointer',
+                                      transition:
+                                        'transform 0.1s ease, background-color 0.1s ease',
+                                      transform: isHovered
+                                        ? 'scale(1.4)'
+                                        : 'scale(1)',
+                                      outline:
+                                        level === 0
+                                          ? '1px solid #21262d'
+                                          : 'none',
+                                      zIndex: isHovered ? 10 : 'auto',
+                                    }}
+                                    onMouseEnter={(e) =>
+                                      handleCellEnter(e, day)
+                                    }
+                                    onMouseLeave={handleCellLeave}
+                                  />
+                                );
+                              })}
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Tooltip */}
+                        <AnimatePresence>
+                          {tooltip.visible && (
+                            <motion.div
+                              key='tooltip'
+                              initial={{ opacity: 0, y: 6, scale: 0.92 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              exit={{ opacity: 0, y: 6, scale: 0.92 }}
+                              transition={{ duration: 0.1 }}
+                              style={{
+                                position: 'fixed', // ← was 'absolute'
+                                left: tooltip.x,
+                                top: tooltip.y,
+                                transform: 'translate(-50%, -100%)',
+                                pointerEvents: 'none',
+                                zIndex: 9999, // ← higher z-index
+                              }}
+                            >
+                              <div
+                                style={{
+                                  background: 'var(--popover)',
+                                  border: '1px solid var(--border)',
+                                  borderRadius: 8,
+                                  padding: '6px 10px',
+                                  boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                                  textAlign: 'center',
+                                  whiteSpace: 'nowrap',
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    color: 'var(--foreground)',
+                                  }}
+                                >
+                                  {tooltip.count === 0
+                                    ? 'No contributions'
+                                    : `${tooltip.count} contribution${tooltip.count !== 1 ? 's' : ''}`}
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: 10,
+                                    color: 'var(--muted-foreground)',
+                                    marginTop: 2,
+                                  }}
+                                >
+                                  {formatDate(tooltip.date)}
+                                </div>
+                              </div>
+                              {/* Arrow */}
+                              <div
+                                style={{
+                                  width: 8,
+                                  height: 8,
+                                  background: 'var(--popover)',
+                                  borderRight: '1px solid var(--border)',
+                                  borderBottom: '1px solid var(--border)',
+                                  transform: 'rotate(45deg)',
+                                  margin: '-4px auto 0',
+                                }}
+                              />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+
+                      {/* Legend */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'flex-end',
+                          gap: 4,
+                          marginTop: 10,
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: 10,
+                            color: 'var(--muted-foreground)',
+                          }}
+                        >
+                          Less
+                        </span>
+                        {CELL_COLORS.map((color, i) => (
+                          <div
+                            key={i}
+                            style={{
+                              width: 12,
+                              height: 12,
+                              borderRadius: 2,
+                              backgroundColor: color,
+                              outline: i === 0 ? '1px solid #21262d' : 'none',
+                            }}
+                          />
+                        ))}
+                        <span
+                          style={{
+                            fontSize: 10,
+                            color: 'var(--muted-foreground)',
+                          }}
+                        >
+                          More
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+
+            {/* ── Row 4: Top Languages ── */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.15 }}
+              className='rounded-xl border border-border bg-card p-5'
             >
               <div className='mb-4'>
                 <p className='text-sm font-semibold'>Top Languages</p>
                 <p className='text-xs text-muted-foreground mt-0.5'>
-                  Most used in my repositories
+                  By repository count
                 </p>
               </div>
+
               {loading ? (
                 <div className='space-y-2'>
-                  <Skeleton className='h-2.5 w-full rounded-full' />
-                  <Skeleton className='h-3 w-2/3' />
+                  <Skeleton className='h-3 w-full rounded-full' />
+                  <div className='flex gap-4 mt-2'>
+                    {[1, 2, 3].map((i) => (
+                      <Skeleton key={i} className='h-3 w-16' />
+                    ))}
+                  </div>
                 </div>
-              ) : stats?.topLanguages && stats.topLanguages.length > 0 ? (
+              ) : stats?.topLanguages?.length ? (
                 <div className='space-y-3'>
                   {/* Segmented bar */}
-                  <div className='flex h-2.5 w-full rounded-full overflow-hidden gap-px bg-muted'>
-                    {stats.topLanguages.map((lang) => (
+                  <div className='flex h-3 w-full rounded-full overflow-hidden gap-px bg-muted'>
+                    {stats.topLanguages.map((lang, i) => (
                       <motion.div
                         key={lang.name}
-                        className='h-full cursor-pointer transition-opacity duration-200'
+                        className='h-full cursor-pointer first:rounded-l-full last:rounded-r-full'
                         style={{
                           width: `${lang.percentage}%`,
                           backgroundColor: lang.color,
                           opacity:
-                            hoveredLang && hoveredLang !== lang.name ? 0.25 : 1,
+                            hoveredLang && hoveredLang !== lang.name ? 0.2 : 1,
+                          filter:
+                            hoveredLang === lang.name
+                              ? 'brightness(1.25)'
+                              : 'none',
+                          transition: 'opacity 0.15s, filter 0.15s',
                         }}
                         initial={{ width: 0 }}
                         whileInView={{ width: `${lang.percentage}%` }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.9, ease: 'easeOut' }}
+                        transition={{
+                          duration: 0.85,
+                          ease: 'easeOut',
+                          delay: i * 0.07,
+                        }}
                         onMouseEnter={() => setHoveredLang(lang.name)}
                         onMouseLeave={() => setHoveredLang(null)}
                         title={`${lang.name}: ${lang.percentage}%`}
                       />
                     ))}
                   </div>
+
                   {/* Legend */}
-                  <div className='flex flex-wrap gap-x-4 gap-y-2'>
+                  <div className='flex flex-wrap gap-x-5 gap-y-2 pt-0.5'>
                     {stats.topLanguages.map((lang) => (
                       <div
                         key={lang.name}
                         className='flex items-center gap-1.5 cursor-pointer'
+                        style={{
+                          opacity:
+                            hoveredLang && hoveredLang !== lang.name ? 0.3 : 1,
+                          transition: 'opacity 0.15s',
+                        }}
                         onMouseEnter={() => setHoveredLang(lang.name)}
                         onMouseLeave={() => setHoveredLang(null)}
                       >
                         <div
-                          className='h-2.5 w-2.5 rounded-full transition-transform duration-200'
+                          className='rounded-full'
                           style={{
+                            width: 10,
+                            height: 10,
                             backgroundColor: lang.color,
                             transform:
                               hoveredLang === lang.name
-                                ? 'scale(1.4)'
+                                ? 'scale(1.5)'
                                 : 'scale(1)',
+                            transition: 'transform 0.15s',
                           }}
                         />
-                        <span
-                          className={`text-xs transition-colors duration-200 ${hoveredLang === lang.name ? 'text-foreground font-semibold' : 'text-muted-foreground'}`}
-                        >
-                          {lang.name}{' '}
-                          <span className='opacity-60'>
-                            ({lang.percentage}%)
-                          </span>
+                        <span className='text-xs text-muted-foreground'>
+                          {lang.name}
+                        </span>
+                        <span className='text-[10px] text-muted-foreground/50 font-mono'>
+                          {lang.percentage}%
                         </span>
                       </div>
                     ))}
                   </div>
                 </div>
               ) : (
-                <img
-                  src={`https://github-readme-stats.vercel.app/api/top-langs/?username=${username}&layout=compact&theme=transparent&hide_border=true`}
-                  alt='Top Languages'
-                  className='mx-auto'
-                  loading='lazy'
-                />
+                <p className='text-xs text-muted-foreground'>
+                  No language data available
+                </p>
               )}
             </motion.div>
           </div>
         )}
 
+        {/* Footer link */}
         <p className='text-center text-xs text-muted-foreground mt-6'>
-          View profile on{' '}
+          View full profile on{' '}
           <a
             href={`https://github.com/${username}`}
             target='_blank'
             rel='noopener noreferrer'
-            className='text-primary hover:underline font-medium'
+            className='text-primary hover:underline font-semibold'
           >
             GitHub →
           </a>

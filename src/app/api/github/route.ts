@@ -6,7 +6,6 @@ import axios from 'axios';
 const GITHUB_API_URL = 'https://api.github.com';
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
 
-// Updated GraphQL query — now includes weekly contribution days for streak calc
 const contributionsQuery = `
   query($username: String!) {
     user(login: $username) {
@@ -34,7 +33,6 @@ const contributionsQuery = `
   }
 `;
 
-// Language colors (GitHub official)
 const languageColors: { [key: string]: string } = {
   JavaScript: '#f1e05a',
   TypeScript: '#3178c6',
@@ -58,9 +56,7 @@ const languageColors: { [key: string]: string } = {
   Dockerfile: '#384d54',
 };
 
-// Calculate currentStreak, longestStreak, activeDays from weekly contribution data
 function calculateStreaks(weeks: any[]) {
-  // Flatten all days sorted oldest → newest
   const days = weeks
     .flatMap((w: any) => w.contributionDays)
     .sort((a: any, b: any) => a.date.localeCompare(b.date));
@@ -69,7 +65,6 @@ function calculateStreaks(weeks: any[]) {
   let activeDays = 0;
   let tempStreak = 0;
 
-  // Forward pass — longest streak + active days
   for (const day of days) {
     if (day.contributionCount > 0) {
       activeDays++;
@@ -80,17 +75,13 @@ function calculateStreaks(weeks: any[]) {
     }
   }
 
-  // Backward pass — current streak (from today going back)
   let currentStreak = 0;
   const today = new Date().toISOString().split('T')[0];
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-
   const reversed = [...days].reverse();
 
   for (let i = 0; i < reversed.length; i++) {
     const day = reversed[i];
-
-    // Allow today to have 0 contributions (streak not broken yet today)
     if (
       i === 0 &&
       day.contributionCount === 0 &&
@@ -98,7 +89,6 @@ function calculateStreaks(weeks: any[]) {
     ) {
       continue;
     }
-
     if (day.contributionCount > 0) {
       currentStreak++;
     } else {
@@ -106,7 +96,13 @@ function calculateStreaks(weeks: any[]) {
     }
   }
 
-  return { currentStreak, longestStreak, activeDays };
+  // ✅ Flatten weeks into a single array of { date, count } for the heatmap
+  const contributionCalendar = days.map((d: any) => ({
+    date: d.date,
+    count: d.contributionCount,
+  }));
+
+  return { currentStreak, longestStreak, activeDays, contributionCalendar };
 }
 
 export async function GET(request: Request) {
@@ -175,15 +171,15 @@ export async function GET(request: Request) {
       color: languageColors[name] || '#858585',
     }));
 
-    // Default streak/contribution values
+    // Defaults
     let totalContributions = 0;
     let pullRequests = 0;
     let issues = 0;
     let currentStreak = 0;
     let longestStreak = 0;
     let activeDays = 0;
+    let contributionCalendar: { date: string; count: number }[] = [];
 
-    // GraphQL — requires GITHUB_TOKEN
     if (process.env.GITHUB_TOKEN) {
       try {
         const graphqlResponse = await axios.post(
@@ -206,22 +202,19 @@ export async function GET(request: Request) {
           pullRequests = graphqlData.pullRequests.totalCount;
           issues = graphqlData.issues.totalCount;
 
-          // Calculate streaks from daily data
+          // ✅ calculateStreaks now also returns contributionCalendar flat array
           const streaks = calculateStreaks(calendar.weeks);
           currentStreak = streaks.currentStreak;
           longestStreak = streaks.longestStreak;
           activeDays = streaks.activeDays;
+          contributionCalendar = streaks.contributionCalendar;
         }
       } catch (graphqlError) {
         console.log('GraphQL query failed, falling back to scrape');
-
-        // Fallback scrape for just totalContributions
         try {
           const scrapeResponse = await axios.get(
             `https://github.com/${username}`,
-            {
-              headers: { 'User-Agent': 'Mozilla/5.0' },
-            },
+            { headers: { 'User-Agent': 'Mozilla/5.0' } },
           );
           const html = scrapeResponse.data;
           const match = html.match(
@@ -233,13 +226,11 @@ export async function GET(request: Request) {
         }
       }
     } else {
-      // No token — scrape totalContributions only, streaks unavailable
+      // No token — scrape totalContributions only
       try {
         const scrapeResponse = await axios.get(
           `https://github.com/${username}`,
-          {
-            headers: { 'User-Agent': 'Mozilla/5.0' },
-          },
+          { headers: { 'User-Agent': 'Mozilla/5.0' } },
         );
         const html = scrapeResponse.data;
         const match = html.match(
@@ -265,9 +256,8 @@ export async function GET(request: Request) {
       currentStreak,
       longestStreak,
       activeDays,
+      contributionCalendar, // ✅ now included — powers the heatmap
     };
-
-    console.log('GitHub API Response:', result);
 
     return NextResponse.json(result);
   } catch (error: unknown) {
