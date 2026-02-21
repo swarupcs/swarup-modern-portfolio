@@ -34,14 +34,14 @@ export default function Projects() {
   const isInternal = (url: string) => url?.startsWith('/');
 
   return (
-    <section id='projects' className='py-20 md:py-28 scroll-mt-20'>
+    <section id='projects' className='py-10 md:py-14 scroll-mt-20'>
       <div className='max-w-5xl mx-auto px-6'>
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className='text-center mb-14'
+          className='text-center mb-8'
         >
           <p className='text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase mb-3'>
             Featured

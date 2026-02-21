@@ -61,14 +61,14 @@ export default function About() {
     : DEFAULT_INTERESTS;
 
   return (
-    <section id='about' className='py-20 md:py-28 scroll-mt-20'>
+    <section id='about' className='py-10 md:py-14 scroll-mt-20'>
       <div className='max-w-3xl mx-auto px-6'>
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className='text-center mb-14'
+          className='text-center mb-8'
         >
           <p className='text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase mb-3'>
             About
@@ -76,7 +76,7 @@ export default function About() {
           <h2 className='text-3xl md:text-4xl font-black tracking-tight'>Me</h2>
         </motion.div>
 
-        <div className='space-y-10'>
+        <div className='space-y-6'>
           {/* Avatar + name row */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
