@@ -3,6 +3,15 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
+  --font-display: var(--font-syne), system-ui, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-syne);
+}
+
 /* ==========================================================
    THEME VARIABLES (Light + Dark)
    ========================================================== */
