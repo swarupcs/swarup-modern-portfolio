@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Github, ExternalLink, Globe } from 'lucide-react';
@@ -35,138 +34,137 @@ export default function Projects() {
   const isInternal = (url: string) => url?.startsWith('/');
 
   return (
-    <section id='projects' className='py-20 md:py-32'>
-      <div className='container px-4 md:px-6 max-w-7xl mx-auto'>
+    <section id='projects' className='py-20 md:py-28 scroll-mt-20'>
+      <div className='max-w-5xl mx-auto px-6'>
+        {/* Heading */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className='mb-20 text-center'
+          className='text-center mb-14'
         >
-          <p className='text-sm text-primary mb-3 uppercase tracking-widest font-semibold'>
+          <p className='text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase mb-3'>
             Featured
           </p>
-          <h2 className='text-5xl md:text-6xl font-black gradient-blue-pink'>
+          <h2 className='text-3xl md:text-4xl font-black tracking-tight'>
             Projects
           </h2>
-          <p className='text-muted-foreground text-lg mt-4 max-w-2xl mx-auto'>
-            Showcase of innovative projects built with modern technologies
+          <p className='text-muted-foreground text-sm mt-3 max-w-md mx-auto'>
+            A selection of things I've built
           </p>
         </motion.div>
 
+        {/* Grid */}
         {loading ? (
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10'>
-            {[1, 2].map((i) => (
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+            {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className='h-96 rounded-2xl border border-white/10 bg-card/30 animate-pulse'
+                className='h-64 rounded-xl border border-border bg-card/30 animate-pulse'
               />
             ))}
           </div>
         ) : projects.length === 0 ? (
-          <div className='text-center text-muted-foreground py-12'>
-            No projects to display. Add some from the admin panel.
+          <div className='text-center text-muted-foreground py-12 text-sm'>
+            No projects yet. Add some from the admin panel.
           </div>
         ) : (
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
             {projects.map((project, index) => (
               <motion.div
                 key={project.id}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className='group h-full'
+                transition={{ duration: 0.4, delay: index * 0.07 }}
+                className='group'
               >
-                <div className='flex flex-col h-full rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-b from-card/50 to-card hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 backdrop-blur-sm hover:backdrop-blur-md'>
-                  <div className='relative h-56 md:h-64 w-full overflow-hidden bg-gradient-to-br from-muted to-muted/50 group-hover:from-primary/10 group-hover:to-secondary/10 transition-all duration-500'>
+                <div className='flex flex-col h-full rounded-xl overflow-hidden border border-border bg-card hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300'>
+                  {/* Image */}
+                  <div className='relative h-36 w-full overflow-hidden bg-muted'>
                     {project.image ? (
-                      <div
-                        className='w-full h-full absolute transition-transform duration-500 group-hover:scale-105'
-                        style={{
-                          transform: 'rotateY(-8deg) rotateX(4deg)',
-                          transformOrigin: 'center',
-                        }}
-                      >
-                        <Image
-                          src={project.image}
-                          alt={project.title}
-                          fill
-                          className='object-cover'
-                        />
-                      </div>
+                      <Image
+                        src={project.image}
+                        alt={project.title}
+                        fill
+                        className='object-cover transition-transform duration-500 group-hover:scale-105'
+                      />
                     ) : (
-                      <div className='w-full h-full flex items-center justify-center text-muted-foreground bg-muted'>
-                        No image available
-                      </div>
-                    )}
-                  </div>
-
-                  <div className='p-6 md:p-8 flex flex-col flex-1'>
-                    <div className='flex items-start justify-between gap-4 mb-4'>
-                      <h3 className='text-2xl font-bold group-hover:text-primary transition-colors flex-1 leading-tight'>
-                        {project.title}
-                      </h3>
-                      <div className='flex items-center gap-3 opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0'>
-                        {project.liveUrl && !isInternal(project.liveUrl) && (
-                          <a
-                            href={project.liveUrl}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                          >
-                            <Globe className='w-5 h-5' />
-                          </a>
-                        )}
-                        {project.githubUrl && (
-                          <a
-                            href={project.githubUrl}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                          >
-                            <Github className='w-5 h-5' />
-                          </a>
-                        )}
-                      </div>
-                    </div>
-
-                    <p className='text-sm md:text-base text-muted-foreground mb-6 flex-1 leading-relaxed line-clamp-3'>
-                      {project.description}
-                    </p>
-
-                    <div className='mb-6'>
-                      <p className='text-xs uppercase text-muted-foreground tracking-wider mb-3 font-semibold'>
-                        Technologies
-                      </p>
-                      <div className='flex flex-wrap gap-2.5'>
-                        {(project.technologies || [])
-                          .slice(0, 6)
-                          .map((tech) => (
-                            <TechBadgeWithIcon key={tech} tech={tech} />
-                          ))}
-                      </div>
-                    </div>
-
-                    <div className='flex items-center justify-between pt-4 border-t border-border'>
-                      <div className='flex items-center gap-2'>
-                        <div className='w-2 h-2 rounded-full bg-green-500' />
-                        <span className='text-xs font-medium text-muted-foreground'>
-                          {project.featured ? 'Featured' : 'Active'}
+                      <div className='w-full h-full flex items-center justify-center'>
+                        <span className='text-3xl font-black text-muted-foreground/20'>
+                          {project.title.slice(0, 2).toUpperCase()}
                         </span>
                       </div>
-                      {project.liveUrl && (
+                    )}
+                    {/* Status dot */}
+                    <div className='absolute top-2.5 left-2.5'>
+                      <span className='flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-background/80 backdrop-blur text-[10px] font-medium text-green-500 border border-green-500/20'>
+                        <span className='w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse' />
+                        {project.featured ? 'Featured' : 'Live'}
+                      </span>
+                    </div>
+                    {/* Icon links */}
+                    <div className='absolute top-2.5 right-2.5 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity'>
+                      {project.githubUrl && (
+                        <a
+                          href={project.githubUrl}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          className='w-7 h-7 rounded-lg bg-background/80 backdrop-blur border border-border flex items-center justify-center text-foreground hover:bg-background transition-colors'
+                        >
+                          <Github className='w-3.5 h-3.5' />
+                        </a>
+                      )}
+                      {project.liveUrl && !isInternal(project.liveUrl) && (
                         <a
                           href={project.liveUrl}
-                          target={
-                            isInternal(project.liveUrl) ? '_self' : '_blank'
-                          }
+                          target='_blank'
                           rel='noopener noreferrer'
-                          className='text-xs font-semibold text-primary hover:text-primary/80 transition-colors flex items-center gap-1.5 group/link'
+                          className='w-7 h-7 rounded-lg bg-background/80 backdrop-blur border border-border flex items-center justify-center text-foreground hover:bg-background transition-colors'
                         >
-                          View Project
-                          <ExternalLink className='w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform' />
+                          <Globe className='w-3.5 h-3.5' />
                         </a>
                       )}
                     </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className='p-4 flex flex-col flex-1 gap-3'>
+                    <div>
+                      <h3 className='text-sm font-bold leading-snug group-hover:text-primary transition-colors'>
+                        {project.title}
+                      </h3>
+                      <p className='text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed'>
+                        {project.description}
+                      </p>
+                    </div>
+
+                    {/* Tech */}
+                    <div className='flex flex-wrap gap-1.5 mt-auto'>
+                      {(project.technologies || []).slice(0, 4).map((tech) => (
+                        <TechBadgeWithIcon key={tech} tech={tech} />
+                      ))}
+                      {project.technologies?.length > 4 && (
+                        <span className='text-[10px] text-muted-foreground px-1.5 py-0.5 rounded border border-border'>
+                          +{project.technologies.length - 4}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Footer */}
+                    {project.liveUrl && (
+                      <a
+                        href={project.liveUrl}
+                        target={
+                          isInternal(project.liveUrl) ? '_self' : '_blank'
+                        }
+                        rel='noopener noreferrer'
+                        className='flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline mt-1'
+                      >
+                        View project
+                        <ExternalLink className='w-3 h-3' />
+                      </a>
+                    )}
                   </div>
                 </div>
               </motion.div>
