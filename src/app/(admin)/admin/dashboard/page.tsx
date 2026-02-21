@@ -70,25 +70,16 @@ const NAV_ITEMS = [
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState('personal');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  useEffect(() => {
-    const auth = localStorage.getItem('adminAuth');
-    if (auth !== 'true') {
-      router.push('/admin');
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [router]);
+  // No localStorage check needed — middleware handles auth
+  // If user reaches here, they are authenticated via cookie
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminAuth');
+  const handleLogout = async () => {
+    await fetch('/api/admin/auth', { method: 'DELETE' });
     router.push('/admin');
   };
-
-  if (!isAuthenticated) return null;
 
   const activeItem = NAV_ITEMS.find((n) => n.id === activeTab);
 
@@ -225,7 +216,6 @@ export default function AdminDashboard() {
 
         {/* Content */}
         <main className='flex-1 overflow-y-auto p-6 lg:p-8'>
-          {/* Section Header */}
           {activeItem && (
             <div className='mb-8'>
               <div className='flex items-center gap-3 mb-1'>
@@ -241,7 +231,6 @@ export default function AdminDashboard() {
               </p>
             </div>
           )}
-
           <div className='max-w-5xl'>{renderContent()}</div>
         </main>
       </div>
