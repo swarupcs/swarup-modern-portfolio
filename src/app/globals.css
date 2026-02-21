@@ -6,11 +6,69 @@
 @theme {
   --font-sans: var(--font-manrope), system-ui, sans-serif;
   --font-display: var(--font-syne), system-ui, sans-serif;
+  --font-mono: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-syne);
+@layer base {
+  /* ─── Body — Manrope ─────────────────────────────────────── */
+  body {
+    font-family: var(--font-manrope), system-ui, sans-serif;
+    font-size: 1rem;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ─── Headings — Syne ────────────────────────────────────── */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-syne), system-ui, sans-serif;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  /* ─── Paragraphs — Manrope ───────────────────────────────── */
+  p {
+    font-family: var(--font-manrope), system-ui, sans-serif;
+    line-height: 1.75;
+  }
+
+  /* ─── List items — Manrope ───────────────────────────────── */
+  li {
+    font-family: var(--font-manrope), system-ui, sans-serif;
+    line-height: 1.75;
+  }
+
+  /* ─── Labels — Manrope ───────────────────────────────────── */
+  label {
+    font-family: var(--font-manrope), system-ui, sans-serif;
+  }
+
+  /* ─── Buttons — Manrope ──────────────────────────────────── */
+  button {
+    font-family: var(--font-manrope), system-ui, sans-serif;
+    font-weight: 500;
+  }
+
+  /* ─── Links — Manrope ────────────────────────────────────── */
+  a {
+    font-family: var(--font-manrope), system-ui, sans-serif;
+    font-weight: 500;
+  }
+
+  /* ─── Form elements — Manrope ────────────────────────────── */
+  input, textarea, select {
+    font-family: var(--font-manrope), system-ui, sans-serif;
+  }
+
+  /* ─── Code — JetBrains Mono ──────────────────────────────── */
+  code, pre, kbd, samp {
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  }
 }
+
+
+
 
 /* ==========================================================
    THEME VARIABLES (Light + Dark)

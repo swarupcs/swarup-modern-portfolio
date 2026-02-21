@@ -127,13 +127,13 @@ export default function SkillsSection() {
           viewport={{ once: true }}
           className='text-center mb-14'
         >
-          <p className='text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase mb-3'>
+          <p className='text-sm font-semibold tracking-[0.2em] text-muted-foreground uppercase mb-3'>
             Expertise
           </p>
           <h2 className='text-4xl md:text-5xl font-black tracking-tight'>
             Technologies & Tools
           </h2>
-          <p className='text-muted-foreground text-sm mt-4 max-w-md mx-auto'>
+          <p className='text-muted-foreground text-base mt-4 max-w-md mx-auto'>
             A curated stack of technologies I use to build modern, scalable
             applications
           </p>
@@ -172,10 +172,10 @@ export default function SkillsSection() {
                   {/* Category header */}
                   <div className='flex items-center gap-3 mb-4'>
                     <span
-                      className={`w-2 h-2 rounded-full shrink-0 ${accent.dot}`}
+                      className={`w-2.5 h-2.5 rounded-full shrink-0 ${accent.dot}`}
                     />
                     <span
-                      className={`text-xs font-bold uppercase tracking-widest ${accent.label}`}
+                      className={`text-sm font-bold uppercase tracking-widest ${accent.label}`}
                     >
                       {category.name}
                     </span>
