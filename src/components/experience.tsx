@@ -22,7 +22,18 @@ export default function Experience() {
   useEffect(() => {
     fetch('/api/portfolio/experience')
       .then((r) => (r.ok ? r.json() : []))
-      .then((data) => setExperiences(Array.isArray(data) ? data : []))
+      .then((data) => {
+        if (!Array.isArray(data)) return setExperiences([]);
+        // Sort by "Present" first, then by start year descending
+        const sorted = data.sort((a, b) => {
+          const aPresent = a.duration?.toLowerCase().includes('present');
+          const bPresent = b.duration?.toLowerCase().includes('present');
+          if (aPresent && !bPresent) return -1;
+          if (!aPresent && bPresent) return 1;
+          return 0;
+        });
+        setExperiences(sorted);
+      })
       .catch(() => setExperiences([]))
       .finally(() => setLoading(false));
   }, []);
@@ -89,10 +100,14 @@ export default function Experience() {
                         </p>
                       </div>
                       <div className='flex-shrink-0'>
-                        <Badge className='shrink-0 text-xs font-semibold px-3 py-1 rounded-full bg-green-500/20 text-green-300 border border-green-500/30'>
-                          <span className='inline-block w-2 h-2 rounded-full mr-2 bg-green-400 animate-pulse' />
-                          Active
-                        </Badge>
+                        {experience.duration
+                          ?.toLowerCase()
+                          .includes('present') && (
+                          <Badge className='shrink-0 text-xs font-semibold px-3 py-1 rounded-full bg-green-500/20 text-green-300 border border-green-500/30'>
+                            <span className='inline-block w-2 h-2 rounded-full mr-2 bg-green-400 animate-pulse' />
+                            Active
+                          </Badge>
+                        )}
                       </div>
                     </div>
 
