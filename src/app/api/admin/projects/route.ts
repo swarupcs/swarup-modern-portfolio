@@ -90,31 +90,30 @@ export async function PUT(request: NextRequest) {
       technologies,
     } = await request.json();
 
-    // Delete old technologies then insert new ones atomically
-    const project = await prisma.$transaction(async (tx) => {
-      await tx.projectTechnology.deleteMany({ where: { projectId: id } });
+    // Step 1: delete old technologies
+    await prisma.projectTechnology.deleteMany({ where: { projectId: id } });
 
-      return tx.project.update({
-        where: { id },
-        data: {
-          title,
-          description,
-          image,
-          liveUrl,
-          githubUrl,
-          category,
-          featured: featured ?? false,
-          hidden: hidden ?? false,
-          technologies: {
-            create: (technologies as string[]).map((tech) => ({
-              technology: tech,
-            })),
-          },
+    // Step 2: update project and insert new technologies
+    const project = await prisma.project.update({
+      where: { id },
+      data: {
+        title,
+        description,
+        image,
+        liveUrl,
+        githubUrl,
+        category,
+        featured: featured ?? false,
+        hidden: hidden ?? false,
+        technologies: {
+          create: (technologies as string[]).map((tech) => ({
+            technology: tech,
+          })),
         },
-        include: {
-          technologies: { select: { technology: true } },
-        },
-      });
+      },
+      include: {
+        technologies: { select: { technology: true } },
+      },
     });
 
     return NextResponse.json({

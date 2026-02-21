@@ -81,7 +81,7 @@ export default function ExperienceEditor() {
   const addSkill = () => {
     const t = skillInput.trim();
     if (!t || !editing) return;
-    setEditing((p) => (p ? { ...p, skills: [...p.skills, t] } : null));
+    setEditing((p) => (p ? { ...p, skills: [...(p.skills ?? []), t] } : null));
     setSkillInput('');
   };
 
@@ -183,7 +183,7 @@ export default function ExperienceEditor() {
             </FormField>
             <FormField label='Skills Used'>
               <div className='space-y-2'>
-                {editing.skills.length > 0 && (
+                {(editing.skills?.length ?? 0) > 0 && (
                   <div className='flex flex-wrap gap-2'>
                     {editing.skills.map((s, i) => (
                       <span
@@ -287,9 +287,9 @@ export default function ExperienceEditor() {
                       {item.description}
                     </p>
                   )}
-                  {item.skills.length > 0 && (
+                  {(item.skills?.length ?? 0) > 0 && (
                     <div className='flex flex-wrap gap-1 mt-2'>
-                      {item.skills.map((s, i) => (
+                      {(item.skills ?? []).map((s, i) => (
                         <span
                           key={i}
                           className='text-xs bg-[#1a1a2e] text-[#9ca3af] px-2 py-0.5 rounded-md'

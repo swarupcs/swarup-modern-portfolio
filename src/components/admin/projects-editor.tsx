@@ -19,7 +19,6 @@ import {
   FormField,
   Input,
   Textarea,
-  Select,
   PrimaryButton,
   SecondaryButton,
   DangerButton,
@@ -28,12 +27,13 @@ import {
   EmptyState,
   LoadingSpinner,
 } from './ui';
+import ImageUploader from './image-uploader';
 
 interface Project {
   id?: string;
   title: string;
   description: string;
-  image: string;
+  image: string | null;
   liveUrl: string;
   githubUrl: string;
   category: string;
@@ -45,7 +45,7 @@ interface Project {
 const BLANK: Project = {
   title: '',
   description: '',
-  image: '',
+  image: null,
   liveUrl: '',
   githubUrl: '',
   category: '',
@@ -81,10 +81,11 @@ export default function ProjectsEditor() {
     setIsNew(true);
     setTechInput('');
   };
+
   const openEdit = (p: Project) => {
     setEditing({
       ...p,
-      image: p.image ?? '',
+      image: p.image ?? null,
       liveUrl: p.liveUrl ?? '',
       githubUrl: p.githubUrl ?? '',
       category: p.category ?? '',
@@ -93,6 +94,7 @@ export default function ProjectsEditor() {
     setIsNew(false);
     setTechInput('');
   };
+
   const closeEditor = () => {
     setEditing(null);
     setIsNew(false);
@@ -203,6 +205,7 @@ export default function ProjectsEditor() {
                 />
               </FormField>
             </div>
+
             <FormField label='Description'>
               <Textarea
                 rows={3}
@@ -211,6 +214,7 @@ export default function ProjectsEditor() {
                 placeholder='Describe the project...'
               />
             </FormField>
+
             <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
               <FormField label='Live URL'>
                 <div className='relative'>
@@ -235,13 +239,15 @@ export default function ProjectsEditor() {
                 </div>
               </FormField>
             </div>
-            <FormField label='Image URL'>
-              <Input
-                value={editing.image}
-                onChange={set('image')}
-                placeholder='https://...'
-              />
-            </FormField>
+
+            {/* ── ImageKit Uploader (replaces plain image URL input) ── */}
+            <ImageUploader
+              value={editing.image}
+              onChange={(url) =>
+                setEditing((p) => (p ? { ...p, image: url } : null))
+              }
+              label='Project Thumbnail'
+            />
 
             {/* Technologies */}
             <FormField label='Technologies'>
@@ -320,7 +326,7 @@ export default function ProjectsEditor() {
         </AdminCard>
       )}
 
-      {/* List */}
+      {/* Project List */}
       <AdminCard>
         <AdminCardHeader
           title='Projects'
@@ -350,12 +356,16 @@ export default function ProjectsEditor() {
                 key={p.id}
                 className='flex items-center gap-4 bg-[#0d0d14] border border-[#1f1f2e] rounded-xl px-4 py-3.5 group hover:border-[#2a2a3e] transition-colors'
               >
-                {p.image && (
+                {p.image ? (
                   <img
                     src={p.image}
                     alt={p.title}
                     className='w-12 h-10 rounded-lg object-cover shrink-0 border border-[#2a2a3e]'
                   />
+                ) : (
+                  <div className='w-12 h-10 rounded-lg shrink-0 border border-[#2a2a3e] bg-[#1a1a2e] flex items-center justify-center'>
+                    <span className='text-[#4b5563] text-xs'>No img</span>
+                  </div>
                 )}
                 <div className='flex-1 min-w-0'>
                   <div className='flex items-center gap-2 flex-wrap'>
