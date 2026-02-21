@@ -66,7 +66,7 @@ export default function Hero() {
       .join('') || 'SD';
 
   return (
-    <section className='relative py-20 md:py-28 overflow-hidden'>
+    <section className='relative py-24 md:py-36 overflow-hidden'>
       {/* Subtle background dots */}
       <div
         className='absolute inset-0 pointer-events-none'
@@ -80,17 +80,17 @@ export default function Hero() {
       {/* Soft glow */}
       <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/5 rounded-full blur-3xl pointer-events-none' />
 
-      <div className='relative z-10 w-full max-w-2xl mx-auto px-6 text-center'>
+      <div className='relative z-10 w-full max-w-3xl mx-auto px-6 text-center'>
         <motion.div
           variants={container}
           initial='hidden'
           animate='visible'
-          className='space-y-8'
+          className='space-y-10'
         >
           {/* Avatar */}
           <motion.div variants={item} className='flex justify-center'>
             <div className='relative'>
-              <div className='w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center text-2xl font-black text-primary shadow-lg'>
+              <div className='w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center text-3xl font-black text-primary shadow-lg'>
                 {initials}
               </div>
               {/* Online dot */}
@@ -99,18 +99,18 @@ export default function Hero() {
           </motion.div>
 
           {/* Name + title */}
-          <motion.div variants={item} className='space-y-3'>
-            <p className='text-xs font-semibold tracking-[0.25em] text-muted-foreground uppercase'>
+          <motion.div variants={item} className='space-y-4'>
+            <p className='text-sm font-semibold tracking-[0.25em] text-muted-foreground uppercase'>
               Full Stack Developer
             </p>
-            <h1 className='text-4xl sm:text-5xl font-black tracking-tight text-foreground'>
+            <h1 className='text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight text-foreground leading-tight'>
               Hi, I&apos;m{' '}
               <span className='bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent'>
                 {info.name}
               </span>
             </h1>
             {info.subtitle && (
-              <p className='text-base text-muted-foreground leading-relaxed max-w-lg mx-auto'>
+              <p className='text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto'>
                 {info.subtitle}
               </p>
             )}
@@ -123,7 +123,7 @@ export default function Hero() {
           >
             <Link
               href='/projects'
-              className='inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5'
+              className='inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground text-base font-semibold hover:bg-primary/90 transition-all hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5'
             >
               View my work
               <ArrowRight className='w-4 h-4' />
@@ -132,7 +132,7 @@ export default function Hero() {
               <Link
                 href={info.resume}
                 target='_blank'
-                className='inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-muted transition-all hover:-translate-y-0.5'
+                className='inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-border text-base font-semibold text-foreground hover:bg-muted transition-all hover:-translate-y-0.5'
               >
                 <FileText className='w-4 h-4' />
                 Resume / CV
@@ -140,7 +140,7 @@ export default function Hero() {
             )}
             <Link
               href={`mailto:${info.email}`}
-              className='inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-muted transition-all hover:-translate-y-0.5'
+              className='inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-border text-base font-semibold text-foreground hover:bg-muted transition-all hover:-translate-y-0.5'
             >
               Get in touch
             </Link>
@@ -155,26 +155,26 @@ export default function Hero() {
               <Link
                 href={info.github}
                 target='_blank'
-                className='w-9 h-9 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-muted transition-all'
+                className='w-11 h-11 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-muted transition-all'
               >
-                <Github className='w-4 h-4' />
+                <Github className='w-5 h-5' />
               </Link>
             )}
             {info.linkedin && (
               <Link
                 href={info.linkedin}
                 target='_blank'
-                className='w-9 h-9 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-muted transition-all'
+                className='w-11 h-11 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-muted transition-all'
               >
-                <Linkedin className='w-4 h-4' />
+                <Linkedin className='w-5 h-5' />
               </Link>
             )}
             {info.email && (
               <Link
                 href={`mailto:${info.email}`}
-                className='w-9 h-9 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-muted transition-all'
+                className='w-11 h-11 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-muted transition-all'
               >
-                <Mail className='w-4 h-4' />
+                <Mail className='w-5 h-5' />
               </Link>
             )}
           </motion.div>

@@ -61,19 +61,19 @@ export default function About() {
     : DEFAULT_INTERESTS;
 
   return (
-    <section id='about' className='py-10 md:py-14 scroll-mt-20'>
+    <section id='about' className='py-14 md:py-20 scroll-mt-20'>
       <div className='max-w-3xl mx-auto px-6'>
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className='text-center mb-8'
+          className='text-center mb-10'
         >
-          <p className='text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase mb-3'>
+          <p className='text-sm font-semibold tracking-[0.2em] text-muted-foreground uppercase mb-3'>
             About
           </p>
-          <h2 className='text-3xl md:text-4xl font-black tracking-tight'>Me</h2>
+          <h2 className='text-4xl md:text-5xl font-black tracking-tight'>Me</h2>
         </motion.div>
 
         <div className='space-y-6'>
@@ -85,21 +85,21 @@ export default function About() {
             transition={{ delay: 0.1 }}
             className='flex items-center gap-4'
           >
-            <div className='w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center text-xl font-black text-primary shrink-0'>
+            <div className='w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center text-2xl font-black text-primary shrink-0'>
               {info?.name
                 ?.split(' ')
                 .map((n) => n[0])
                 .join('') || 'SD'}
             </div>
             <div>
-              <h3 className='text-base font-bold'>
+              <h3 className='text-lg font-bold'>
                 {info?.name || 'Swarup Das'}
               </h3>
-              <p className='text-sm text-muted-foreground'>
+              <p className='text-base text-muted-foreground'>
                 {info?.title || 'Full Stack Developer'}
               </p>
               {info?.location && (
-                <p className='text-xs text-muted-foreground mt-0.5'>
+                <p className='text-sm text-muted-foreground mt-0.5'>
                   📍 {info.location}
                 </p>
               )}
@@ -114,12 +114,12 @@ export default function About() {
             transition={{ delay: 0.15 }}
             className='space-y-4'
           >
-            <p className='text-sm text-muted-foreground leading-relaxed'>
+            <p className='text-base text-muted-foreground leading-relaxed'>
               {about?.bio ||
                 "I'm a passionate full-stack developer dedicated to building exceptional digital experiences. I transform complex problems into elegant, scalable solutions using modern web technologies."}
             </p>
             {about?.description && (
-              <p className='text-sm text-muted-foreground leading-relaxed'>
+              <p className='text-base text-muted-foreground leading-relaxed'>
                 {about.description}
               </p>
             )}
@@ -140,12 +140,12 @@ export default function About() {
                 <div className='w-2.5 h-2.5 bg-yellow-500 rounded-full' />
                 <div className='w-2.5 h-2.5 bg-green-500 rounded-full' />
               </div>
-              <span className='text-xs text-muted-foreground font-mono ml-2'>
+              <span className='text-sm text-muted-foreground font-mono ml-2'>
                 developer.ts
               </span>
             </div>
             {/* Code */}
-            <div className='p-4 font-mono text-xs space-y-1 leading-relaxed'>
+            <div className='p-4 font-mono text-sm space-y-1 leading-relaxed'>
               <div>
                 <span className='text-purple-400'>const</span>{' '}
                 <span className='text-blue-400'>developer</span>{' '}
@@ -194,9 +194,9 @@ export default function About() {
             {interests.map((interest, index) => (
               <div
                 key={index}
-                className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card text-xs font-medium text-muted-foreground hover:border-primary/30 hover:text-foreground transition-colors'
+                className='flex items-center gap-2 px-3.5 py-2 rounded-lg border border-border bg-card text-sm font-medium text-muted-foreground hover:border-primary/30 hover:text-foreground transition-colors'
               >
-                <interest.icon className={`h-3.5 w-3.5 ${interest.color}`} />
+                <interest.icon className={`h-4 w-4 ${interest.color}`} />
                 {interest.label}
               </div>
             ))}
@@ -217,9 +217,9 @@ export default function About() {
                   href={social.href}
                   target='_blank'
                   rel='noopener noreferrer'
-                  className='w-9 h-9 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-muted transition-all'
+                  className='w-11 h-11 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-muted transition-all'
                 >
-                  <social.icon className='h-4 w-4' />
+                  <social.icon className='h-5 w-5' />
                   <span className='sr-only'>{social.label}</span>
                 </Link>
               ))}

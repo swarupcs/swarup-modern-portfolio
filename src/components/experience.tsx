@@ -46,19 +46,19 @@ export default function Experience() {
   };
 
   return (
-    <section id='experience' className='py-10 md:py-14 scroll-mt-20'>
+    <section id='experience' className='py-14 md:py-20 scroll-mt-20'>
       <div className='max-w-3xl mx-auto px-6'>
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className='text-center mb-8'
+          className='text-center mb-10'
         >
-          <p className='text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase mb-3'>
+          <p className='text-sm font-semibold tracking-[0.2em] text-muted-foreground uppercase mb-3'>
             Featured
           </p>
-          <h2 className='text-3xl md:text-4xl font-black tracking-tight'>
+          <h2 className='text-4xl md:text-5xl font-black tracking-tight'>
             Experience
           </h2>
         </motion.div>
@@ -73,11 +73,11 @@ export default function Experience() {
             ))}
           </div>
         ) : experiences.length === 0 ? (
-          <div className='text-center text-muted-foreground py-12 text-sm'>
+          <div className='text-center text-muted-foreground py-12 text-base'>
             No experience entries yet.
           </div>
         ) : (
-          <div className='space-y-4'>
+          <div className='space-y-5'>
             {experiences.map((experience, index) => (
               <motion.div
                 key={experience.id}
@@ -85,23 +85,23 @@ export default function Experience() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index * 0.08 }}
-                className='group rounded-xl border border-border bg-card p-5 hover:border-primary/30 hover:shadow-md hover:shadow-primary/5 transition-all duration-300'
+                className='group rounded-xl border border-border bg-card p-6 hover:border-primary/30 hover:shadow-md hover:shadow-primary/5 transition-all duration-300'
               >
                 {/* Header row */}
-                <div className='flex items-start justify-between gap-4 mb-3'>
+                <div className='flex items-start justify-between gap-4 mb-4'>
                   <div>
-                    <h3 className='text-base font-bold leading-snug'>
+                    <h3 className='text-lg font-bold leading-snug'>
                       {experience.company}
                     </h3>
-                    <p className='text-sm text-primary font-medium mt-0.5'>
+                    <p className='text-base text-primary font-semibold mt-0.5'>
                       {experience.role}
                     </p>
-                    <p className='text-xs text-muted-foreground mt-1'>
+                    <p className='text-sm text-muted-foreground mt-1'>
                       {experience.duration}
                     </p>
                   </div>
                   {experience.duration?.toLowerCase().includes('present') && (
-                    <Badge className='shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 border border-green-500/20'>
+                    <Badge className='shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 border border-green-500/20'>
                       <span className='inline-block w-1.5 h-1.5 rounded-full mr-1.5 bg-green-500 animate-pulse' />
                       Active
                     </Badge>
@@ -109,13 +109,13 @@ export default function Experience() {
                 </div>
 
                 {/* Description */}
-                <ul className='space-y-1.5 mb-4'>
+                <ul className='space-y-2 mb-4'>
                   {getDescriptionLines(experience.description)
                     .slice(0, 3)
                     .map((item, idx) => (
                       <li
                         key={idx}
-                        className='text-xs text-muted-foreground flex gap-2 leading-relaxed'
+                        className='text-sm text-muted-foreground flex gap-2 leading-relaxed'
                       >
                         <span className='text-primary/50 shrink-0 mt-0.5'>
                           ›
