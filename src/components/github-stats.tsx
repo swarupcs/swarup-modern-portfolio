@@ -57,17 +57,38 @@ interface TooltipState {
 function buildGrid(days: ContributionDay[]): GridDay[][] {
   if (!days.length) return [];
 
-  // Pad the start so the first real day lands on the correct weekday row
-  const firstDow = new Date(days[0].date + 'T00:00:00').getDay(); // 0=Sun … 6=Sat
+  // Ensure data ends at today — pad with zero-count days if needed
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+  const lastDay = days[days.length - 1];
+
+  if (lastDay.date < todayStr) {
+    const d = new Date(lastDay.date + 'T00:00:00');
+    d.setDate(d.getDate() + 1);
+    while (d.toISOString().split('T')[0] <= todayStr) {
+      days.push({ date: d.toISOString().split('T')[0], count: 0 });
+      d.setDate(d.getDate() + 1);
+    }
+  }
+
+  // Pad start so first day lands on correct weekday row (0=Sun)
+  const firstDow = new Date(days[0].date + 'T00:00:00').getDay();
   const padded: GridDay[] = [...Array(firstDow).fill(null), ...days];
-  // Pad end so total length is a multiple of 7
+
+  // Pad end to multiple of 7
   while (padded.length % 7 !== 0) padded.push(null);
 
-  // Chunk into weeks of 7
+  // Chunk into week columns
   const weeks: GridDay[][] = [];
   for (let i = 0; i < padded.length; i += 7) {
     weeks.push(padded.slice(i, i + 7));
   }
+
+  // Remove leading/trailing fully-empty weeks
+  while (weeks.length && weeks[0].every((d) => d === null)) weeks.shift();
+  while (weeks.length && weeks[weeks.length - 1].every((d) => d === null))
+    weeks.pop();
+
   return weeks;
 }
 
@@ -440,14 +461,14 @@ export default function GithubStats() {
                     ))}
                   </div>
                 ) : (
-                  <div className='overflow-x-auto'>
+                  <div className='overflow-x-auto flex justify-center'>
                     <div style={{ minWidth: 640 }}>
                       {/* Month labels row */}
                       <div
                         style={{
                           display: 'flex',
-                          marginBottom: 6,
-                          marginLeft: 28,
+                          marginBottom: 4,
+                          marginLeft: 32,
                         }}
                       >
                         <div
@@ -477,6 +498,7 @@ export default function GithubStats() {
                           display: 'flex',
                           gap: 4,
                           position: 'relative',
+                          alignItems: 'flex-start',
                         }}
                         ref={heatmapRef}
                       >
@@ -510,7 +532,14 @@ export default function GithubStats() {
                         </div>
 
                         {/* Week columns: each column = 1 week, each row = 1 day-of-week */}
-                        <div style={{ display: 'flex', gap: 3, flex: 1 }}>
+                        <div
+                          style={{
+                            display: 'flex',
+                            gap: 3,
+                            flex: 1,
+                            alignItems: 'flex-start',
+                          }}
+                        >
                           {grid.map((week, wi) => (
                             <div
                               key={wi}
@@ -677,106 +706,151 @@ export default function GithubStats() {
               </div>
             </motion.div>
 
+ 
             {/* ── Row 4: Top Languages ── */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.15 }}
-              className='rounded-xl border border-border bg-card p-5'
+              className='rounded-xl border border-border bg-card overflow-hidden'
             >
-              <div className='mb-4'>
-                <p className='text-sm font-semibold'>Top Languages</p>
-                <p className='text-xs text-muted-foreground mt-0.5'>
-                  By repository count
-                </p>
+              {/* Header */}
+              <div className='flex items-center justify-between px-5 pt-5 pb-4 border-b border-border'>
+                <div>
+                  <p className='text-sm font-semibold'>Top Languages</p>
+                  <p className='text-xs text-muted-foreground mt-0.5'>
+                    By repository count
+                  </p>
+                </div>
+                {!loading && stats?.topLanguages?.length && (
+                  <span className='text-xs text-muted-foreground'>
+                    {stats.topLanguages.length} languages
+                  </span>
+                )}
               </div>
 
-              {loading ? (
-                <div className='space-y-2'>
-                  <Skeleton className='h-3 w-full rounded-full' />
-                  <div className='flex gap-4 mt-2'>
-                    {[1, 2, 3].map((i) => (
-                      <Skeleton key={i} className='h-3 w-16' />
-                    ))}
+              <div className='p-5'>
+                {loading ? (
+                  <div className='space-y-3'>
+                    <Skeleton className='h-3 w-full rounded-full' />
+                    <div className='flex gap-4'>
+                      {[1, 2, 3].map((i) => (
+                        <Skeleton key={i} className='h-3 w-16' />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ) : stats?.topLanguages?.length ? (
-                <div className='space-y-3'>
-                  {/* Segmented bar */}
-                  <div className='flex h-3 w-full rounded-full overflow-hidden gap-px bg-muted'>
-                    {stats.topLanguages.map((lang, i) => (
-                      <motion.div
-                        key={lang.name}
-                        className='h-full cursor-pointer first:rounded-l-full last:rounded-r-full'
-                        style={{
-                          width: `${lang.percentage}%`,
-                          backgroundColor: lang.color,
-                          opacity:
-                            hoveredLang && hoveredLang !== lang.name ? 0.2 : 1,
-                          filter:
-                            hoveredLang === lang.name
-                              ? 'brightness(1.25)'
-                              : 'none',
-                          transition: 'opacity 0.15s, filter 0.15s',
-                        }}
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${lang.percentage}%` }}
-                        viewport={{ once: true }}
-                        transition={{
-                          duration: 0.85,
-                          ease: 'easeOut',
-                          delay: i * 0.07,
-                        }}
-                        onMouseEnter={() => setHoveredLang(lang.name)}
-                        onMouseLeave={() => setHoveredLang(null)}
-                        title={`${lang.name}: ${lang.percentage}%`}
-                      />
-                    ))}
-                  </div>
+                ) : stats?.topLanguages?.length ? (
+                  <div className='space-y-5'>
+                    {/* Segmented bar */}
+{/* Segmented bar */}
+<div className='relative w-full'>
+  {/* Glow layer */}
+  <div
+    className='absolute inset-0 rounded-full blur-md opacity-40 pointer-events-none'
+    style={{
+      background: `linear-gradient(to right, ${stats.topLanguages.map(l => l.color).join(', ')})`,
+    }}
+  />
+  {/* Main bar */}
+  <div className='relative flex h-4 w-full rounded-full overflow-hidden gap-[2px] ring-1 ring-white/10'>
+    {stats.topLanguages.map((lang, i) => (
+      <motion.div
+        key={lang.name}
+        className='h-full cursor-pointer first:rounded-l-full last:rounded-r-full relative overflow-hidden'
+        style={{
+          width: `${lang.percentage}%`,
+          backgroundColor: lang.color,
+          opacity: hoveredLang && hoveredLang !== lang.name ? 0.2 : 1,
+          transition: 'opacity 0.2s, filter 0.2s, width 0.2s',
+          filter: hoveredLang === lang.name ? 'brightness(1.4) saturate(1.3)' : 'brightness(1)',
+        }}
+        initial={{ width: 0 }}
+        whileInView={{ width: `${lang.percentage}%` }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.9, ease: 'easeOut', delay: i * 0.08 }}
+        onMouseEnter={() => setHoveredLang(lang.name)}
+        onMouseLeave={() => setHoveredLang(null)}
+        title={`${lang.name}: ${lang.percentage}%`}
+      >
+        {/* Shine overlay */}
+        <div
+          className='absolute inset-0 pointer-events-none'
+          style={{
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 60%)',
+          }}
+        />
+      </motion.div>
+    ))}
+  </div>
+</div>
 
-                  {/* Legend */}
-                  <div className='flex flex-wrap gap-x-5 gap-y-2 pt-0.5'>
-                    {stats.topLanguages.map((lang) => (
-                      <div
-                        key={lang.name}
-                        className='flex items-center gap-1.5 cursor-pointer'
-                        style={{
-                          opacity:
-                            hoveredLang && hoveredLang !== lang.name ? 0.3 : 1,
-                          transition: 'opacity 0.15s',
-                        }}
-                        onMouseEnter={() => setHoveredLang(lang.name)}
-                        onMouseLeave={() => setHoveredLang(null)}
-                      >
-                        <div
-                          className='rounded-full'
-                          style={{
-                            width: 10,
-                            height: 10,
-                            backgroundColor: lang.color,
-                            transform:
-                              hoveredLang === lang.name
-                                ? 'scale(1.5)'
-                                : 'scale(1)',
-                            transition: 'transform 0.15s',
-                          }}
-                        />
-                        <span className='text-xs text-muted-foreground'>
-                          {lang.name}
-                        </span>
-                        <span className='text-[10px] text-muted-foreground/50 font-mono'>
-                          {lang.percentage}%
-                        </span>
-                      </div>
-                    ))}
+                    {/* Language cards */}
+                    <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2'>
+                      {stats.topLanguages.map((lang) => {
+                        const isHovered = hoveredLang === lang.name;
+                        return (
+                          <div
+                            key={lang.name}
+                            className='relative rounded-lg border border-border p-3 cursor-pointer'
+                            style={{
+                              background: isHovered
+                                ? `${lang.color}18`
+                                : 'transparent',
+                              borderColor: isHovered
+                                ? `${lang.color}50`
+                                : undefined,
+                              opacity: hoveredLang && !isHovered ? 0.4 : 1,
+                              transition: 'all 0.2s',
+                            }}
+                            onMouseEnter={() => setHoveredLang(lang.name)}
+                            onMouseLeave={() => setHoveredLang(null)}
+                          >
+                            <div className='flex items-center gap-2 mb-2'>
+                              <div
+                                className='w-2.5 h-2.5 rounded-full shrink-0'
+                                style={{
+                                  backgroundColor: lang.color,
+                                  transform: isHovered
+                                    ? 'scale(1.4)'
+                                    : 'scale(1)',
+                                  boxShadow: isHovered
+                                    ? `0 0 8px ${lang.color}80`
+                                    : 'none',
+                                  transition: 'all 0.2s',
+                                }}
+                              />
+                              <span className='text-xs font-medium text-foreground truncate'>
+                                {lang.name}
+                              </span>
+                            </div>
+                            <p
+                              className='text-xl font-black tracking-tight'
+                              style={{ color: lang.color }}
+                            >
+                              {lang.percentage}%
+                            </p>
+                            <div className='mt-2 h-1 w-full bg-muted rounded-full overflow-hidden'>
+                              <motion.div
+                                className='h-full rounded-full'
+                                style={{ backgroundColor: lang.color }}
+                                initial={{ width: 0 }}
+                                whileInView={{ width: `${lang.percentage}%` }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.8, ease: 'easeOut' }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <p className='text-xs text-muted-foreground'>
-                  No language data available
-                </p>
-              )}
+                ) : (
+                  <p className='text-xs text-muted-foreground'>
+                    No language data available
+                  </p>
+                )}
+              </div>
             </motion.div>
           </div>
         )}
