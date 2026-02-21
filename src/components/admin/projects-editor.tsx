@@ -12,6 +12,9 @@ import {
   EyeOff,
   ExternalLink,
   Github,
+  FolderOpen,
+  Globe,
+  Lock,
 } from 'lucide-react';
 import {
   AdminCard,
@@ -22,12 +25,12 @@ import {
   PrimaryButton,
   SecondaryButton,
   DangerButton,
-  Badge,
   Toast,
   EmptyState,
   LoadingSpinner,
 } from './ui';
 import ImageUploader from './image-uploader';
+import { TechBadgeWithIcon } from '@/lib/tech-icons';
 
 interface Project {
   id?: string;
@@ -81,7 +84,6 @@ export default function ProjectsEditor() {
     setIsNew(true);
     setTechInput('');
   };
-
   const openEdit = (p: Project) => {
     setEditing({
       ...p,
@@ -94,7 +96,6 @@ export default function ProjectsEditor() {
     setIsNew(false);
     setTechInput('');
   };
-
   const closeEditor = () => {
     setEditing(null);
     setIsNew(false);
@@ -102,11 +103,7 @@ export default function ProjectsEditor() {
 
   const set =
     (k: keyof Project) =>
-    (
-      e: React.ChangeEvent<
-        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-      >,
-    ) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setEditing((p) => (p ? { ...p, [k]: e.target.value } : null));
 
   const toggle = (k: 'featured' | 'hidden') =>
@@ -167,13 +164,48 @@ export default function ProjectsEditor() {
     }
   };
 
+  const featured = projects.filter((p) => p.featured);
+  const hidden = projects.filter((p) => p.hidden);
+
   if (loading) return <LoadingSpinner />;
 
   return (
     <div className='space-y-6'>
       {toast && <Toast {...toast} onClose={() => setToast(null)} />}
 
-      {/* Editor Modal */}
+      {/* ── Stats bar ───────────────────────────────────────────── */}
+      <div className='grid grid-cols-3 gap-3'>
+        {[
+          {
+            label: 'Total',
+            value: projects.length,
+            color: 'text-white',
+            bg: 'bg-[#0d0d16] border-[#1a1a2e]',
+          },
+          {
+            label: 'Featured',
+            value: featured.length,
+            color: 'text-amber-400',
+            bg: 'bg-amber-500/5 border-amber-500/20',
+          },
+          {
+            label: 'Hidden',
+            value: hidden.length,
+            color: 'text-[#6b7280]',
+            bg: 'bg-[#0d0d16] border-[#1a1a2e]',
+          },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            className={`rounded-xl border px-4 py-3 ${stat.bg}`}
+          >
+            <p className='text-xs text-[#6b7280] mb-1'>{stat.label}</p>
+            <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Editor Modal ────────────────────────────────────────── */}
       {editing && (
         <AdminCard className='ring-1 ring-violet-500/20'>
           <AdminCardHeader
@@ -240,7 +272,7 @@ export default function ProjectsEditor() {
               </FormField>
             </div>
 
-            {/* ── ImageKit Uploader (replaces plain image URL input) ── */}
+            {/* ImageKit uploader */}
             <ImageUploader
               value={editing.image}
               onChange={(url) =>
@@ -259,10 +291,13 @@ export default function ProjectsEditor() {
                         key={i}
                         className='inline-flex items-center gap-1.5 bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs px-2.5 py-1 rounded-lg'
                       >
-                        {t}
+                        <TechBadgeWithIcon
+                          tech={t}
+                          className='!bg-transparent !border-0 !px-0 !py-0 !gap-1'
+                        />
                         <button
                           onClick={() => removeTech(i)}
-                          className='hover:text-red-400 transition-colors'
+                          className='hover:text-red-400 transition-colors ml-1'
                         >
                           <X className='w-3 h-3' />
                         </button>
@@ -326,7 +361,7 @@ export default function ProjectsEditor() {
         </AdminCard>
       )}
 
-      {/* Project List */}
+      {/* ── Project List ────────────────────────────────────────── */}
       <AdminCard>
         <AdminCardHeader
           title='Projects'
@@ -338,6 +373,7 @@ export default function ProjectsEditor() {
             </SecondaryButton>
           }
         />
+
         {projects.length === 0 ? (
           <EmptyState
             title='No projects yet'
@@ -350,63 +386,153 @@ export default function ProjectsEditor() {
             }
           />
         ) : (
-          <div className='space-y-3'>
+          <div className='space-y-4'>
             {projects.map((p) => (
               <div
                 key={p.id}
-                className='flex items-center gap-4 bg-[#0d0d14] border border-[#1f1f2e] rounded-xl px-4 py-3.5 group hover:border-[#2a2a3e] transition-colors'
+                className={`group relative rounded-2xl border overflow-hidden transition-all duration-200 hover:border-[#2a2a3e]
+                  ${
+                    p.featured
+                      ? 'border-amber-500/30 bg-gradient-to-r from-amber-500/5 via-[#0d0d14] to-[#0d0d14]'
+                      : 'border-[#1f1f2e] bg-[#0d0d14]'
+                  }`}
               >
-                {p.image ? (
-                  <img
-                    src={p.image}
-                    alt={p.title}
-                    className='w-12 h-10 rounded-lg object-cover shrink-0 border border-[#2a2a3e]'
-                  />
-                ) : (
-                  <div className='w-12 h-10 rounded-lg shrink-0 border border-[#2a2a3e] bg-[#1a1a2e] flex items-center justify-center'>
-                    <span className='text-[#4b5563] text-xs'>No img</span>
-                  </div>
+                {/* Featured glow line */}
+                {p.featured && (
+                  <div className='absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-amber-500/0 via-amber-500/60 to-amber-500/0' />
                 )}
-                <div className='flex-1 min-w-0'>
-                  <div className='flex items-center gap-2 flex-wrap'>
-                    <p className='text-sm font-medium text-white truncate'>
-                      {p.title}
-                    </p>
-                    {p.featured && <Badge variant='warning'>Featured</Badge>}
-                    {p.hidden && <Badge variant='default'>Hidden</Badge>}
-                    {p.category && <Badge variant='info'>{p.category}</Badge>}
-                  </div>
-                  <p className='text-xs text-[#6b7280] mt-0.5 truncate'>
-                    {p.description}
-                  </p>
-                  {p.technologies.length > 0 && (
-                    <div className='flex gap-1 mt-1.5 flex-wrap'>
-                      {p.technologies.slice(0, 4).map((t, i) => (
-                        <span
-                          key={i}
-                          className='text-xs bg-[#1a1a2e] text-[#9ca3af] px-2 py-0.5 rounded-md'
-                        >
-                          {t}
-                        </span>
-                      ))}
-                      {p.technologies.length > 4 && (
-                        <span className='text-xs text-[#4b5563]'>
-                          +{p.technologies.length - 4}
-                        </span>
-                      )}
+
+                <div className='flex gap-0'>
+                  {/* Thumbnail */}
+                  <div className='w-48 shrink-0 relative overflow-hidden'>
+                    {p.image ? (
+                      <img
+                        src={p.image}
+                        alt={p.title}
+                        className='w-full h-full object-cover'
+                        style={{ minHeight: '140px' }}
+                      />
+                    ) : (
+                      <div
+                        className='w-full flex items-center justify-center bg-[#111119] border-r border-[#1f1f2e]'
+                        style={{ minHeight: '140px' }}
+                      >
+                        <div className='text-center'>
+                          <FolderOpen className='w-8 h-8 text-[#2a2a3e] mx-auto mb-1' />
+                          <p className='text-xs text-[#374151]'>No image</p>
+                        </div>
+                      </div>
+                    )}
+                    {/* Image overlay on hover */}
+                    <div className='absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center'>
+                      <button
+                        onClick={() => openEdit(p)}
+                        className='px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white text-xs font-medium backdrop-blur-sm transition-colors'
+                      >
+                        Edit
+                      </button>
                     </div>
-                  )}
-                </div>
-                <div className='flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity'>
-                  <SecondaryButton
-                    onClick={() => openEdit(p)}
-                    className='px-3 py-2'
-                  >
-                    <Edit2 className='w-3.5 h-3.5' />
-                  </SecondaryButton>
-                  <DangerButton onClick={() => handleDelete(p.id!)}>
-                    <Trash2 className='w-3.5 h-3.5' />
-                  </DangerButton>
+                  </div>
+
+                  {/* Content */}
+                  <div className='flex-1 p-4 min-w-0'>
+                    <div className='flex items-start justify-between gap-3'>
+                      <div className='flex-1 min-w-0'>
+                        {/* Title + badges */}
+                        <div className='flex items-center gap-2 flex-wrap mb-1'>
+                          <h3 className='text-base font-bold text-white'>
+                            {p.title}
+                          </h3>
+                          {p.featured && (
+                            <span className='inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 font-medium'>
+                              <Star className='w-3 h-3' />
+                              Featured
+                            </span>
+                          )}
+                          {p.hidden && (
+                            <span className='inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-[#1a1a2e] border border-[#2a2a3e] text-[#6b7280] font-medium'>
+                              <Lock className='w-3 h-3' />
+                              Hidden
+                            </span>
+                          )}
+                          {p.category && (
+                            <span className='text-xs px-2 py-0.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400'>
+                              {p.category}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Description */}
+                        <p className='text-xs text-[#6b7280] line-clamp-2 mb-3'>
+                          {p.description}
+                        </p>
+
+                        {/* Tech badges with icons */}
+                        {p.technologies.length > 0 && (
+                          <div className='flex flex-wrap gap-1.5'>
+                            {p.technologies.slice(0, 5).map((t, i) => (
+                              <TechBadgeWithIcon
+                                key={i}
+                                tech={t}
+                                className='text-xs !py-0.5 !px-2'
+                              />
+                            ))}
+                            {p.technologies.length > 5 && (
+                              <span className='inline-flex items-center text-xs px-2 py-0.5 rounded-md bg-[#1a1a2e] text-[#4b5563] border border-[#2a2a3e]'>
+                                +{p.technologies.length - 5} more
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Actions */}
+                      <div className='flex flex-col gap-1.5 shrink-0'>
+                        {/* Quick links */}
+                        <div className='flex gap-1'>
+                          {p.liveUrl && (
+                            <a
+                              href={p.liveUrl}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              className='p-1.5 rounded-lg text-[#6b7280] hover:text-cyan-400 hover:bg-cyan-500/10 transition-all'
+                              title='View Live'
+                            >
+                              <Globe className='w-3.5 h-3.5' />
+                            </a>
+                          )}
+                          {p.githubUrl && (
+                            <a
+                              href={p.githubUrl}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              className='p-1.5 rounded-lg text-[#6b7280] hover:text-white hover:bg-[#1a1a2e] transition-all'
+                              title='View GitHub'
+                            >
+                              <Github className='w-3.5 h-3.5' />
+                            </a>
+                          )}
+                        </div>
+                        {/* Edit / Delete */}
+                        <div className='flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity'>
+                          <button
+                            onClick={() => openEdit(p)}
+                            className='p-1.5 rounded-lg text-[#6b7280] hover:text-white hover:bg-[#1a1a2e] transition-all'
+                            title='Edit'
+                          >
+                            <Edit2 className='w-3.5 h-3.5' />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(p.id!)}
+                            className='p-1.5 rounded-lg text-[#6b7280] hover:text-red-400 hover:bg-red-500/10 transition-all'
+                            title='Delete'
+                          >
+                            <Trash2 className='w-3.5 h-3.5' />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
