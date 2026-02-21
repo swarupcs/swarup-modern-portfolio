@@ -1,24 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   GitBranch,
   GitCommit,
   GitPullRequest,
   Star,
+  Users,
   Flame,
-  Calendar,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import SectionHeading from './section-heading';
 
 interface GithubStats {
   username: string;
@@ -33,473 +25,349 @@ interface GithubStats {
   following: number;
   currentStreak?: number;
   longestStreak?: number;
-  contributionCalendar?: Array<{
-    date: string;
-    count: number;
-  }>;
+  contributionCalendar?: Array<{ date: string; count: number }>;
 }
 
 export default function GithubStats() {
   const [stats, setStats] = useState<GithubStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hoveredLang, setHoveredLang] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/github?username=swarupcs');
-        if (!response.ok) throw new Error('Failed to fetch');
-        const data = await response.json();
-
+    fetch('/api/github?username=swarupcs')
+      .then((r) => {
+        if (!r.ok) throw new Error('Failed');
+        return r.json();
+      })
+      .then((data) => {
         setStats(data);
-        setLoading(false);
         setError(null);
-      } catch (err: unknown) {
-        console.error('Error fetching GitHub stats:', err);
-        setLoading(false);
-        setError('Failed to load GitHub stats');
-      }
-    };
-
-    fetchData();
+      })
+      .catch(() => setError('Failed to load GitHub stats'))
+      .finally(() => setLoading(false));
   }, []);
-
-  const getContributionColor = (count: number) => {
-    if (count === 0) return 'bg-muted';
-    if (count < 3) return 'bg-green-200 dark:bg-green-900';
-    if (count < 6) return 'bg-green-300 dark:bg-green-700';
-    if (count < 9) return 'bg-green-400 dark:bg-green-600';
-    return 'bg-green-500 dark:bg-green-500';
-  };
-
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 },
-  };
 
   const username = stats?.username || 'swarupcs';
 
+  const topStats = [
+    {
+      label: 'Contributions',
+      value: stats?.totalContributions
+        ? stats.totalContributions.toLocaleString()
+        : 'N/A',
+      icon: GitCommit,
+      color: 'text-green-500',
+      bg: 'bg-green-500/10',
+    },
+    {
+      label: 'Repositories',
+      value: stats?.totalRepositories ?? 0,
+      icon: GitBranch,
+      color: 'text-blue-500',
+      bg: 'bg-blue-500/10',
+    },
+    {
+      label: 'Stars',
+      value: stats?.totalStars ?? 0,
+      icon: Star,
+      color: 'text-yellow-500',
+      bg: 'bg-yellow-500/10',
+    },
+    {
+      label: 'Pull Requests',
+      value: stats?.pullRequests || 'N/A',
+      icon: GitPullRequest,
+      color: 'text-purple-500',
+      bg: 'bg-purple-500/10',
+    },
+  ];
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.07 } },
+  };
+  const item = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } };
+
   return (
-    <section id='github' className='py-16 md:py-24'>
-      <div className='px-4 md:px-6'>
-        <div className='text-center mb-12'>
-          <h2 className='text-3xl font-bold tracking-tight sm:text-4xl mb-4'>
+    <section id='github' className='py-10 md:py-14 scroll-mt-20'>
+      <div className='max-w-5xl mx-auto px-6'>
+        {/* Heading */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className='text-center mb-8'
+        >
+          <p className='text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase mb-3'>
+            Open Source
+          </p>
+          <h2 className='text-3xl md:text-4xl font-black tracking-tight'>
             GitHub Stats
           </h2>
-          <p className='text-muted-foreground max-w-2xl mx-auto'>
-            My open source contributions and coding activity
+          <p className='text-muted-foreground text-sm mt-3 max-w-md mx-auto'>
+            My contributions and coding activity
           </p>
-        </div>
+        </motion.div>
 
         {error ? (
-          <p className='text-center text-red-500 mt-8'>{error}</p>
+          <p className='text-center text-red-500 text-sm py-8'>{error}</p>
         ) : (
-          <>
+          <div className='space-y-3'>
+            {/* Row 1 — Primary stats */}
             <motion.div
-              className='mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-2 lg:grid-cols-4'
+              className='grid grid-cols-2 lg:grid-cols-4 gap-3'
               variants={container}
               initial='hidden'
               whileInView='show'
               viewport={{ once: true }}
             >
-              <motion.div variants={item}>
-                <Card className='border-2 border-transparent hover:border-primary/20 transition-colors'>
-                  <CardHeader className='pb-2'>
-                    <CardTitle className='text-sm font-medium'>
-                      Total Contributions
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {loading ? (
-                      <Skeleton className='h-10 w-20' />
-                    ) : (
-                      <motion.div
-                        className='flex items-center'
-                        initial={{ scale: 0.8 }}
-                        animate={{ scale: 1 }}
-                        transition={{
-                          type: 'spring',
-                          stiffness: 300,
-                          damping: 10,
-                        }}
-                      >
-                        <GitCommit className='mr-2 h-5 w-5 text-muted-foreground' />
-                        <span className='text-2xl font-bold'>
-                          {stats && stats.totalContributions > 0
-                            ? stats.totalContributions.toLocaleString()
-                            : 'N/A'}
-                        </span>
-                      </motion.div>
-                    )}
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div variants={item}>
-                <Card className='border-2 border-transparent hover:border-primary/20 transition-colors'>
-                  <CardHeader className='pb-2'>
-                    <CardTitle className='text-sm font-medium'>
-                      Repositories
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {loading ? (
-                      <Skeleton className='h-10 w-20' />
-                    ) : (
-                      <motion.div
-                        className='flex items-center'
-                        initial={{ scale: 0.8 }}
-                        animate={{ scale: 1 }}
-                        transition={{
-                          type: 'spring',
-                          stiffness: 300,
-                          damping: 10,
-                          delay: 0.1,
-                        }}
-                      >
-                        <GitBranch className='mr-2 h-5 w-5 text-muted-foreground' />
-                        <span className='text-2xl font-bold'>
-                          {stats?.totalRepositories || 0}
-                        </span>
-                      </motion.div>
-                    )}
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div variants={item}>
-                <Card className='border-2 border-transparent hover:border-primary/20 transition-colors'>
-                  <CardHeader className='pb-2'>
-                    <CardTitle className='text-sm font-medium'>
-                      Stars Received
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {loading ? (
-                      <Skeleton className='h-10 w-20' />
-                    ) : (
-                      <motion.div
-                        className='flex items-center'
-                        initial={{ scale: 0.8 }}
-                        animate={{ scale: 1 }}
-                        transition={{
-                          type: 'spring',
-                          stiffness: 300,
-                          damping: 10,
-                          delay: 0.2,
-                        }}
-                      >
-                        <Star className='mr-2 h-5 w-5 text-muted-foreground' />
-                        <span className='text-2xl font-bold'>
-                          {stats?.totalStars || 0}
-                        </span>
-                      </motion.div>
-                    )}
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div variants={item}>
-                <Card className='border-2 border-transparent hover:border-primary/20 transition-colors'>
-                  <CardHeader className='pb-2'>
-                    <CardTitle className='text-sm font-medium'>
-                      Pull Requests
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {loading ? (
-                      <Skeleton className='h-10 w-20' />
-                    ) : (
-                      <motion.div
-                        className='flex items-center'
-                        initial={{ scale: 0.8 }}
-                        animate={{ scale: 1 }}
-                        transition={{
-                          type: 'spring',
-                          stiffness: 300,
-                          damping: 10,
-                          delay: 0.3,
-                        }}
-                      >
-                        <GitPullRequest className='mr-2 h-5 w-5 text-muted-foreground' />
-                        <span className='text-2xl font-bold'>
-                          {stats && stats.pullRequests > 0
-                            ? stats.pullRequests
-                            : 'N/A'}
-                        </span>
-                      </motion.div>
-                    )}
-                  </CardContent>
-                </Card>
-              </motion.div>
+              {topStats.map(({ label, value, icon: Icon, color, bg }) => (
+                <motion.div
+                  key={label}
+                  variants={item}
+                  className='rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-all hover:shadow-sm'
+                >
+                  <div
+                    className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center mb-3`}
+                  >
+                    <Icon className={`h-4 w-4 ${color}`} />
+                  </div>
+                  <div className='text-xs text-muted-foreground mb-1'>
+                    {label}
+                  </div>
+                  {loading ? (
+                    <Skeleton className='h-7 w-16' />
+                  ) : (
+                    <div className='text-2xl font-black tracking-tight'>
+                      {value}
+                    </div>
+                  )}
+                </motion.div>
+              ))}
             </motion.div>
 
-            {/* GitHub Streak Card */}
+            {/* Row 2 — Streak + Community */}
             <motion.div
-              className='mx-auto mt-8 max-w-5xl'
-              initial={{ opacity: 0, y: 20 }}
+              className='grid grid-cols-1 md:grid-cols-2 gap-3'
+              initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.4 }}
+              transition={{ delay: 0.15 }}
             >
-              <Card className='border-2 border-transparent hover:border-primary/20 transition-colors'>
-                <CardHeader>
-                  <CardTitle className='flex items-center gap-2'>
-                    <Flame className='h-5 w-5 text-orange-500' />
+              {/* Streak */}
+              <div className='rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-all'>
+                <div className='flex items-center gap-2 mb-4'>
+                  <div className='w-7 h-7 rounded-lg bg-orange-500/10 flex items-center justify-center'>
+                    <Flame className='h-3.5 w-3.5 text-orange-500' />
+                  </div>
+                  <span className='text-sm font-semibold'>
                     Contribution Streak
-                  </CardTitle>
-                  <CardDescription>
-                    Keep the momentum going with daily contributions
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {loading ? (
-                    <div className='flex gap-8 justify-center'>
-                      <Skeleton className='h-20 w-32' />
-                      <Skeleton className='h-20 w-32' />
+                  </span>
+                </div>
+                <div className='flex items-center gap-6'>
+                  <div>
+                    {loading ? (
+                      <Skeleton className='h-9 w-12' />
+                    ) : (
+                      <div className='text-3xl font-black text-orange-500'>
+                        {stats?.currentStreak ?? '—'}
+                      </div>
+                    )}
+                    <div className='text-xs text-muted-foreground mt-0.5'>
+                      Current streak
                     </div>
-                  ) : stats?.currentStreak !== undefined ||
-                    stats?.longestStreak !== undefined ? (
-                    <div className='flex flex-wrap gap-8 justify-center'>
-                      <motion.div
-                        className='text-center'
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        whileInView={{ scale: 1, opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        <div className='text-4xl font-bold text-orange-500 mb-2'>
-                          {stats?.currentStreak || 0}
-                        </div>
-                        <div className='text-sm text-muted-foreground'>
-                          Current Streak
-                        </div>
-                      </motion.div>
-                      <motion.div
-                        className='text-center'
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        whileInView={{ scale: 1, opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5, delay: 0.1 }}
-                      >
-                        <div className='text-4xl font-bold text-primary mb-2'>
-                          {stats?.longestStreak || 0}
-                        </div>
-                        <div className='text-sm text-muted-foreground'>
-                          Longest Streak
-                        </div>
-                      </motion.div>
+                  </div>
+                  <div className='w-px h-10 bg-border' />
+                  <div>
+                    {loading ? (
+                      <Skeleton className='h-9 w-12' />
+                    ) : (
+                      <div className='text-3xl font-black text-primary'>
+                        {stats?.longestStreak ?? '—'}
+                      </div>
+                    )}
+                    <div className='text-xs text-muted-foreground mt-0.5'>
+                      Longest streak
                     </div>
-                  ) : (
-                    <div className='text-center py-4'>
-                      <img
-                        src={`https://github-readme-streak-stats.herokuapp.com/?user=${username}&theme=transparent&hide_border=true`}
-                        alt='GitHub Streak Stats'
-                        className='mx-auto'
-                        loading='lazy'
-                      />
+                  </div>
+                </div>
+              </div>
+
+              {/* Community */}
+              <div className='rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-all'>
+                <div className='flex items-center gap-2 mb-4'>
+                  <div className='w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center'>
+                    <Users className='h-3.5 w-3.5 text-blue-500' />
+                  </div>
+                  <span className='text-sm font-semibold'>Community</span>
+                </div>
+                <div className='flex items-center gap-6'>
+                  <div>
+                    {loading ? (
+                      <Skeleton className='h-9 w-12' />
+                    ) : (
+                      <div className='text-3xl font-black'>
+                        {stats?.followers ?? '—'}
+                      </div>
+                    )}
+                    <div className='text-xs text-muted-foreground mt-0.5'>
+                      Followers
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                  </div>
+                  <div className='w-px h-10 bg-border' />
+                  <div>
+                    {loading ? (
+                      <Skeleton className='h-9 w-12' />
+                    ) : (
+                      <div className='text-3xl font-black'>
+                        {stats?.following ?? '—'}
+                      </div>
+                    )}
+                    <div className='text-xs text-muted-foreground mt-0.5'>
+                      Following
+                    </div>
+                  </div>
+                </div>
+              </div>
             </motion.div>
 
-            {/* Contribution Heatmap */}
+            {/* Row 3 — Heatmap */}
             <motion.div
-              className='mx-auto mt-8 max-w-5xl'
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.5 }}
+              transition={{ delay: 0.2 }}
+              className='rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-all'
             >
-              <Card className='border-2 border-transparent hover:border-primary/20 transition-colors'>
-                <CardHeader>
-                  <CardTitle className='flex items-center gap-2'>
-                    <Calendar className='h-5 w-5' />
-                    Contribution Activity
-                  </CardTitle>
-                  <CardDescription>
-                    Your coding activity over the past year
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {loading ? (
-                    <div className='space-y-2'>
-                      <Skeleton className='h-4 w-full' />
-                      <Skeleton className='h-4 w-full' />
-                      <Skeleton className='h-4 w-full' />
-                    </div>
-                  ) : stats?.contributionCalendar &&
-                    stats.contributionCalendar.length > 0 ? (
-                    <div className='overflow-x-auto'>
-                      <div className='inline-flex gap-1 min-w-full pb-4'>
-                        {stats.contributionCalendar
-                          .slice(-365)
-                          .map((day, index) => (
-                            <motion.div
-                              key={index}
-                              className={`w-3 h-3 rounded-sm ${getContributionColor(
-                                day.count
-                              )} hover:ring-2 hover:ring-primary transition-all cursor-pointer`}
-                              title={`${day.date}: ${day.count} contributions`}
-                              initial={{ scale: 0, opacity: 0 }}
-                              whileInView={{ scale: 1, opacity: 1 }}
-                              viewport={{ once: true }}
-                              transition={{
-                                duration: 0.2,
-                                delay: index * 0.001,
-                              }}
-                              whileHover={{ scale: 1.3 }}
-                            />
-                          ))}
-                      </div>
-                      <div className='flex items-center gap-2 mt-4 text-xs text-muted-foreground'>
-                        <span>Less</span>
-                        <div className='flex gap-1'>
-                          <div className='w-3 h-3 rounded-sm bg-muted' />
-                          <div className='w-3 h-3 rounded-sm bg-green-200 dark:bg-green-900' />
-                          <div className='w-3 h-3 rounded-sm bg-green-300 dark:bg-green-700' />
-                          <div className='w-3 h-3 rounded-sm bg-green-400 dark:bg-green-600' />
-                          <div className='w-3 h-3 rounded-sm bg-green-500 dark:bg-green-500' />
-                        </div>
-                        <span>More</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className='text-center py-4'>
-                      <img
-                        src={`https://ghchart.rshah.org/${username}`}
-                        alt='GitHub Contribution Graph'
-                        className='mx-auto rounded-lg w-full'
-                        loading='lazy'
-                      />
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <div className='flex items-center justify-between mb-4'>
+                <div>
+                  <p className='text-sm font-semibold'>Contribution Activity</p>
+                  <p className='text-xs text-muted-foreground mt-0.5'>
+                    Past year of contributions
+                  </p>
+                </div>
+                {!loading && stats?.totalContributions ? (
+                  <span className='text-xs font-medium px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 border border-green-500/20'>
+                    {stats.totalContributions.toLocaleString()} total
+                  </span>
+                ) : null}
+              </div>
+              {loading ? (
+                <div className='space-y-1.5'>
+                  <Skeleton className='h-4 w-full' />
+                  <Skeleton className='h-4 w-full' />
+                  <Skeleton className='h-4 w-3/4' />
+                </div>
+              ) : (
+                <div className='overflow-x-auto'>
+                  <img
+                    src={`https://ghchart.rshah.org/${username}`}
+                    alt='GitHub Contribution Graph'
+                    className='rounded w-full min-w-[600px] opacity-90'
+                    loading='lazy'
+                  />
+                </div>
+              )}
             </motion.div>
 
+            {/* Row 4 — Top Languages */}
             <motion.div
-              className='mx-auto mt-8 max-w-5xl'
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.6 }}
+              transition={{ delay: 0.25 }}
+              className='rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-all'
             >
-              <Card className='border-2 border-transparent hover:border-primary/20 transition-colors'>
-                <CardHeader>
-                  <CardTitle>Top Languages</CardTitle>
-                  <CardDescription>
-                    Languages I use most frequently in my repositories
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {loading ? (
-                    <div className='space-y-2'>
-                      <Skeleton className='h-4 w-full' />
-                      <Skeleton className='h-4 w-full' />
-                      <Skeleton className='h-4 w-full' />
-                    </div>
-                  ) : stats?.topLanguages && stats.topLanguages.length > 0 ? (
-                    <div className='space-y-4'>
+              <div className='mb-4'>
+                <p className='text-sm font-semibold'>Top Languages</p>
+                <p className='text-xs text-muted-foreground mt-0.5'>
+                  Most used in my repositories
+                </p>
+              </div>
+              {loading ? (
+                <div className='space-y-2'>
+                  <Skeleton className='h-2.5 w-full rounded-full' />
+                  <Skeleton className='h-3 w-2/3' />
+                </div>
+              ) : stats?.topLanguages && stats.topLanguages.length > 0 ? (
+                <div className='space-y-3'>
+                  {/* Segmented bar */}
+                  <div className='flex h-2.5 w-full rounded-full overflow-hidden gap-px bg-muted'>
+                    {stats.topLanguages.map((lang) => (
                       <motion.div
-                        className='flex h-4 w-full rounded-full bg-muted overflow-hidden'
-                        initial={{ opacity: 0, scaleX: 0 }}
-                        whileInView={{ opacity: 1, scaleX: 1 }}
+                        key={lang.name}
+                        className='h-full cursor-pointer transition-opacity duration-200'
+                        style={{
+                          width: `${lang.percentage}%`,
+                          backgroundColor: lang.color,
+                          opacity:
+                            hoveredLang && hoveredLang !== lang.name ? 0.25 : 1,
+                        }}
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${lang.percentage}%` }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.8 }}
-                      >
-                        {stats.topLanguages.map((lang, index) => (
-                          <motion.div
-                            key={lang.name}
-                            className='h-full'
-                            style={{
-                              width: `${lang.percentage}%`,
-                              backgroundColor: lang.color,
-                            }}
-                            initial={{ width: 0 }}
-                            whileInView={{ width: `${lang.percentage}%` }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.8, delay: 0.1 * index }}
-                          />
-                        ))}
-                      </motion.div>
-                      <motion.div
-                        className='flex flex-wrap gap-4'
-                        variants={container}
-                        initial='hidden'
-                        whileInView='show'
-                        viewport={{ once: true }}
-                      >
-                        {stats.topLanguages.map((lang) => (
-                          <motion.div
-                            key={lang.name}
-                            className='flex items-center'
-                            variants={item}
-                          >
-                            <div
-                              className='mr-2 h-3 w-3 rounded-full'
-                              style={{ backgroundColor: lang.color }}
-                            />
-                            <span className='text-sm'>
-                              {lang.name} ({lang.percentage}%)
-                            </span>
-                          </motion.div>
-                        ))}
-                      </motion.div>
-                    </div>
-                  ) : (
-                    <div className='text-center py-4'>
-                      <img
-                        src={`https://github-readme-stats.vercel.app/api/top-langs/?username=${username}&layout=compact&theme=transparent&hide_border=true`}
-                        alt='Top Languages'
-                        className='mx-auto'
-                        loading='lazy'
+                        transition={{ duration: 0.9, ease: 'easeOut' }}
+                        onMouseEnter={() => setHoveredLang(lang.name)}
+                        onMouseLeave={() => setHoveredLang(null)}
+                        title={`${lang.name}: ${lang.percentage}%`}
                       />
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                    ))}
+                  </div>
+                  {/* Legend */}
+                  <div className='flex flex-wrap gap-x-4 gap-y-2'>
+                    {stats.topLanguages.map((lang) => (
+                      <div
+                        key={lang.name}
+                        className='flex items-center gap-1.5 cursor-pointer'
+                        onMouseEnter={() => setHoveredLang(lang.name)}
+                        onMouseLeave={() => setHoveredLang(null)}
+                      >
+                        <div
+                          className='h-2.5 w-2.5 rounded-full transition-transform duration-200'
+                          style={{
+                            backgroundColor: lang.color,
+                            transform:
+                              hoveredLang === lang.name
+                                ? 'scale(1.4)'
+                                : 'scale(1)',
+                          }}
+                        />
+                        <span
+                          className={`text-xs transition-colors duration-200 ${hoveredLang === lang.name ? 'text-foreground font-semibold' : 'text-muted-foreground'}`}
+                        >
+                          {lang.name}{' '}
+                          <span className='opacity-60'>
+                            ({lang.percentage}%)
+                          </span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <img
+                  src={`https://github-readme-stats.vercel.app/api/top-langs/?username=${username}&layout=compact&theme=transparent&hide_border=true`}
+                  alt='Top Languages'
+                  className='mx-auto'
+                  loading='lazy'
+                />
+              )}
             </motion.div>
-          </>
+          </div>
         )}
 
-        <motion.div
-          className='mt-8 text-center'
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
-          {stats?.totalContributions === 0 && !loading && !error && (
-            <p className='text-xs text-muted-foreground mb-2'>
-              Note: Add GITHUB_TOKEN to .env.local for full contribution data
-            </p>
-          )}
-          <p className='text-sm text-muted-foreground'>
-            View more on{' '}
-            <motion.a
-              href={`https://github.com/${username}`}
-              target='_blank'
-              rel='noopener noreferrer'
-              className='font-medium text-primary hover:underline'
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-            >
-              GitHub
-            </motion.a>
-          </p>
-        </motion.div>
+        <p className='text-center text-xs text-muted-foreground mt-6'>
+          View profile on{' '}
+          <a
+            href={`https://github.com/${username}`}
+            target='_blank'
+            rel='noopener noreferrer'
+            className='text-primary hover:underline font-medium'
+          >
+            GitHub →
+          </a>
+        </p>
       </div>
     </section>
   );
