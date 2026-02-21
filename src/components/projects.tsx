@@ -50,7 +50,7 @@ export default function Projects() {
             Projects
           </h2>
           <p className='text-muted-foreground text-sm mt-3 max-w-md mx-auto'>
-            A selection of things I've built
+            A selection of things I&apos;ve built
           </p>
         </motion.div>
 

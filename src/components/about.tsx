@@ -160,7 +160,7 @@ export default function About() {
                 <div key={key} className='ml-4'>
                   <span className='text-blue-400'>{key}</span>
                   <span className='text-muted-foreground'>: </span>
-                  <span className='text-green-400'>'{value}'</span>
+                  <span className='text-green-400'>&apos;{value}&apos;</span>
                   <span className='text-muted-foreground'>,</span>
                 </div>
               ))}
@@ -174,7 +174,7 @@ export default function About() {
                 <span className='text-blue-400'>passion</span>
                 <span className='text-muted-foreground'>: </span>
                 <span className='text-green-400'>
-                  'Building amazing things'
+                  &apos;Building amazing things&apos;
                 </span>
               </div>
               <div>
