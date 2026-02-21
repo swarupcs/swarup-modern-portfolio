@@ -1,5 +1,3 @@
-
-
 import { prisma } from '@/lib/prisma';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -19,17 +17,15 @@ export async function GET() {
 
     return NextResponse.json(formatted);
   } catch (error) {
-    console.error('[GET Experience Error]', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch experience' },
-      { status: 500 },
-    );
+    console.error('[GET Public Projects]', error);
+    return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { role, company, duration, description, skills } = await request.json();
+    const { role, company, duration, description, skills } =
+      await request.json();
 
     const experience = await prisma.experience.create({
       data: {
@@ -64,24 +60,24 @@ export async function PUT(request: NextRequest) {
     const { id, role, company, duration, description, skills } =
       await request.json();
 
-    const experience = await prisma.$transaction(async (tx) => {
-      await tx.experienceSkill.deleteMany({ where: { experienceId: id } });
+    // Step 1: delete old skills
+    await prisma.experienceSkill.deleteMany({ where: { experienceId: id } });
 
-      return tx.experience.update({
-        where: { id },
-        data: {
-          role,
-          company,
-          duration,
-          description,
-          skills: {
-            create: (skills as string[]).map((skill) => ({ skill })),
-          },
+    // Step 2: update experience and insert new skills
+    const experience = await prisma.experience.update({
+      where: { id },
+      data: {
+        role,
+        company,
+        duration,
+        description,
+        skills: {
+          create: (skills as string[]).map((skill) => ({ skill })),
         },
-        include: {
-          skills: { select: { skill: true } },
-        },
-      });
+      },
+      include: {
+        skills: { select: { skill: true } },
+      },
     });
 
     return NextResponse.json({

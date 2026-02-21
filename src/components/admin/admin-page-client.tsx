@@ -17,13 +17,23 @@ export default function AdminPageClient() {
     setLoading(true);
     setError('');
 
-    await new Promise((r) => setTimeout(r, 600));
+    try {
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
 
-    if (username === 'admin' && password === 'admin123') {
-      localStorage.setItem('adminAuth', 'true');
-      router.push('/admin/dashboard');
-    } else {
-      setError('Invalid credentials. Please try again.');
+      if (res.ok) {
+        // Cookie is set server-side — just redirect
+        router.push('/admin/dashboard');
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Invalid credentials. Please try again.');
+      }
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
@@ -73,6 +83,7 @@ export default function AdminPageClient() {
                   className='w-full bg-[#0d0d14] border border-[#1f1f2e] rounded-xl pl-10 pr-4 py-3 text-white placeholder-[#374151] focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm'
                   placeholder='Enter username'
                   required
+                  autoComplete='username'
                 />
               </div>
             </div>
@@ -91,6 +102,7 @@ export default function AdminPageClient() {
                   className='w-full bg-[#0d0d14] border border-[#1f1f2e] rounded-xl pl-10 pr-12 py-3 text-white placeholder-[#374151] focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm'
                   placeholder='Enter password'
                   required
+                  autoComplete='current-password'
                 />
                 <button
                   type='button'
