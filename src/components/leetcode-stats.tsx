@@ -89,7 +89,7 @@ export default function LeetcodeStats() {
   };
 
   return (
-    <section id='leetcode' className='py-16 md:py-24 bg-muted/50'>
+    <section id='leetcode' className='py-16 md:py-24'>
       <div className='px-4 md:px-6'>
         <div className='text-center mb-12'>
           <h2 className='text-3xl font-bold tracking-tight sm:text-4xl mb-4'>
@@ -279,7 +279,7 @@ export default function LeetcodeStats() {
                               {stats?.easySolved} / {stats?.easyTotal} (
                               {calculatePercentage(
                                 stats?.easySolved || 0,
-                                stats?.easyTotal || 1
+                                stats?.easyTotal || 1,
                               )}
                               %)
                             </span>
@@ -291,7 +291,7 @@ export default function LeetcodeStats() {
                               whileInView={{
                                 width: `${calculatePercentage(
                                   stats?.easySolved || 0,
-                                  stats?.easyTotal || 1
+                                  stats?.easyTotal || 1,
                                 )}%`,
                               }}
                               viewport={{ once: true }}
@@ -311,7 +311,7 @@ export default function LeetcodeStats() {
                               {stats?.mediumSolved} / {stats?.mediumTotal} (
                               {calculatePercentage(
                                 stats?.mediumSolved || 0,
-                                stats?.mediumTotal || 1
+                                stats?.mediumTotal || 1,
                               )}
                               %)
                             </span>
@@ -323,7 +323,7 @@ export default function LeetcodeStats() {
                               whileInView={{
                                 width: `${calculatePercentage(
                                   stats?.mediumSolved || 0,
-                                  stats?.mediumTotal || 1
+                                  stats?.mediumTotal || 1,
                                 )}%`,
                               }}
                               viewport={{ once: true }}
@@ -347,7 +347,7 @@ export default function LeetcodeStats() {
                               {stats?.hardSolved} / {stats?.hardTotal} (
                               {calculatePercentage(
                                 stats?.hardSolved || 0,
-                                stats?.hardTotal || 1
+                                stats?.hardTotal || 1,
                               )}
                               %)
                             </span>
@@ -359,7 +359,7 @@ export default function LeetcodeStats() {
                               whileInView={{
                                 width: `${calculatePercentage(
                                   stats?.hardSolved || 0,
-                                  stats?.hardTotal || 1
+                                  stats?.hardTotal || 1,
                                 )}%`,
                               }}
                               viewport={{ once: true }}
@@ -381,7 +381,7 @@ export default function LeetcodeStats() {
                             <span className='text-muted-foreground'>
                               {calculatePercentage(
                                 stats?.totalSolved || 0,
-                                stats?.totalQuestions || 1
+                                stats?.totalQuestions || 1,
                               )}
                               %
                             </span>
@@ -393,7 +393,7 @@ export default function LeetcodeStats() {
                               whileInView={{
                                 width: `${calculatePercentage(
                                   stats?.totalSolved || 0,
-                                  stats?.totalQuestions || 1
+                                  stats?.totalQuestions || 1,
                                 )}%`,
                               }}
                               viewport={{ once: true }}
