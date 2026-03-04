@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import Image from 'next/image';
 import {
   Upload,
   X,
@@ -41,13 +42,17 @@ export default function ImageUploader({
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      if (!res.ok)
+        throw new Error((data as { error?: string }).error || 'Upload failed');
 
-      onChange(data.url, data.fileId);
+      onChange(
+        (data as { url: string }).url,
+        (data as { fileId?: string }).fileId,
+      );
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
-    } catch (err: any) {
-      setError(err.message || 'Upload failed');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
       setUploading(false);
     }
@@ -78,7 +83,15 @@ export default function ImageUploader({
       {value ? (
         // ── Preview ──────────────────────────────────────────────
         <div className='relative group rounded-xl overflow-hidden border border-[#1a1a2e] bg-[#0d0d16]'>
-          <img src={value} alt='Preview' className='w-full h-48 object-cover' />
+          <div className='relative w-full h-48'>
+            <Image
+              src={value}
+              alt='Preview'
+              fill
+              className='object-cover'
+              unoptimized
+            />
+          </div>
 
           <div className='absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3'>
             <button

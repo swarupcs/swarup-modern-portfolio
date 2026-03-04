@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Plus,
   Edit2,
@@ -24,13 +24,12 @@ import {
   Textarea,
   PrimaryButton,
   SecondaryButton,
-  DangerButton,
   Toast,
   EmptyState,
   LoadingSpinner,
 } from './ui';
 import ImageUploader from './image-uploader';
-import { TechBadgeWithIcon } from '@/lib/tech-icons';
+import { TechBadgeWithIcon, techIconsWithColors } from '@/lib/tech-icons';
 
 interface Project {
   id?: string;
@@ -57,6 +56,9 @@ const BLANK: Project = {
   technologies: [],
 };
 
+// All available tech names from the icon map
+const ALL_TECHS = Object.keys(techIconsWithColors);
+
 export default function ProjectsEditor() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,6 +66,11 @@ export default function ProjectsEditor() {
   const [isNew, setIsNew] = useState(false);
   const [saving, setSaving] = useState(false);
   const [techInput, setTechInput] = useState('');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [activeSuggestion, setActiveSuggestion] = useState(-1);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+  const techInputRef = useRef<HTMLInputElement>(null);
   const [toast, setToast] = useState<{
     message: string;
     type: 'success' | 'error';
@@ -79,10 +86,44 @@ export default function ProjectsEditor() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Compute suggestions whenever techInput changes
+  useEffect(() => {
+    const q = techInput.trim().toLowerCase();
+    if (!q) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      setActiveSuggestion(-1);
+      return;
+    }
+    const already = editing?.technologies ?? [];
+    const filtered = ALL_TECHS.filter(
+      (t) => t.toLowerCase().includes(q) && !already.includes(t),
+    );
+    setSuggestions(filtered);
+    setShowSuggestions(filtered.length > 0);
+    setActiveSuggestion(-1);
+  }, [techInput, editing?.technologies]);
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(e.target as Node) &&
+        !techInputRef.current?.contains(e.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
   const openNew = () => {
     setEditing({ ...BLANK });
     setIsNew(true);
     setTechInput('');
+    setSuggestions([]);
   };
   const openEdit = (p: Project) => {
     setEditing({
@@ -95,10 +136,12 @@ export default function ProjectsEditor() {
     });
     setIsNew(false);
     setTechInput('');
+    setSuggestions([]);
   };
   const closeEditor = () => {
     setEditing(null);
     setIsNew(false);
+    setShowSuggestions(false);
   };
 
   const set =
@@ -109,13 +152,29 @@ export default function ProjectsEditor() {
   const toggle = (k: 'featured' | 'hidden') =>
     setEditing((p) => (p ? { ...p, [k]: !p[k] } : null));
 
-  const addTech = () => {
-    const t = techInput.trim();
-    if (!t || !editing) return;
+  const addTech = (tech?: string) => {
+    // Use the provided tech (from suggestion click) or fall back to raw input
+    const raw = (tech ?? techInput).trim();
+    if (!raw || !editing) return;
+
+    // If it matches a known tech exactly (case-insensitive), use the canonical name
+    const canonical =
+      ALL_TECHS.find((t) => t.toLowerCase() === raw.toLowerCase()) ?? raw;
+
+    // Prevent duplicates
+    if (editing.technologies.includes(canonical)) {
+      setTechInput('');
+      setShowSuggestions(false);
+      return;
+    }
+
     setEditing((p) =>
-      p ? { ...p, technologies: [...p.technologies, t] } : null,
+      p ? { ...p, technologies: [...p.technologies, canonical] } : null,
     );
     setTechInput('');
+    setShowSuggestions(false);
+    setActiveSuggestion(-1);
+    techInputRef.current?.focus();
   };
 
   const removeTech = (idx: number) =>
@@ -124,6 +183,42 @@ export default function ProjectsEditor() {
         ? { ...p, technologies: p.technologies.filter((_, i) => i !== idx) }
         : null,
     );
+
+  const handleTechKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (showSuggestions && suggestions.length > 0) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setActiveSuggestion((prev) =>
+          prev < suggestions.length - 1 ? prev + 1 : 0,
+        );
+        return;
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setActiveSuggestion((prev) =>
+          prev > 0 ? prev - 1 : suggestions.length - 1,
+        );
+        return;
+      }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (activeSuggestion >= 0) {
+          addTech(suggestions[activeSuggestion]);
+        } else {
+          addTech();
+        }
+        return;
+      }
+      if (e.key === 'Escape') {
+        setShowSuggestions(false);
+        setActiveSuggestion(-1);
+        return;
+      }
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      addTech();
+    }
+  };
 
   const handleSave = async () => {
     if (!editing) return;
@@ -281,9 +376,10 @@ export default function ProjectsEditor() {
               label='Project Thumbnail'
             />
 
-            {/* Technologies */}
+            {/* Technologies with autocomplete */}
             <FormField label='Technologies'>
               <div className='space-y-2'>
+                {/* Added tech badges */}
                 {editing.technologies.length > 0 && (
                   <div className='flex flex-wrap gap-2'>
                     {editing.technologies.map((t, i) => (
@@ -305,17 +401,99 @@ export default function ProjectsEditor() {
                     ))}
                   </div>
                 )}
-                <div className='flex gap-2'>
-                  <Input
-                    value={techInput}
-                    onChange={(e) => setTechInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && addTech()}
-                    placeholder='Add technology (press Enter)'
-                    className='flex-1'
-                  />
-                  <SecondaryButton onClick={addTech}>
-                    <Plus className='w-4 h-4' />
-                  </SecondaryButton>
+
+                {/* Input + suggestions wrapper */}
+                <div className='relative'>
+                  <div className='flex gap-2'>
+                    <div className='relative flex-1'>
+                      <input
+                        ref={techInputRef}
+                        value={techInput}
+                        onChange={(e) => setTechInput(e.target.value)}
+                        onKeyDown={handleTechKeyDown}
+                        onFocus={() => {
+                          if (suggestions.length > 0) setShowSuggestions(true);
+                        }}
+                        placeholder='Type to search technologies…'
+                        autoComplete='off'
+                        className='flex-1 w-full rounded-lg border border-[#2a2a3e] bg-[#0d0d16] px-3 py-2 text-sm text-white placeholder-[#4b5563] focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-violet-500/50 transition-colors'
+                      />
+                    </div>
+                    <SecondaryButton onClick={() => addTech()}>
+                      <Plus className='w-4 h-4' />
+                    </SecondaryButton>
+                  </div>
+
+                  {/* Dropdown suggestions */}
+                  {showSuggestions && suggestions.length > 0 && (
+                    <div
+                      ref={suggestionsRef}
+                      className='absolute z-50 left-0 right-10 mt-1 rounded-xl border border-[#2a2a3e] bg-[#0d0d16] shadow-2xl shadow-black/60 overflow-hidden'
+                    >
+                      {/* Header hint */}
+                      <div className='px-3 py-1.5 border-b border-[#1a1a2e] flex items-center justify-between'>
+                        <span className='text-[10px] text-[#4b5563] uppercase tracking-widest font-medium'>
+                          Suggestions
+                        </span>
+                        <span className='text-[10px] text-[#374151]'>
+                          ↑↓ navigate · Enter select · Esc close
+                        </span>
+                      </div>
+
+                      <div className='max-h-52 overflow-y-auto'>
+                        {suggestions.map((tech, idx) => (
+                          <button
+                            key={tech}
+                            onMouseDown={(e) => {
+                              // prevent blur on input before click fires
+                              e.preventDefault();
+                              addTech(tech);
+                            }}
+                            onMouseEnter={() => setActiveSuggestion(idx)}
+                            className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors ${
+                              idx === activeSuggestion
+                                ? 'bg-violet-500/10'
+                                : 'hover:bg-[#1a1a2e]'
+                            }`}
+                          >
+                            <TechBadgeWithIcon
+                              tech={tech}
+                              className='!bg-transparent !border-0 !px-0 !py-0 !gap-1.5 pointer-events-none'
+                            />
+                            {idx === activeSuggestion && (
+                              <span className='ml-auto text-[10px] text-violet-400/60 font-medium'>
+                                ↵
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Footer: allow adding unknown tech */}
+                      {!ALL_TECHS.some(
+                        (t) =>
+                          t.toLowerCase() === techInput.trim().toLowerCase(),
+                      ) &&
+                        techInput.trim() && (
+                          <div className='border-t border-[#1a1a2e]'>
+                            <button
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                addTech(techInput.trim());
+                              }}
+                              className='w-full flex items-center gap-2 px-3 py-2 text-left text-xs text-[#6b7280] hover:text-white hover:bg-[#1a1a2e] transition-colors'
+                            >
+                              <Plus className='w-3.5 h-3.5 shrink-0' />
+                              Add&nbsp;
+                              <span className='text-white font-medium'>
+                                &quot;{techInput.trim()}&quot;
+                              </span>
+                              &nbsp;as custom technology
+                            </button>
+                          </div>
+                        )}
+                    </div>
+                  )}
                 </div>
               </div>
             </FormField>
@@ -397,13 +575,11 @@ export default function ProjectsEditor() {
                       : 'border-[#1f1f2e] bg-[#0d0d14]'
                   }`}
               >
-                {/* Featured glow line */}
                 {p.featured && (
                   <div className='absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-amber-500/0 via-amber-500/60 to-amber-500/0' />
                 )}
 
                 <div className='flex gap-0'>
-                  {/* Thumbnail */}
                   <div className='w-48 shrink-0 relative overflow-hidden'>
                     {p.image ? (
                       <img
@@ -423,7 +599,6 @@ export default function ProjectsEditor() {
                         </div>
                       </div>
                     )}
-                    {/* Image overlay on hover */}
                     <div className='absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center'>
                       <button
                         onClick={() => openEdit(p)}
@@ -434,11 +609,9 @@ export default function ProjectsEditor() {
                     </div>
                   </div>
 
-                  {/* Content */}
                   <div className='flex-1 p-4 min-w-0'>
                     <div className='flex items-start justify-between gap-3'>
                       <div className='flex-1 min-w-0'>
-                        {/* Title + badges */}
                         <div className='flex items-center gap-2 flex-wrap mb-1'>
                           <h3 className='text-base font-bold text-white'>
                             {p.title}
@@ -462,12 +635,10 @@ export default function ProjectsEditor() {
                           )}
                         </div>
 
-                        {/* Description */}
                         <p className='text-xs text-[#6b7280] line-clamp-2 mb-3'>
                           {p.description}
                         </p>
 
-                        {/* Tech badges with icons */}
                         {p.technologies.length > 0 && (
                           <div className='flex flex-wrap gap-1.5'>
                             {p.technologies.slice(0, 5).map((t, i) => (
@@ -486,9 +657,7 @@ export default function ProjectsEditor() {
                         )}
                       </div>
 
-                      {/* Actions */}
                       <div className='flex flex-col gap-1.5 shrink-0'>
-                        {/* Quick links */}
                         <div className='flex gap-1'>
                           {p.liveUrl && (
                             <a
@@ -513,7 +682,6 @@ export default function ProjectsEditor() {
                             </a>
                           )}
                         </div>
-                        {/* Edit / Delete */}
                         <div className='flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity'>
                           <button
                             onClick={() => openEdit(p)}
