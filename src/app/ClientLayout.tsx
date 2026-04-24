@@ -6,6 +6,8 @@ import { ThemeProvider } from '@/components/theme-provider';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
 import { PortfolioProvider } from '@/lib/portfolio-context';
+import { TerminalProvider } from '@/components/terminal-provider';
+import { TerminalOverlay } from '@/components/terminal-overlay';
 
 export default function ClientLayout({
   children,
@@ -20,11 +22,14 @@ export default function ClientLayout({
       disableTransitionOnChange
     >
       <PortfolioProvider>
-        <div className='relative min-h-screen'>
-          <Header />
-          <main className='pt-20'>{children}</main>
-          <Footer />
-        </div>
+        <TerminalProvider>
+          <div className='relative min-h-screen'>
+            <Header />
+            <main className='pt-20'>{children}</main>
+            <Footer />
+            <TerminalOverlay />
+          </div>
+        </TerminalProvider>
       </PortfolioProvider>
     </ThemeProvider>
   );
