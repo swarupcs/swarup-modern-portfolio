@@ -14,6 +14,7 @@ const nav = [
   // { href: '/work', label: 'Work' },
   { href: '/blog', label: 'Blogs' },
   { href: '/projects', label: 'Projects' },
+  // { href: '/uses', label: 'Uses' },
 ];
 
 export default function Header() {
