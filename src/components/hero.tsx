@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Github, Linkedin, Mail, ArrowRight, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { motion, Variants } from 'framer-motion';
+import Hero3D from './hero-3d';
 
 interface PersonalInfo {
   name: string;
@@ -29,6 +30,7 @@ const DEFAULT: PersonalInfo = {
 export default function Hero() {
   const [info, setInfo] = useState<PersonalInfo>(DEFAULT);
   const [loading, setLoading] = useState(true);
+  const containerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     fetch('/api/portfolio/personal-info')
@@ -66,7 +68,10 @@ export default function Hero() {
       .join('') || 'SD';
 
   return (
-    <section className='relative py-24 md:py-36 overflow-hidden'>
+    <section ref={containerRef} className='relative py-24 md:py-36 overflow-hidden'>
+      {/* 3D Interactive Background */}
+      <Hero3D eventSource={containerRef} />
+
       {/* Subtle background dots */}
       <div
         className='absolute inset-0 pointer-events-none'
